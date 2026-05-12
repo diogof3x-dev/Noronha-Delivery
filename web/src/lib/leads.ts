@@ -1,4 +1,4 @@
-import { createServiceClient } from "@/lib/supabase/service";
+import { createPublicClient } from "@/lib/supabase/public-client";
 
 export type LeadType =
   | "waitlist"
@@ -16,25 +16,21 @@ export type LeadInput = {
 };
 
 export async function saveLead(input: LeadInput) {
-  const supabase = createServiceClient();
+  const supabase = createPublicClient();
 
   if (!supabase) {
     console.warn("[leads] Supabase not configured — lead logged locally only", input);
-    return { id: "local-dev", devMode: true } as const;
+    return { devMode: true } as const;
   }
 
-  const { data, error } = await supabase
-    .from("leads")
-    .insert({
-      type: input.type,
-      name: input.name,
-      whatsapp: input.whatsapp,
-      email: input.email,
-      payload: input.payload ?? {},
-    })
-    .select("id")
-    .single();
+  const { error } = await supabase.from("leads").insert({
+    type: input.type,
+    name: input.name,
+    whatsapp: input.whatsapp,
+    email: input.email,
+    payload: input.payload ?? {},
+  });
 
   if (error) throw error;
-  return data;
+  return { devMode: false } as const;
 }
