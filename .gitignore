@@ -1,0 +1,17 @@
+.DS_Store
+.env
+.env.local
+.env*.local
+*.log
+.vercel
+.idea
+.vscode
+
+# build artifacts
+web/.next
+web/out
+web/node_modules
+web/.turbo
+
+# package manager
+node_modules
