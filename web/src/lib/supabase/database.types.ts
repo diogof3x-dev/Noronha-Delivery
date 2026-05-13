@@ -103,6 +103,22 @@ export type Database = {
           updated_at?: string
           whatsapp?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -132,6 +148,7 @@ export type Database = {
           label?: string
           position?: number
         }
+        Relationships: []
       }
       leads: {
         Row: {
@@ -164,6 +181,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["lead_type"]
           whatsapp?: string
         }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -202,6 +220,22 @@ export type Database = {
           total_cents?: number
           unit_price_cents?: number
         }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -297,6 +331,29 @@ export type Database = {
           total_cents?: number
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "orders_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -332,6 +389,7 @@ export type Database = {
           updated_at?: string
           whatsapp?: string | null
         }
+        Relationships: []
       }
       ratings: {
         Row: {
@@ -385,6 +443,36 @@ export type Database = {
           stars?: number
           tags?: string[]
         }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_rated_by_fkey"
+            columns: ["rated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
@@ -438,6 +526,15 @@ export type Database = {
           stock?: number | null
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "services_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_accounts: {
         Row: {
@@ -464,6 +561,22 @@ export type Database = {
           owner_id?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_accounts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_accounts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_transactions: {
         Row: {
@@ -502,6 +615,22 @@ export type Database = {
           type?: Database["public"]["Enums"]["wallet_tx_type"]
           withdrawal_id?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       withdrawal_requests: {
         Row: {
@@ -549,6 +678,29 @@ export type Database = {
           status?: Database["public"]["Enums"]["withdrawal_status"]
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_requests_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawal_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawal_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -559,7 +711,20 @@ export type Database = {
           business_id: string | null
           total_reviews: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
+    }
+    Functions: {
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       business_type:
@@ -604,6 +769,9 @@ export type Database = {
         | "withdrawal"
         | "adjustment"
       withdrawal_status: "requested" | "processing" | "paid" | "rejected"
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

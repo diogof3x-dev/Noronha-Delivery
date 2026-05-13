@@ -1,8 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
 
-export async function getServerClient() {
+export async function getServerClient(): Promise<SupabaseClient<Database>> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
@@ -16,7 +17,7 @@ export async function getServerClient() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(values) {
+      setAll(values: { name: string; value: string; options: CookieOptions }[]) {
         try {
           for (const { name, value, options } of values) {
             cookieStore.set(name, value, options);
