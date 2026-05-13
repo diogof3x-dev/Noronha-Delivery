@@ -53,7 +53,7 @@ export default async function ComidaPage() {
       </div>
 
       <Link
-        href="/buscar?escopo=restaurante"
+        href="/app/buscar?escopo=restaurante"
         className="flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
       >
         <Search className="h-4 w-4" />

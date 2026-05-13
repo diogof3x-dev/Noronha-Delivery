@@ -70,23 +70,23 @@ export function LandingHero() {
 
           <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
             <Link
-              href="#fila"
+              href="/app"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "h-12 px-6 text-base shadow-xl shadow-primary/40",
               )}
             >
-              Entrar na fila de lançamento
+              Fazer pedido agora
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
             <Link
-              href="#parceiros"
+              href="#fila"
               className={cn(
                 buttonVariants({ size: "lg", variant: "outline" }),
                 "h-12 border-white/40 bg-white/15 px-6 text-base text-white backdrop-blur hover:bg-white/25 hover:text-white",
               )}
             >
-              Sou comércio / operador
+              Entrar na fila de lançamento
             </Link>
           </div>
 

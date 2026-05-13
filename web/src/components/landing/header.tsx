@@ -43,10 +43,10 @@ export function LandingHeader() {
             </Link>
           ))}
           <Link
-            href="#fila"
+            href="/app"
             className={cn(buttonVariants({ size: "sm" }), "ml-2 h-9 px-4")}
           >
-            Entrar na fila
+            Fazer pedido
           </Link>
         </nav>
 
@@ -78,11 +78,11 @@ export function LandingHeader() {
             </Link>
           ))}
           <Link
-            href="#fila"
+            href="/app"
             onClick={() => setOpen(false)}
             className={cn(buttonVariants({ size: "lg" }), "h-11 w-full")}
           >
-            Entrar na fila
+            Fazer pedido
           </Link>
         </nav>
       </div>

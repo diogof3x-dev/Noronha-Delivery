@@ -56,7 +56,7 @@ export function CartView() {
             Que tal escolher um restaurante e começar?
           </p>
         </div>
-        <Link href="/comida" className={cn(buttonVariants(), "h-10 px-4")}>
+        <Link href="/app/comida" className={cn(buttonVariants(), "h-10 px-4")}>
           Ver restaurantes
         </Link>
       </div>
@@ -72,7 +72,7 @@ export function CartView() {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <Link
-          href={`/restaurante/${business.slug}`}
+          href={`/app/restaurante/${business.slug}`}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground hover:bg-muted"
           aria-label="Voltar"
         >

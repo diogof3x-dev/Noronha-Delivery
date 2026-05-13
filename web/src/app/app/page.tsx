@@ -17,12 +17,12 @@ import { iconFor, GROUP_META, GROUP_ORDER } from "@/lib/category-icon";
 import { BusinessCard } from "@/components/app/business-card";
 
 const shortcuts = [
-  { href: "/comida", label: "Comida", Icon: Utensils },
-  { href: "/categoria/mercado", label: "Mercado", Icon: ShoppingBasket },
-  { href: "/categoria/farmacia", label: "Farmácia", Icon: Pill },
-  { href: "/categoria/passeios", label: "Passeios", Icon: Waves },
-  { href: "/categoria/transfer", label: "Transfer", Icon: Bike },
-  { href: "/categoria/delivery-pousada", label: "Pousada", Icon: Hotel },
+  { href: "/app/comida", label: "Comida", Icon: Utensils },
+  { href: "/app/categoria/mercado", label: "Mercado", Icon: ShoppingBasket },
+  { href: "/app/categoria/farmacia", label: "Farmácia", Icon: Pill },
+  { href: "/app/categoria/passeios", label: "Passeios", Icon: Waves },
+  { href: "/app/categoria/transfer", label: "Transfer", Icon: Bike },
+  { href: "/app/categoria/delivery-pousada", label: "Pousada", Icon: Hotel },
 ];
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
@@ -133,7 +133,7 @@ export default async function AppHome() {
               </p>
             </div>
             <Link
-              href="/comida"
+              href="/app/comida"
               className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary"
             >
               Ver todos
@@ -192,7 +192,7 @@ export default async function AppHome() {
                 <p className="text-xs text-muted-foreground">{meta.tagline}</p>
               </div>
               <Link
-                href={`/buscar?grupo=${groupId}`}
+                href={`/app/buscar?grupo=${groupId}`}
                 className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary"
               >
                 Ver tudo
@@ -207,7 +207,7 @@ export default async function AppHome() {
                   return (
                     <li key={cat.id}>
                       <Link
-                        href={`/categoria/${cat.id}`}
+                        href={`/app/categoria/${cat.id}`}
                         className="flex w-28 flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center transition-colors hover:border-primary/40 hover:bg-secondary/30"
                       >
                         <span
