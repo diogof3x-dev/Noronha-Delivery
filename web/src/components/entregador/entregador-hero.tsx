@@ -11,18 +11,18 @@ export function EntregadorHero() {
       style={{ height: "100svh", maxHeight: "100svh" }}
     >
       <Image
-        src="/hero/noronha-hero-desktop.jpg"
-        alt="Fernando de Noronha"
+        src="/hero/entregador-hero.jpg"
+        alt="Fernando de Noronha — passeio de barco com Morro do Pico"
         fill
         priority
         sizes="100vw"
-        className="-z-20 object-cover object-[45%_center] md:object-center"
+        className="-z-20 object-cover object-[center_30%] md:object-[center_25%]"
       />
       <div
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(180deg, rgba(8,30,45,0.55) 0%, rgba(8,30,45,0.20) 25%, rgba(45,134,89,0.45) 65%, rgba(8,30,45,0.88) 100%)",
+            "linear-gradient(180deg, rgba(5,40,30,0.55) 0%, rgba(5,40,30,0.18) 25%, rgba(45,134,89,0.55) 65%, rgba(5,40,30,0.92) 100%)",
         }}
         aria-hidden
       />
@@ -30,7 +30,7 @@ export function EntregadorHero() {
         className="absolute inset-0 -z-10 hidden md:block"
         style={{
           background:
-            "linear-gradient(90deg, rgba(8,30,45,0.85) 0%, rgba(8,30,45,0.45) 38%, rgba(8,30,45,0) 60%)",
+            "linear-gradient(90deg, rgba(5,40,30,0.88) 0%, rgba(45,134,89,0.40) 38%, rgba(5,40,30,0) 60%)",
         }}
         aria-hidden
       />

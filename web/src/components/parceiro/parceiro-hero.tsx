@@ -11,18 +11,18 @@ export function ParceiroHero() {
       style={{ height: "100svh", maxHeight: "100svh" }}
     >
       <Image
-        src="/hero/noronha-hero-desktop.jpg"
+        src="/hero/parceiro-hero.jpg"
         alt="Fernando de Noronha — Baía dos Porcos"
         fill
         priority
         sizes="100vw"
-        className="-z-20 object-cover object-[58%_center] md:object-center"
+        className="-z-20 object-cover object-[70%_center] md:object-[65%_center]"
       />
       <div
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(180deg, rgba(8,30,45,0.55) 0%, rgba(8,30,45,0.20) 25%, rgba(8,30,45,0.40) 60%, rgba(8,30,45,0.85) 100%)",
+            "linear-gradient(180deg, rgba(28,12,4,0.55) 0%, rgba(229,85,37,0.18) 25%, rgba(28,12,4,0.45) 60%, rgba(28,12,4,0.92) 100%)",
         }}
         aria-hidden
       />
@@ -30,7 +30,7 @@ export function ParceiroHero() {
         className="absolute inset-0 -z-10 hidden md:block"
         style={{
           background:
-            "linear-gradient(90deg, rgba(8,30,45,0.85) 0%, rgba(8,30,45,0.50) 38%, rgba(8,30,45,0) 62%)",
+            "linear-gradient(90deg, rgba(28,12,4,0.88) 0%, rgba(229,85,37,0.35) 38%, rgba(28,12,4,0) 62%)",
         }}
         aria-hidden
       />

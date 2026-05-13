@@ -8,17 +8,17 @@ export function EntregadorCta() {
   return (
     <section className="relative isolate overflow-hidden py-20 text-white md:py-28">
       <Image
-        src="/hero/noronha-hero-desktop.jpg"
+        src="/hero/entregador-hero.jpg"
         alt=""
         fill
         sizes="100vw"
-        className="-z-20 object-cover object-[35%_center]"
+        className="-z-20 object-cover object-[center_25%]"
       />
       <div
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(135deg, rgba(8,30,45,0.92) 0%, rgba(45,134,89,0.85) 100%)",
+            "linear-gradient(135deg, rgba(5,40,30,0.94) 0%, rgba(45,134,89,0.85) 55%, rgba(244,196,48,0.40) 100%)",
         }}
         aria-hidden
       />
