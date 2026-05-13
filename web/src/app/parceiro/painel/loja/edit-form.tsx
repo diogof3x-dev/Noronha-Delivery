@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateBusiness, type BusinessState } from "@/app/actions/business";
+import { ImageUpload } from "@/components/upload/image-upload";
 
 const DAYS: Array<{ key: string; label: string }> = [
   { key: "mon", label: "Segunda" },
@@ -34,6 +35,8 @@ export function EditBusinessForm({
     min_order_cents: number | null;
     avg_prep_minutes: number | null;
     opening_hours: Hours;
+    logo_url: string | null;
+    cover_url: string | null;
   };
 }) {
   const [state, action, pending] = useActionState<BusinessState, FormData>(
@@ -49,6 +52,11 @@ export function EditBusinessForm({
       <input type="hidden" name="id" value={id} />
 
       <h2 className="text-base font-semibold">Detalhes da loja</h2>
+
+      <div className="flex flex-wrap gap-6">
+        <ImageUpload name="logo_url" label="Logo" defaultUrl={defaults.logo_url} aspect="square" />
+        <ImageUpload name="cover_url" label="Capa" defaultUrl={defaults.cover_url} aspect="wide" />
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5 sm:col-span-2">

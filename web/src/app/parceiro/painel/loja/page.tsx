@@ -24,7 +24,7 @@ export default async function PainelLoja() {
   let bizQuery = supabase
     .from("businesses")
     .select(
-      "id, name, slug, type, district, address, description, whatsapp, delivery_fee_cents, min_order_cents, avg_prep_minutes, is_active, is_verified, is_eco_certified, opening_hours",
+      "id, name, slug, type, district, address, description, whatsapp, delivery_fee_cents, min_order_cents, avg_prep_minutes, is_active, is_verified, is_eco_certified, opening_hours, logo_url, cover_url",
     );
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);
   const { data: businesses } = await bizQuery.order("name");
@@ -86,6 +86,8 @@ export default async function PainelLoja() {
                         min_order_cents: b.min_order_cents,
                         avg_prep_minutes: b.avg_prep_minutes,
                         opening_hours: hours,
+                        logo_url: b.logo_url,
+                        cover_url: b.cover_url,
                       }}
                     />
                   </div>

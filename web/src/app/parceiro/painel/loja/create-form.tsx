@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createBusiness, type BusinessState } from "@/app/actions/business";
+import { ImageUpload } from "@/components/upload/image-upload";
 
 const initial: BusinessState = { ok: false };
 
@@ -54,9 +55,14 @@ export function CreateBusinessForm({
       <header>
         <h2 className="text-base font-semibold">Crie sua loja agora</h2>
         <p className="text-xs text-muted-foreground">
-          Em 1 minuto. Você pode editar os detalhes (logo, capa, horários, fotos) depois.
+          Em 1 minuto. Você pode editar capa, horários e fotos depois.
         </p>
       </header>
+
+      <div className="flex flex-wrap gap-6">
+        <ImageUpload name="logo_url" label="Logo da loja" aspect="square" />
+        <ImageUpload name="cover_url" label="Capa (banner)" aspect="wide" />
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1.5 sm:col-span-2">

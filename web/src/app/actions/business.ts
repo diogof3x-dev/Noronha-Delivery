@@ -28,6 +28,8 @@ const CreateBusinessSchema = z.object({
   delivery_fee_brl: z.string().optional().or(z.literal("")),
   min_order_brl: z.string().optional().or(z.literal("")),
   avg_prep_minutes: z.string().optional().or(z.literal("")),
+  logo_url: z.string().url().optional().or(z.literal("")),
+  cover_url: z.string().url().optional().or(z.literal("")),
 });
 
 export type BusinessState = { ok: boolean; error?: string; businessId?: string };
@@ -67,6 +69,8 @@ export async function createBusiness(
     delivery_fee_brl: formData.get("delivery_fee_brl") ?? undefined,
     min_order_brl: formData.get("min_order_brl") ?? undefined,
     avg_prep_minutes: formData.get("avg_prep_minutes") ?? undefined,
+    logo_url: formData.get("logo_url") ?? undefined,
+    cover_url: formData.get("cover_url") ?? undefined,
   });
   if (!parsed.success) {
     return {
@@ -108,6 +112,8 @@ export async function createBusiness(
     delivery_fee_cents: parseBrl(parsed.data.delivery_fee_brl),
     min_order_cents: parseBrl(parsed.data.min_order_brl),
     avg_prep_minutes: Number.isFinite(prep) && prep > 0 ? prep : null,
+    logo_url: parsed.data.logo_url?.trim() || null,
+    cover_url: parsed.data.cover_url?.trim() || null,
     delivery_enabled: true,
     is_active: true,
   };
@@ -137,6 +143,8 @@ const UpdateBusinessSchema = z.object({
   delivery_fee_brl: z.string().optional().or(z.literal("")),
   min_order_brl: z.string().optional().or(z.literal("")),
   avg_prep_minutes: z.string().optional().or(z.literal("")),
+  logo_url: z.string().url().optional().or(z.literal("")),
+  cover_url: z.string().url().optional().or(z.literal("")),
 });
 
 async function checkOwnerOrAdmin(businessId: string) {
@@ -177,6 +185,8 @@ export async function updateBusiness(
     delivery_fee_brl: formData.get("delivery_fee_brl") ?? undefined,
     min_order_brl: formData.get("min_order_brl") ?? undefined,
     avg_prep_minutes: formData.get("avg_prep_minutes") ?? undefined,
+    logo_url: formData.get("logo_url") ?? undefined,
+    cover_url: formData.get("cover_url") ?? undefined,
   });
   if (!parsed.success) return { ok: false, error: "Dados inválidos" };
 
@@ -200,6 +210,8 @@ export async function updateBusiness(
     delivery_fee_cents: parseBrl(parsed.data.delivery_fee_brl),
     min_order_cents: parseBrl(parsed.data.min_order_brl),
     avg_prep_minutes: Number.isFinite(prep) && prep > 0 ? prep : null,
+    logo_url: parsed.data.logo_url?.trim() || null,
+    cover_url: parsed.data.cover_url?.trim() || null,
     opening_hours: opening,
   };
 
