@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight, Store } from "lucide-react";
+import { ChevronDown, Store } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { formatCents } from "@/lib/format";
 import { CreateBusinessForm } from "./create-form";
+import { EditBusinessForm } from "./edit-form";
+import { ToggleOpenButton } from "./toggle-open";
 
 export const dynamic = "force-dynamic";
+
+type OpeningHours = Record<string, { open?: string; close?: string; closed?: boolean }>;
 
 export default async function PainelLoja() {
   const supabase = await getServerClient();
@@ -20,7 +24,7 @@ export default async function PainelLoja() {
   let bizQuery = supabase
     .from("businesses")
     .select(
-      "id, name, slug, type, district, description, delivery_fee_cents, min_order_cents, avg_prep_minutes, is_active, is_verified, is_eco_certified",
+      "id, name, slug, type, district, address, description, whatsapp, delivery_fee_cents, min_order_cents, avg_prep_minutes, is_active, is_verified, is_eco_certified, opening_hours",
     );
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);
   const { data: businesses } = await bizQuery.order("name");
@@ -39,50 +43,66 @@ export default async function PainelLoja() {
       {!businesses?.length ? (
         <CreateBusinessForm defaultName={profile?.full_name ?? undefined} />
       ) : (
-        <ul className="space-y-3">
-          {businesses.map((b) => (
-            <li key={b.id}>
-              <Link
-                href={`/restaurante/${b.slug ?? b.id}`}
-                target="_blank"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
-              >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Store className="h-5 w-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {b.name}
-                    {b.is_eco_certified && (
-                      <span className="ml-2 inline-block rounded-full bg-[color:var(--turtle)]/15 px-2 py-0.5 text-[10px] font-bold text-[color:var(--turtle)]">
-                        Eco
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {b.type} · {b.district} · {b.avg_prep_minutes ?? "—"}min ·{" "}
-                    {b.delivery_fee_cents != null ? formatCents(b.delivery_fee_cents) : "frete a calcular"}
-                  </p>
-                </div>
-                <span className={
-                  "rounded-full px-2 py-0.5 text-[10px] font-bold " +
-                  (b.is_active
-                    ? "bg-[color:var(--turtle)]/15 text-[color:var(--turtle)]"
-                    : "bg-muted text-muted-foreground")
-                }>
-                  {b.is_active ? "Ativa" : "Pausada"}
-                </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="space-y-5">
+          {businesses.map((b) => {
+            const hours = (b.opening_hours as OpeningHours | null) ?? {};
+            return (
+              <section key={b.id} className="space-y-3">
+                <header className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Store className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {b.name}
+                      {b.is_eco_certified && (
+                        <span className="ml-2 inline-block rounded-full bg-[color:var(--turtle)]/15 px-2 py-0.5 text-[10px] font-bold text-[color:var(--turtle)]">
+                          Eco
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {b.type} · {b.district ?? "—"} · {b.avg_prep_minutes ?? "—"}min ·{" "}
+                      {b.delivery_fee_cents != null ? formatCents(b.delivery_fee_cents) : "frete a calcular"}
+                    </p>
+                  </div>
+                  <ToggleOpenButton id={b.id} isActive={b.is_active} />
+                </header>
 
-      <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-        Em breve: editar loja (nome, descrição, fotos, horários, política de cancelamento),
-        gerenciar bairros de entrega, configurar PIX, ativar/desativar.
-      </div>
+                <details className="group rounded-2xl border border-border bg-card">
+                  <summary className="flex cursor-pointer items-center justify-between p-4 text-sm font-semibold">
+                    Editar detalhes da loja
+                    <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="border-t border-border p-4">
+                    <EditBusinessForm
+                      id={b.id}
+                      defaults={{
+                        description: b.description,
+                        whatsapp: b.whatsapp,
+                        district: b.district,
+                        address: b.address,
+                        delivery_fee_cents: b.delivery_fee_cents,
+                        min_order_cents: b.min_order_cents,
+                        avg_prep_minutes: b.avg_prep_minutes,
+                        opening_hours: hours,
+                      }}
+                    />
+                  </div>
+                </details>
+
+                <Link
+                  href={`/app/restaurante/${b.slug ?? b.id}`}
+                  target="_blank"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Ver loja como cliente ↗
+                </Link>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

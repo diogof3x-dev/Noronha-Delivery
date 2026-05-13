@@ -125,3 +125,106 @@ export async function createBusiness(
   revalidatePath("/parceiro/painel/cardapio");
   redirect("/parceiro/painel/cardapio/novo");
 }
+
+const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+
+const UpdateBusinessSchema = z.object({
+  id: z.string().uuid(),
+  description: z.string().max(600).optional().or(z.literal("")),
+  whatsapp: z.string().max(30).optional().or(z.literal("")),
+  district: z.string().max(80).optional().or(z.literal("")),
+  address: z.string().max(300).optional().or(z.literal("")),
+  delivery_fee_brl: z.string().optional().or(z.literal("")),
+  min_order_brl: z.string().optional().or(z.literal("")),
+  avg_prep_minutes: z.string().optional().or(z.literal("")),
+});
+
+async function checkOwnerOrAdmin(businessId: string) {
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Sessão expirada" as const };
+
+  const { data: biz } = await supabase
+    .from("businesses")
+    .select("id, owner_id")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (!biz) return { error: "Loja não encontrada" as const };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.role !== "admin" && biz.owner_id !== user.id) {
+    return { error: "Sem permissão" as const };
+  }
+  return { supabase, user, biz };
+}
+
+export async function updateBusiness(
+  _prev: BusinessState,
+  formData: FormData,
+): Promise<BusinessState> {
+  const parsed = UpdateBusinessSchema.safeParse({
+    id: formData.get("id"),
+    description: formData.get("description") ?? undefined,
+    whatsapp: formData.get("whatsapp") ?? undefined,
+    district: formData.get("district") ?? undefined,
+    address: formData.get("address") ?? undefined,
+    delivery_fee_brl: formData.get("delivery_fee_brl") ?? undefined,
+    min_order_brl: formData.get("min_order_brl") ?? undefined,
+    avg_prep_minutes: formData.get("avg_prep_minutes") ?? undefined,
+  });
+  if (!parsed.success) return { ok: false, error: "Dados inválidos" };
+
+  const access = await checkOwnerOrAdmin(parsed.data.id);
+  if ("error" in access) return { ok: false, error: access.error };
+
+  const opening: Record<string, { open: string; close: string; closed?: boolean }> = {};
+  for (const d of DAYS) {
+    const closed = formData.get(`oh_${d}_closed`) === "on";
+    const open = String(formData.get(`oh_${d}_open`) ?? "").slice(0, 5);
+    const close = String(formData.get(`oh_${d}_close`) ?? "").slice(0, 5);
+    opening[d] = { open: open || "08:00", close: close || "22:00", closed };
+  }
+
+  const prep = Number.parseInt(parsed.data.avg_prep_minutes ?? "", 10);
+  const update = {
+    description: parsed.data.description?.trim() || null,
+    whatsapp: parsed.data.whatsapp?.trim() || null,
+    district: parsed.data.district?.trim() || null,
+    address: parsed.data.address?.trim() || null,
+    delivery_fee_cents: parseBrl(parsed.data.delivery_fee_brl),
+    min_order_cents: parseBrl(parsed.data.min_order_brl),
+    avg_prep_minutes: Number.isFinite(prep) && prep > 0 ? prep : null,
+    opening_hours: opening,
+  };
+
+  const { error } = await access.supabase!
+    .from("businesses")
+    .update(update)
+    .eq("id", parsed.data.id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/parceiro/painel/loja");
+  return { ok: true };
+}
+
+export async function toggleBusinessOpen(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  const active = formData.get("is_active") === "true";
+  if (!z.string().uuid().safeParse(id).success) return;
+
+  const access = await checkOwnerOrAdmin(id);
+  if ("error" in access) return;
+
+  await access.supabase!
+    .from("businesses")
+    .update({ is_active: active })
+    .eq("id", id);
+  revalidatePath("/parceiro/painel/loja");
+  revalidatePath("/parceiro/painel");
+}
