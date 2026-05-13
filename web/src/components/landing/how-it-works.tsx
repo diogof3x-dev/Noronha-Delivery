@@ -1,4 +1,7 @@
-import { CreditCard, Search, Star, Truck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CreditCard, Search, Star, Truck } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const steps = [
   {
@@ -34,6 +37,16 @@ export function HowItWorksSection() {
           <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
             Simples como pedir um delivery. Completo como um concierge.
           </h2>
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/app"
+            className={cn(buttonVariants({ size: "lg" }), "h-12 px-6 text-base shadow-lg shadow-primary/30")}
+          >
+            Fazer meu primeiro pedido
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-4">

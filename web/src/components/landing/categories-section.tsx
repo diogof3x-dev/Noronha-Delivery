@@ -1,4 +1,8 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { categoriesByGroup, groupMeta, groupsOrder } from "@/lib/categories";
+import { cn } from "@/lib/utils";
 
 export function CategoriesSection() {
   return (
@@ -15,6 +19,16 @@ export function CategoriesSection() {
             Mais de 20 categorias de serviço para o turista chegar com tudo na mão e
             para o morador resolver o cotidiano sem sair da Vila.
           </p>
+        </div>
+
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/app"
+            className={cn(buttonVariants({ size: "lg" }), "h-12 px-6 text-base")}
+          >
+            Começar a comprar
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
         </div>
 
         <div className="mt-14 space-y-12">

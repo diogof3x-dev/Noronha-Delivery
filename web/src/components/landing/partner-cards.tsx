@@ -1,34 +1,36 @@
 import Link from "next/link";
-import { ArrowUpRight, Bike, Hotel, Store, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bike, Hotel, Sparkles, Store } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const partnerTypes = [
   {
-    href: "/sou-comercio",
+    href: "/parceiro/credenciar?tipo=comercio",
     icon: Store,
     title: "Sou comércio",
     body: "Restaurante, mercado, farmácia, conveniência. Receba pedidos no app, com taxa menor que iFood.",
-    cta: "Pré-cadastrar comércio",
+    cta: "Credenciar comércio",
   },
   {
-    href: "/sou-operador",
+    href: "/parceiro/credenciar?tipo=operador",
     icon: Sparkles,
     title: "Sou operador",
     body: "Passeio, mergulho, barco, trilha, aluguel de buggy e equipamentos. Catálogo + reservas + agenda.",
-    cta: "Pré-cadastrar operador",
+    cta: "Credenciar operador",
   },
   {
-    href: "/sou-motorista",
+    href: "/entregador/credenciar",
     icon: Bike,
-    title: "Sou motorista",
+    title: "Sou entregador",
     body: "Táxi, transfer, entregador elétrico. Demanda canalizada, pagamento garantido, saque PIX.",
-    cta: "Pré-cadastrar motorista",
+    cta: "Quero entregar",
   },
   {
-    href: "/sou-pousada",
+    href: "/parceiro/credenciar?tipo=pousada",
     icon: Hotel,
     title: "Sou pousada",
     body: "Pousadas, hotéis, hospedagens. Reservas, check-in digital, upsell de transfer e passeios.",
-    cta: "Pré-cadastrar pousada",
+    cta: "Credenciar pousada",
   },
 ];
 
@@ -44,8 +46,7 @@ export function PartnerCardsSection() {
             Seu negócio na vitrine da ilha
           </h2>
           <p className="mt-4 text-base text-muted-foreground md:text-lg">
-            Pré-cadastre-se gratuitamente. Garanta seu espaço no lançamento, com taxas
-            reduzidas nos primeiros 60 dias.
+            Credenciamento gratuito. Take rate único de 10%. Pagamento PIX em D+8.
           </p>
         </div>
 
@@ -70,6 +71,22 @@ export function PartnerCardsSection() {
               </Link>
             );
           })}
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link
+            href="/parceiro"
+            className={cn(buttonVariants({ size: "lg" }), "h-12 px-6 text-base")}
+          >
+            Conhecer programa de parceiros
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+          <Link
+            href="/entregador"
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12 px-6 text-base")}
+          >
+            Quero ser entregador
+          </Link>
         </div>
       </div>
     </section>

@@ -1,5 +1,8 @@
 import Image from "next/image";
-import { Bike, Leaf, Volume2, Wind } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Bike, Leaf, Volume2, Wind } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const pillars = [
   {
@@ -66,6 +69,28 @@ export function GreenFleetSection() {
               alinhados à agenda ambiental da Administração. Cada entrega é uma escolha
               pela ilha que a gente quer continuar visitando.
             </p>
+
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+              <Link
+                href="/entregador"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-12 px-6 text-base shadow-xl shadow-primary/40",
+                )}
+              >
+                Quero entregar elétrico
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+              <Link
+                href="/parceiro"
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "outline" }),
+                  "h-12 border-white/40 bg-white/15 px-6 text-base text-white backdrop-blur hover:bg-white/25 hover:text-white",
+                )}
+              >
+                Quero ser parceiro
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
