@@ -1,7 +1,10 @@
-import { Plus } from "lucide-react";
+import { AddToCartButton } from "./add-to-cart-button";
+import type { CartBusiness } from "@/lib/cart-store";
 import { formatCents } from "@/lib/format";
 
 type Props = {
+  business: CartBusiness;
+  serviceId: string;
   name: string;
   description: string | null;
   priceCents: number;
@@ -11,6 +14,8 @@ type Props = {
 };
 
 export function MenuItemCard({
+  business,
+  serviceId,
   name,
   description,
   priceCents,
@@ -44,14 +49,11 @@ export function MenuItemCard({
             </div>
           )}
         </div>
-        <button
-          type="button"
-          disabled={outOfStock}
-          className="absolute -bottom-2 -right-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-          aria-label={`Adicionar ${name}`}
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+        <AddToCartButton
+          business={business}
+          item={{ serviceId, name, priceCents, imageUrl }}
+          outOfStock={outOfStock}
+        />
       </div>
     </div>
   );

@@ -54,6 +54,16 @@ export default async function RestaurantePage({ params }: Props) {
   }
   const sectionNames = Object.keys(sections);
 
+  const cartBusiness = {
+    id: business.id,
+    slug: business.slug ?? business.id,
+    name: business.name,
+    deliveryFeeCents: business.delivery_fee_cents,
+    minOrderCents: business.min_order_cents,
+    avgPrepMinutes: business.avg_prep_minutes,
+    heroColor: meta.hero_color,
+  };
+
   return (
     <div className="-mx-4 -mt-3 -mb-4 flex flex-col">
       <header
@@ -170,6 +180,8 @@ export default async function RestaurantePage({ params }: Props) {
                 return (
                   <li key={s.id}>
                     <MenuItemCard
+                      business={cartBusiness}
+                      serviceId={s.id}
                       name={s.name}
                       description={s.description}
                       priceCents={s.price_cents}
