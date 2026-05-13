@@ -1,4 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/public-client";
+import { sendLeadNotification } from "@/lib/email";
 
 export type LeadType =
   | "waitlist"
@@ -32,5 +33,15 @@ export async function saveLead(input: LeadInput) {
   });
 
   if (error) throw error;
+
+  // Notifica equipe via e-mail (fire-and-forget; falha não bloqueia o cadastro)
+  void sendLeadNotification({
+    type: input.type,
+    name: input.name,
+    whatsapp: input.whatsapp,
+    email: input.email,
+    payload: input.payload,
+  });
+
   return { devMode: false } as const;
 }
