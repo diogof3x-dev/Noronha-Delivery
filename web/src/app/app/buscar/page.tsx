@@ -8,6 +8,7 @@ type BusinessMeta = { cuisine?: string; hero_color?: string };
 
 type Props = { searchParams: Promise<{ grupo?: string; q?: string }> };
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Buscar" };
 
 export default async function BuscarPage({ searchParams }: Props) {
