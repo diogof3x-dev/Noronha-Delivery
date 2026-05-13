@@ -74,7 +74,7 @@ export default async function RestaurantePage({ params }: Props) {
       >
         <div className="px-4 pb-16 pt-4 text-white">
           <Link
-            href="/app/comida"
+            href="/comida"
             className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur"
             aria-label="Voltar"
           >

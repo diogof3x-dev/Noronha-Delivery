@@ -2,6 +2,25 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./database.types";
 
+const PROTECTED_PREFIXES = [
+  "/pedidos",
+  "/checkout",
+  "/conta",
+  "/carteira",
+  "/perfil",
+  "/notificacoes",
+  "/onboarding",
+  "/parceiro/painel",
+  "/entregador/painel",
+  "/super-admin",
+];
+
+function isProtectedRoute(pathname: string): boolean {
+  return PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -32,8 +51,7 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  const isAppRoute = pathname === "/app" || pathname.startsWith("/app/");
-  if (!user && isAppRoute) {
+  if (!user && isProtectedRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/entrar";
     redirectUrl.searchParams.set("next", pathname);
@@ -42,7 +60,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && (pathname === "/entrar" || pathname === "/cadastrar")) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/app";
+    redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);
   }
 

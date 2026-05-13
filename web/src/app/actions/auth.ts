@@ -36,7 +36,7 @@ export async function sendMagicLink(
   }
 
   const supabase = await getServerClient();
-  const next = parsed.data.next || "/app";
+  const next = parsed.data.next || "/";
   const redirectTo = await originUrl(`/auth/callback?next=${encodeURIComponent(next)}`);
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -54,7 +54,7 @@ export async function sendMagicLink(
 }
 
 export async function signInWithGoogle(formData: FormData) {
-  const next = (formData.get("next") as string | null) || "/app";
+  const next = (formData.get("next") as string | null) || "/";
   const supabase = await getServerClient();
   const redirectTo = await originUrl(`/auth/callback?next=${encodeURIComponent(next)}`);
 

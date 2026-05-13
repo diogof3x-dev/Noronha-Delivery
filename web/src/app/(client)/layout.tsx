@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const profile = await getProfile(user);
 
   if (!profile?.full_name || !profile?.district) {
-    redirect("/app/onboarding");
+    redirect("/onboarding");
   }
 
   return (

@@ -14,7 +14,7 @@ export default async function OnboardingPage() {
   const profile = await getProfile(user);
 
   if (profile?.full_name && profile?.district) {
-    redirect("/app");
+    redirect("/");
   }
 
   return (

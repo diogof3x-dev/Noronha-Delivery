@@ -41,7 +41,7 @@ export function BusinessCard({
 
   return (
     <Link
-      href={`/app/restaurante/${slug}`}
+      href={`/restaurante/${slug}`}
       className="group flex gap-3 rounded-2xl border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-secondary/30"
     >
       <span

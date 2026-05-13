@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   ArrowRight,
   Bike,
@@ -18,12 +17,12 @@ import { iconFor, GROUP_META, GROUP_ORDER } from "@/lib/category-icon";
 import { BusinessCard } from "@/components/app/business-card";
 
 const shortcuts = [
-  { href: "/app/comida", label: "Comida", Icon: Utensils },
-  { href: "/app/categoria/mercado", label: "Mercado", Icon: ShoppingBasket },
-  { href: "/app/categoria/farmacia", label: "Farmácia", Icon: Pill },
-  { href: "/app/categoria/passeios", label: "Passeios", Icon: Waves },
-  { href: "/app/categoria/transfer", label: "Transfer", Icon: Bike },
-  { href: "/app/categoria/delivery-pousada", label: "Pousada", Icon: Hotel },
+  { href: "/comida", label: "Comida", Icon: Utensils },
+  { href: "/categoria/mercado", label: "Mercado", Icon: ShoppingBasket },
+  { href: "/categoria/farmacia", label: "Farmácia", Icon: Pill },
+  { href: "/categoria/passeios", label: "Passeios", Icon: Waves },
+  { href: "/categoria/transfer", label: "Transfer", Icon: Bike },
+  { href: "/categoria/delivery-pousada", label: "Pousada", Icon: Hotel },
 ];
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
@@ -34,9 +33,7 @@ export default async function AppHome() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/entrar");
-
-  const profile = await getProfile(user);
+  const profile = user ? await getProfile(user) : null;
 
   const { data: categories } = await supabase
     .from("categories")
@@ -65,13 +62,17 @@ export default async function AppHome() {
     }
   }
 
-  const firstName = (profile?.full_name ?? "").split(" ")[0] || "olá";
-  const greeting = profile?.is_resident
-    ? `Bom dia, ${firstName}`
-    : `Bem-vindo a Noronha, ${firstName}`;
-  const subline = profile?.is_resident
-    ? "O que você precisa hoje?"
-    : "Tudo o que a ilha oferece, num lugar só.";
+  const firstName = (profile?.full_name ?? "").split(" ")[0];
+  const greeting = !user
+    ? "Bem-vindo a Noronha"
+    : profile?.is_resident
+      ? `Bom dia, ${firstName || "morador"}`
+      : `Bem-vindo a Noronha${firstName ? `, ${firstName}` : ""}`;
+  const subline = !user
+    ? "Tudo o que a ilha oferece, num lugar só. Sem precisar criar conta pra olhar."
+    : profile?.is_resident
+      ? "O que você precisa hoje?"
+      : "Tudo o que a ilha oferece, num lugar só.";
 
   const byGroup = (categories ?? []).reduce<
     Record<string, NonNullable<typeof categories>>
@@ -132,7 +133,7 @@ export default async function AppHome() {
               </p>
             </div>
             <Link
-              href="/app/comida"
+              href="/comida"
               className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary"
             >
               Ver todos
@@ -191,7 +192,7 @@ export default async function AppHome() {
                 <p className="text-xs text-muted-foreground">{meta.tagline}</p>
               </div>
               <Link
-                href={`/app/buscar?grupo=${groupId}`}
+                href={`/buscar?grupo=${groupId}`}
                 className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary"
               >
                 Ver tudo
@@ -206,7 +207,7 @@ export default async function AppHome() {
                   return (
                     <li key={cat.id}>
                       <Link
-                        href={`/app/categoria/${cat.id}`}
+                        href={`/categoria/${cat.id}`}
                         className="flex w-28 flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center transition-colors hover:border-primary/40 hover:bg-secondary/30"
                       >
                         <span

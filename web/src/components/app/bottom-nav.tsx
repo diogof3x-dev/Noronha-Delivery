@@ -9,11 +9,11 @@ import { cn } from "@/lib/utils";
 type Tab = { href: string; label: string; icon: LucideIcon };
 
 const tabs: Tab[] = [
-  { href: "/app", label: "Início", icon: Home },
-  { href: "/app/buscar", label: "Buscar", icon: Search },
-  { href: "/app/pedidos", label: "Pedidos", icon: Receipt },
-  { href: "/app/carteira", label: "Carteira", icon: Wallet },
-  { href: "/app/perfil", label: "Perfil", icon: User },
+  { href: "/", label: "Início", icon: Home },
+  { href: "/buscar", label: "Buscar", icon: Search },
+  { href: "/pedidos", label: "Pedidos", icon: Receipt },
+  { href: "/carteira", label: "Carteira", icon: Wallet },
+  { href: "/perfil", label: "Perfil", icon: User },
 ];
 
 export function BottomNav() {
@@ -25,8 +25,8 @@ export function BottomNav() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active =
-            tab.href === "/app"
-              ? pathname === "/app"
+            tab.href === "/"
+              ? pathname === "/"
               : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
           return (
             <li key={tab.href} className="flex-1">

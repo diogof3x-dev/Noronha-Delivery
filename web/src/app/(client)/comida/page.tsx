@@ -43,7 +43,7 @@ export default async function ComidaPage() {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <Link
-          href="/app"
+          href="/"
           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground hover:bg-muted"
           aria-label="Voltar"
         >
@@ -53,7 +53,7 @@ export default async function ComidaPage() {
       </div>
 
       <Link
-        href="/app/buscar?escopo=restaurante"
+        href="/buscar?escopo=restaurante"
         className="flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/50"
       >
         <Search className="h-4 w-4" />

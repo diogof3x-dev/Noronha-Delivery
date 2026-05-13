@@ -63,8 +63,8 @@ export async function completeOnboarding(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/app");
-  redirect("/app");
+  revalidatePath("/");
+  redirect("/");
 }
 
 export { DISTRICTS };

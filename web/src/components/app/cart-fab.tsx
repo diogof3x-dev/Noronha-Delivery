@@ -15,7 +15,7 @@ export function CartFab() {
   return (
     <div className="fixed bottom-20 left-0 right-0 z-40 mx-auto w-full max-w-md px-4">
       <Link
-        href="/app/carrinho"
+        href="/carrinho"
         className="flex h-12 items-center justify-between gap-3 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-[0.98]"
       >
         <span className="inline-flex items-center gap-2">
