@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { ArrowLeft, Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useCart } from "@/lib/cart-store";
 import { formatCents } from "@/lib/format";
+import { createOrder } from "@/app/actions/orders";
 
 const PAYMENT_OPTIONS = [
   { value: "pix", label: "PIX instantâneo" },
@@ -43,6 +45,9 @@ export function CartView() {
   const [destinationLabel, setDestinationLabel] = useState("");
   const [payment, setPayment] = useState("pix");
   const [notes, setNotes] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
 
   if (!business || items.length === 0) {
     return (
@@ -226,13 +231,54 @@ export function CartView() {
         )}
       </section>
 
+      {error && (
+        <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
       <Button
         size="lg"
         className="w-full"
-        disabled={belowMin}
-        onClick={() => alert("Checkout em construção — vai criar o pedido no próximo bloco.")}
+        disabled={belowMin || pending}
+        onClick={() => {
+          setError(null);
+          startTransition(async () => {
+            const res = await createOrder({
+              businessId: business.id,
+              items: items.map((i) => ({
+                serviceId: i.serviceId,
+                name: i.name,
+                priceCents: i.priceCents,
+                quantity: i.quantity,
+                notes: i.notes,
+              })),
+              destinationKind: destination as "pousada" | "praia" | "barco" | "outro",
+              destinationLabel: destinationLabel || undefined,
+              paymentMethod: payment as "pix" | "card" | "cash",
+              notes: notes || undefined,
+            });
+            if (!res.ok) {
+              if (res.error.toLowerCase().includes("login")) {
+                router.push("/entrar?next=/app/carrinho");
+                return;
+              }
+              setError(res.error);
+              return;
+            }
+            clear();
+            router.push(`/app/pedidos/${res.orderId}`);
+          });
+        }}
       >
-        Finalizar pedido — {formatCents(total)}
+        {pending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Criando pedido...
+          </>
+        ) : (
+          <>Finalizar pedido — {formatCents(total)}</>
+        )}
       </Button>
     </div>
   );

@@ -749,6 +749,11 @@ export type Database = {
     Functions: {
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      effective_take_rate_bps: {
+        Args: { p_business_id: string; p_category_id: string }
+        Returns: number
+      }
+      is_admin: { Args: Record<string, never>; Returns: boolean }
     }
     Enums: {
       business_type:
