@@ -357,34 +357,49 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: Json | null
           avatar_url: string | null
+          birth_date: string | null
+          cpf: string | null
           created_at: string
           district: string | null
           full_name: string | null
           id: string
           is_resident: boolean
+          pix_kind: string | null
+          pix_value: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           whatsapp: string | null
         }
         Insert: {
+          address?: Json | null
           avatar_url?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
           district?: string | null
           full_name?: string | null
           id: string
           is_resident?: boolean
+          pix_kind?: string | null
+          pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           whatsapp?: string | null
         }
         Update: {
+          address?: Json | null
           avatar_url?: string | null
+          birth_date?: string | null
+          cpf?: string | null
           created_at?: string
           district?: string | null
           full_name?: string | null
           id?: string
           is_resident?: boolean
+          pix_kind?: string | null
+          pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           whatsapp?: string | null
