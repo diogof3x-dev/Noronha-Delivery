@@ -19,8 +19,11 @@ const ManualSchema = z.object({
   name: z.string().min(2, "Nome muito curto").max(160),
   description: z.string().max(600).optional().or(z.literal("")),
   price_brl: z.string().min(1, "Informe o preço"),
+  original_price_brl: z.string().max(20).optional().or(z.literal("")),
   section: z.string().max(60).optional().or(z.literal("")),
   image_url: z.string().url("URL inválida").optional().or(z.literal("")),
+  is_featured: z.string().optional().or(z.literal("")),
+  serves_people: z.string().max(5).optional().or(z.literal("")),
 });
 
 export type CatalogState = {
@@ -64,8 +67,11 @@ export async function addServiceManual(
     name: formData.get("name"),
     description: formData.get("description") ?? undefined,
     price_brl: formData.get("price_brl"),
+    original_price_brl: formData.get("original_price_brl") ?? undefined,
     section: formData.get("section") ?? undefined,
     image_url: formData.get("image_url") ?? undefined,
+    is_featured: formData.get("is_featured") ?? undefined,
+    serves_people: formData.get("serves_people") ?? undefined,
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
@@ -81,6 +87,10 @@ export async function addServiceManual(
 
   const supabase = access.supabase!;
   const price_cents = Math.round(price_brl * 100);
+  const originalRaw = parseMoneyValue(parsed.data.original_price_brl ?? "");
+  const original_price_cents =
+    originalRaw !== null && originalRaw * 100 > price_cents ? Math.round(originalRaw * 100) : null;
+  const serves = Number.parseInt(parsed.data.serves_people ?? "", 10);
 
   const { error } = await supabase.from("services").insert({
     business_id: parsed.data.business_id,
@@ -88,8 +98,11 @@ export async function addServiceManual(
     name: parsed.data.name.trim(),
     description: parsed.data.description?.trim() || null,
     price_cents,
+    original_price_cents,
     image_url: parsed.data.image_url?.trim() || null,
-    meta: parsed.data.section ? { section: parsed.data.section.trim() } : {},
+    section: parsed.data.section?.trim() || null,
+    is_featured: parsed.data.is_featured === "on",
+    serves_people: Number.isFinite(serves) && serves > 0 ? serves : null,
   });
 
   if (error) return { ok: false, error: error.message };
@@ -133,7 +146,7 @@ export async function addServicesBulk(
     name: string;
     description: string | null;
     price_cents: number;
-    meta: { section?: string };
+    section: string | null;
   }> = [];
   const errors: string[] = [];
 
@@ -157,7 +170,7 @@ export async function addServicesBulk(
       name,
       description: description || null,
       price_cents: Math.round(price * 100),
-      meta: section ? { section } : {},
+      section: section ?? null,
     });
   });
 
@@ -188,7 +201,11 @@ const UpdateSchema = z.object({
   name: z.string().min(2).max(160).optional(),
   description: z.string().max(600).optional().or(z.literal("")),
   price_brl: z.string().optional(),
+  original_price_brl: z.string().optional().or(z.literal("")),
   image_url: z.string().url().optional().or(z.literal("")),
+  section: z.string().max(60).optional().or(z.literal("")),
+  is_featured: z.string().optional().or(z.literal("")),
+  serves_people: z.string().max(5).optional().or(z.literal("")),
 });
 
 export async function updateService(
@@ -200,7 +217,11 @@ export async function updateService(
     name: formData.get("name") ?? undefined,
     description: formData.get("description") ?? undefined,
     price_brl: formData.get("price_brl") ?? undefined,
+    original_price_brl: formData.get("original_price_brl") ?? undefined,
     image_url: formData.get("image_url") ?? undefined,
+    section: formData.get("section") ?? undefined,
+    is_featured: formData.get("is_featured") ?? undefined,
+    serves_people: formData.get("serves_people") ?? undefined,
   });
   if (!parsed.success) return { ok: false, error: "Dados inválidos" };
 
@@ -228,16 +249,44 @@ export async function updateService(
     return { ok: false, error: "Sem permissão" };
   }
 
-  const update: { name?: string; description?: string | null; price_cents?: number; image_url?: string | null } = {};
+  const update: {
+    name?: string;
+    description?: string | null;
+    price_cents?: number;
+    original_price_cents?: number | null;
+    image_url?: string | null;
+    section?: string | null;
+    is_featured?: boolean;
+    serves_people?: number | null;
+  } = {};
   if (parsed.data.name) update.name = parsed.data.name.trim();
   if (parsed.data.description !== undefined)
     update.description = parsed.data.description.trim() || null;
   if (parsed.data.image_url !== undefined)
     update.image_url = parsed.data.image_url.trim() || null;
+  if (parsed.data.section !== undefined)
+    update.section = parsed.data.section.trim() || null;
+  if (parsed.data.is_featured !== undefined)
+    update.is_featured = parsed.data.is_featured === "on";
+  if (parsed.data.serves_people !== undefined) {
+    const sv = Number.parseInt(parsed.data.serves_people, 10);
+    update.serves_people = Number.isFinite(sv) && sv > 0 ? sv : null;
+  }
+  let priceCents: number | undefined;
   if (parsed.data.price_brl) {
     const price = parseMoneyValue(parsed.data.price_brl);
     if (price === null) return { ok: false, error: "Preço inválido" };
-    update.price_cents = Math.round(price * 100);
+    priceCents = Math.round(price * 100);
+    update.price_cents = priceCents;
+  }
+  if (parsed.data.original_price_brl !== undefined) {
+    const orig = parseMoneyValue(parsed.data.original_price_brl);
+    if (orig === null || orig === 0) update.original_price_cents = null;
+    else {
+      const origCents = Math.round(orig * 100);
+      update.original_price_cents =
+        priceCents != null ? (origCents > priceCents ? origCents : null) : origCents;
+    }
   }
 
   const { error } = await supabase.from("services").update(update).eq("id", parsed.data.id);

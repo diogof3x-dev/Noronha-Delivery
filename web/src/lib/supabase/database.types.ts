@@ -513,6 +513,10 @@ export type Database = {
           name: string
           position: number
           price_cents: number
+          original_price_cents: number | null
+          section: string | null
+          is_featured: boolean
+          serves_people: number | null
           stock: number | null
           updated_at: string
         }
@@ -530,6 +534,10 @@ export type Database = {
           name: string
           position?: number
           price_cents: number
+          original_price_cents?: number | null
+          section?: string | null
+          is_featured?: boolean
+          serves_people?: number | null
           stock?: number | null
           updated_at?: string
         }
@@ -547,6 +555,10 @@ export type Database = {
           name?: string
           position?: number
           price_cents?: number
+          original_price_cents?: number | null
+          section?: string | null
+          is_featured?: boolean
+          serves_people?: number | null
           stock?: number | null
           updated_at?: string
         }

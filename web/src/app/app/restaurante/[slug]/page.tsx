@@ -1,12 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, Leaf, MapPin, Star } from "lucide-react";
+import { ArrowLeft, Clock, Leaf, Search, Star } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { MenuItemCard } from "@/components/app/menu-item-card";
-import { formatDeliveryFee, formatPrepTime } from "@/lib/format";
+import { FeaturedRow } from "@/components/app/featured-row";
+import { SectionTabs } from "@/components/app/section-tabs";
+import { formatCents, formatPrepTime } from "@/lib/format";
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
-type ServiceMeta = { section?: string; serves?: number };
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -34,9 +36,12 @@ export default async function RestaurantePage({ params }: Props) {
 
   const { data: services } = await supabase
     .from("services")
-    .select("id, name, description, price_cents, image_url, stock, position, meta")
+    .select(
+      "id, name, description, price_cents, original_price_cents, image_url, stock, position, section, is_featured, serves_people, meta",
+    )
     .eq("business_id", business.id)
     .eq("is_active", true)
+    .order("section", { ascending: true, nullsFirst: false })
     .order("position", { ascending: true });
 
   const { data: scoreRow } = await supabase
@@ -46,11 +51,15 @@ export default async function RestaurantePage({ params }: Props) {
     .maybeSingle();
 
   const meta = (business.metadata as BusinessMeta | null) ?? {};
+  const cover = business.cover_url ?? null;
+  const heroColor = meta.hero_color ?? "#0B7FA8";
+
+  const featured = (services ?? []).filter((s) => s.is_featured);
 
   const sections: Record<string, NonNullable<typeof services>> = {};
   for (const s of services ?? []) {
-    const section = (s.meta as ServiceMeta | null)?.section ?? "Cardápio";
-    (sections[section] ??= []).push(s);
+    const sectionName = s.section?.trim() || "Cardápio";
+    (sections[sectionName] ??= []).push(s);
   }
   const sectionNames = Object.keys(sections);
 
@@ -61,137 +70,172 @@ export default async function RestaurantePage({ params }: Props) {
     deliveryFeeCents: business.delivery_fee_cents,
     minOrderCents: business.min_order_cents,
     avgPrepMinutes: business.avg_prep_minutes,
-    heroColor: meta.hero_color,
+    heroColor,
   };
+
+  const deliveryLabel =
+    business.delivery_fee_cents == null
+      ? "frete a calcular"
+      : business.delivery_fee_cents === 0
+        ? "Grátis"
+        : formatCents(business.delivery_fee_cents);
 
   return (
     <div className="-mx-4 -mt-3 -mb-4 flex flex-col">
       <header
-        className="relative isolate overflow-hidden"
+        className="relative isolate aspect-[3/1.4] overflow-hidden sm:aspect-[3/1]"
         style={{
-          background: `linear-gradient(135deg, ${meta.hero_color ?? "#0B7FA8"} 0%, var(--ocean-dark) 100%)`,
+          background: cover
+            ? undefined
+            : `linear-gradient(135deg, ${heroColor} 0%, var(--ocean-dark) 100%)`,
         }}
       >
-        <div className="px-4 pb-16 pt-4 text-white">
+        {cover && (
+          <Image
+            src={cover}
+            alt={`Capa de ${business.name}`}
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+            unoptimized
+          />
+        )}
+        <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-3">
           <Link
             href="/app/comida"
-            className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-
-          <div className="mt-4 flex items-end gap-3">
-            <span
-              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-white/30 bg-white/10 text-2xl font-bold backdrop-blur"
-              aria-hidden
-            >
-              {business.name
-                .split(/\s+/)
-                .map((w) => w[0])
-                .filter(Boolean)
-                .slice(0, 2)
-                .join("")
-                .toUpperCase()}
-            </span>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-2xl font-bold tracking-tight">{business.name}</h1>
-              <p className="mt-0.5 truncate text-sm text-white/85">
-                {meta.cuisine ? `${meta.cuisine} · ` : ""}
-                {business.district}
-              </p>
-            </div>
-          </div>
+          <Link
+            href="/app/buscar"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
+            aria-label="Buscar"
+          >
+            <Search className="h-5 w-5" />
+          </Link>
         </div>
       </header>
 
-      <section className="-mt-10 px-4">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-          {business.description && (
-            <p className="mb-3 text-sm text-muted-foreground">{business.description}</p>
-          )}
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div>
-              <span className="inline-flex items-center gap-1 font-semibold">
-                <Star className="h-3 w-3 fill-[color:var(--sun)] text-[color:var(--sun)]" />
-                {scoreRow?.avg_stars ? Number(scoreRow.avg_stars).toFixed(1) : "Novo"}
-              </span>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">
-                {scoreRow?.total_reviews ? `${scoreRow.total_reviews} avaliações` : "Sem avaliações"}
-              </p>
-            </div>
-            <div>
-              <span className="inline-flex items-center gap-1 font-semibold">
-                <Clock className="h-3 w-3" />
-                {formatPrepTime(business.avg_prep_minutes)}
-              </span>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">Tempo de entrega</p>
-            </div>
-            <div>
-              <span className="font-semibold">{formatDeliveryFee(business.delivery_fee_cents)}</span>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">
+      <section className="-mt-12 px-4">
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-md">
+          <div className="flex items-end gap-3">
+            <span className="relative -mt-12 h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-card bg-secondary shadow-sm">
+              {business.logo_url ? (
+                <Image
+                  src={business.logo_url}
+                  alt={business.name}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                  unoptimized
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-xl font-bold text-muted-foreground">
+                  {business.name
+                    .split(/\s+/)
+                    .map((w) => w[0])
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()}
+                </span>
+              )}
+            </span>
+            <div className="min-w-0 flex-1 pb-1">
+              <h1 className="truncate text-xl font-bold tracking-tight">{business.name}</h1>
+              <p className="truncate text-xs text-muted-foreground">
+                {meta.cuisine ? `${meta.cuisine} · ` : ""}
+                {business.district}
                 {business.min_order_cents
-                  ? `Pedido mín ${formatDeliveryFee(business.min_order_cents).replace("Frete ", "")}`
-                  : "Sem mínimo"}
+                  ? ` · Min ${formatCents(business.min_order_cents)}`
+                  : ""}
               </p>
             </div>
           </div>
 
-          {business.is_eco_certified && (
-            <div className="mt-3 flex items-center gap-2 rounded-lg bg-[color:var(--turtle)]/10 px-3 py-2 text-xs text-[color:var(--turtle)]">
-              <Leaf className="h-4 w-4" />
-              Entrega 100% elétrica
-            </div>
+          {business.description && (
+            <p className="mt-3 text-sm text-muted-foreground">{business.description}</p>
           )}
 
-          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            {business.district} · Fernando de Noronha
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1 font-semibold">
+              <Star className="h-3 w-3 fill-[color:var(--sun)] text-[color:var(--sun)]" />
+              {scoreRow?.avg_stars ? Number(scoreRow.avg_stars).toFixed(1) : "Novo"}
+              {scoreRow?.total_reviews ? (
+                <span className="font-normal text-muted-foreground">
+                  ({scoreRow.total_reviews})
+                </span>
+              ) : null}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {formatPrepTime(business.avg_prep_minutes)}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span
+              className={
+                business.delivery_fee_cents === 0
+                  ? "font-semibold text-[color:var(--turtle)]"
+                  : "font-medium"
+              }
+            >
+              {deliveryLabel}
+            </span>
+            {business.is_eco_certified && (
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[color:var(--turtle)]/15 px-2 py-0.5 text-[10px] font-bold text-[color:var(--turtle)]">
+                <Leaf className="h-3 w-3" />
+                100% elétrica
+              </span>
+            )}
           </div>
         </div>
       </section>
 
+      {featured.length > 0 && (
+        <section className="mt-5 px-4">
+          <h2 className="mb-2 text-base font-bold">Destaques</h2>
+          <FeaturedRow
+            items={featured.map((f) => ({
+              id: f.id,
+              name: f.name,
+              priceCents: f.price_cents,
+              originalPriceCents: f.original_price_cents,
+              imageUrl: f.image_url,
+            }))}
+            business={cartBusiness}
+          />
+        </section>
+      )}
+
       {sectionNames.length > 0 && (
-        <nav className="sticky top-14 z-20 mt-5 -mx-4 border-b border-border bg-background/95 backdrop-blur">
-          <ul className="mx-auto flex max-w-md gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {sectionNames.map((name) => (
-              <li key={name}>
-                <a
-                  href={`#sec-${encodeURIComponent(name)}`}
-                  className="inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SectionTabs sections={sectionNames} />
       )}
 
       <div className="space-y-6 px-4 pb-6 pt-5">
         {sectionNames.map((name) => (
           <section key={name} id={`sec-${encodeURIComponent(name)}`} className="scroll-mt-28">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {name}
-            </h2>
+            <h2 className="mb-3 text-base font-bold">{name}</h2>
             <ul className="space-y-3">
-              {sections[name]!.map((s) => {
-                const m = (s.meta as ServiceMeta | null) ?? {};
-                return (
-                  <li key={s.id}>
-                    <MenuItemCard
-                      business={cartBusiness}
-                      serviceId={s.id}
-                      name={s.name}
-                      description={s.description}
-                      priceCents={s.price_cents}
-                      imageUrl={s.image_url}
-                      serves={m.serves}
-                      outOfStock={s.stock !== null && s.stock <= 0}
-                    />
-                  </li>
-                );
-              })}
+              {sections[name]!.map((s) => (
+                <li key={s.id}>
+                  <MenuItemCard
+                    business={cartBusiness}
+                    serviceId={s.id}
+                    name={s.name}
+                    description={s.description}
+                    priceCents={s.price_cents}
+                    originalPriceCents={s.original_price_cents}
+                    imageUrl={s.image_url}
+                    serves={s.serves_people}
+                    outOfStock={s.stock !== null && s.stock <= 0}
+                    featured={s.is_featured}
+                  />
+                </li>
+              ))}
             </ul>
           </section>
         ))}

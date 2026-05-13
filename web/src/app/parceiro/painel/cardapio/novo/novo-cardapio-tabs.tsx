@@ -118,22 +118,42 @@ function ManualForm({ businessId }: { businessId: string }) {
         />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <div className="grid gap-1.5">
           <Label htmlFor="price_brl">Preço (R$)</Label>
           <Input id="price_brl" name="price_brl" required inputMode="decimal" placeholder="65,00" />
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="section">Seção (opcional)</Label>
-          <Input id="section" name="section" maxLength={60} placeholder="Pizzas tradicionais" />
+          <Label htmlFor="original_price_brl">De (R$, opcional)</Label>
+          <Input
+            id="original_price_brl"
+            name="original_price_brl"
+            inputMode="decimal"
+            placeholder="80,00"
+          />
         </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="serves_people">Serve (pessoas)</Label>
+          <Input id="serves_people" name="serves_people" inputMode="numeric" placeholder="1" />
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="section">Seção</Label>
+          <Input id="section" name="section" maxLength={60} placeholder="Destaques, Pizzas, Bebidas..." />
+        </div>
+        <label className="inline-flex items-center gap-2 self-end rounded-lg border border-border bg-secondary/30 p-3 text-sm">
+          <input type="checkbox" name="is_featured" />
+          Marcar como destaque (Mais pedido)
+        </label>
       </div>
 
       <div className="grid gap-1.5">
         <Label htmlFor="image_url">URL da foto (opcional)</Label>
         <Input id="image_url" name="image_url" type="url" placeholder="https://..." />
         <p className="text-[11px] text-muted-foreground">
-          Upload direto de foto chega na próxima atualização.
+          Pra subir foto direto do PC, edite o item depois de criar.
         </p>
       </div>
 

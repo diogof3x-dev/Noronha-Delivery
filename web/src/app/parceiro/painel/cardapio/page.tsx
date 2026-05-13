@@ -28,10 +28,14 @@ export default async function PainelCardapio() {
     name: string;
     description: string | null;
     price_cents: number;
+    original_price_cents: number | null;
     kind: string;
     is_active: boolean;
     position: number;
     image_url: string | null;
+    section: string | null;
+    is_featured: boolean;
+    serves_people: number | null;
   };
 
   const ids = (businesses ?? []).map((b) => b.id);
@@ -40,10 +44,11 @@ export default async function PainelCardapio() {
         await supabase
           .from("services")
           .select(
-            "id, business_id, name, description, price_cents, kind, is_active, position, image_url",
+            "id, business_id, name, description, price_cents, original_price_cents, kind, is_active, position, image_url, section, is_featured, serves_people",
           )
           .in("business_id", ids)
           .order("business_id")
+          .order("section", { ascending: true, nullsFirst: false })
           .order("position", { ascending: true })
       ).data ?? []
     : [];
@@ -93,8 +98,12 @@ export default async function PainelCardapio() {
                     name={s.name}
                     description={s.description}
                     priceCents={s.price_cents}
+                    originalPriceCents={s.original_price_cents}
                     imageUrl={s.image_url}
                     isActive={s.is_active}
+                    section={s.section}
+                    isFeatured={s.is_featured}
+                    servesPeople={s.serves_people}
                   />
                 ))}
               </ul>
