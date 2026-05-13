@@ -183,6 +183,142 @@ const ImportSchema = z.object({
   notes: z.string().max(500).optional().or(z.literal("")),
 });
 
+const UpdateSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(2).max(160).optional(),
+  description: z.string().max(600).optional().or(z.literal("")),
+  price_brl: z.string().optional(),
+  image_url: z.string().url().optional().or(z.literal("")),
+});
+
+export async function updateService(
+  _prev: CatalogState,
+  formData: FormData,
+): Promise<CatalogState> {
+  const parsed = UpdateSchema.safeParse({
+    id: formData.get("id"),
+    name: formData.get("name") ?? undefined,
+    description: formData.get("description") ?? undefined,
+    price_brl: formData.get("price_brl") ?? undefined,
+    image_url: formData.get("image_url") ?? undefined,
+  });
+  if (!parsed.success) return { ok: false, error: "Dados inválidos" };
+
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada" };
+
+  const { data: svc } = await supabase
+    .from("services")
+    .select("id, business_id, businesses(owner_id)")
+    .eq("id", parsed.data.id)
+    .maybeSingle();
+  if (!svc) return { ok: false, error: "Item não encontrado" };
+
+  const ownerId = (svc.businesses as { owner_id?: string } | null)?.owner_id;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isAdmin = profile?.role === "admin";
+  if (!isAdmin && ownerId !== user.id) {
+    return { ok: false, error: "Sem permissão" };
+  }
+
+  const update: { name?: string; description?: string | null; price_cents?: number; image_url?: string | null } = {};
+  if (parsed.data.name) update.name = parsed.data.name.trim();
+  if (parsed.data.description !== undefined)
+    update.description = parsed.data.description.trim() || null;
+  if (parsed.data.image_url !== undefined)
+    update.image_url = parsed.data.image_url.trim() || null;
+  if (parsed.data.price_brl) {
+    const price = parseMoneyValue(parsed.data.price_brl);
+    if (price === null) return { ok: false, error: "Preço inválido" };
+    update.price_cents = Math.round(price * 100);
+  }
+
+  const { error } = await supabase.from("services").update(update).eq("id", parsed.data.id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/parceiro/painel/cardapio");
+  return { ok: true };
+}
+
+const ToggleSchema = z.object({
+  id: z.string().uuid(),
+  is_active: z.enum(["true", "false"]),
+});
+
+export async function toggleServiceActive(formData: FormData): Promise<void> {
+  const parsed = ToggleSchema.safeParse({
+    id: formData.get("id"),
+    is_active: formData.get("is_active"),
+  });
+  if (!parsed.success) return;
+
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: svc } = await supabase
+    .from("services")
+    .select("id, businesses(owner_id)")
+    .eq("id", parsed.data.id)
+    .maybeSingle();
+  if (!svc) return;
+
+  const ownerId = (svc.businesses as { owner_id?: string } | null)?.owner_id;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isAdmin = profile?.role === "admin";
+  if (!isAdmin && ownerId !== user.id) return;
+
+  await supabase
+    .from("services")
+    .update({ is_active: parsed.data.is_active === "true" })
+    .eq("id", parsed.data.id);
+
+  revalidatePath("/parceiro/painel/cardapio");
+}
+
+export async function deleteService(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  if (!z.string().uuid().safeParse(id).success) return;
+
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: svc } = await supabase
+    .from("services")
+    .select("id, businesses(owner_id)")
+    .eq("id", id)
+    .maybeSingle();
+  if (!svc) return;
+
+  const ownerId = (svc.businesses as { owner_id?: string } | null)?.owner_id;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isAdmin = profile?.role === "admin";
+  if (!isAdmin && ownerId !== user.id) return;
+
+  await supabase.from("services").delete().eq("id", id);
+  revalidatePath("/parceiro/painel/cardapio");
+}
+
 export async function requestImportFromExternal(
   _prev: CatalogState,
   formData: FormData,

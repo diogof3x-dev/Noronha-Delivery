@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { Plus, UtensilsCrossed } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
-import { Button } from "@/components/ui/button";
-import { formatCents } from "@/lib/format";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CardapioItemRow } from "./item-row";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default async function PainelCardapio() {
     kind: string;
     is_active: boolean;
     position: number;
+    image_url: string | null;
   };
 
   const ids = (businesses ?? []).map((b) => b.id);
@@ -37,7 +39,9 @@ export default async function PainelCardapio() {
     ? (
         await supabase
           .from("services")
-          .select("id, business_id, name, description, price_cents, kind, is_active, position")
+          .select(
+            "id, business_id, name, description, price_cents, kind, is_active, position, image_url",
+          )
           .in("business_id", ids)
           .order("business_id")
           .order("position", { ascending: true })
@@ -60,10 +64,13 @@ export default async function PainelCardapio() {
             {isAdmin ? "Catálogo da plataforma" : "Seu catálogo"}
           </h1>
         </div>
-        <Button disabled className="opacity-70">
+        <Link
+          href="/parceiro/painel/cardapio/novo"
+          className={cn(buttonVariants(), "h-10 px-4")}
+        >
           <Plus className="mr-2 h-4 w-4" />
-          Novo item (em breve)
-        </Button>
+          Adicionar itens
+        </Link>
       </header>
 
       {!businesses?.length ? (
@@ -76,25 +83,19 @@ export default async function PainelCardapio() {
               {b.name} · {items.length} itens
             </h2>
             {items.length === 0 ? (
-              <EmptyState message="Cardápio vazio nesta loja." />
+              <EmptyState message="Cardápio vazio. Use o botão acima pra subir itens (manual, em lote ou importando)." />
             ) : (
               <ul className="space-y-2">
                 {items.map((s) => (
-                  <li
+                  <CardapioItemRow
                     key={s.id}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
-                  >
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-primary">
-                      <UtensilsCrossed className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{s.name}</p>
-                      <p className="line-clamp-1 text-xs text-muted-foreground">
-                        {s.description ?? s.kind}
-                      </p>
-                    </div>
-                    <span className="font-bold">{formatCents(s.price_cents)}</span>
-                  </li>
+                    id={s.id}
+                    name={s.name}
+                    description={s.description}
+                    priceCents={s.price_cents}
+                    imageUrl={s.image_url}
+                    isActive={s.is_active}
+                  />
                 ))}
               </ul>
             )}
@@ -103,8 +104,7 @@ export default async function PainelCardapio() {
       })}
 
       <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-        Em breve: drag-to-reorder, upload de fotos, edição inline de preço, controle de
-        estoque, seções (entradas, principais, bebidas, sobremesas).
+        Em breve: upload de fotos direto, drag-to-reorder, seções e controle de estoque.
       </div>
     </div>
   );
