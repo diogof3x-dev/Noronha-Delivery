@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
 const NOTIFICATION_TO = "contato@noronhadelivery.com";
+const NOTIFICATION_CC = ["agenciaf3xia@gmail.com"];
 const NOTIFICATION_FROM = "Noronha Delivery <contato@noronhadelivery.com>";
 
 let cached: Resend | null = null;
@@ -82,6 +83,7 @@ export async function sendLeadNotification(lead: LeadEmailInput): Promise<void> 
     await resend.emails.send({
       from: NOTIFICATION_FROM,
       to: NOTIFICATION_TO,
+      cc: NOTIFICATION_CC,
       replyTo: lead.email ?? undefined,
       subject: `Noronha Delivery · ${label} — ${lead.name}`,
       html,
