@@ -43,7 +43,7 @@ export default async function CategoriaPage({ params }: Props) {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <Link
-          href="/"
+          href="/app"
           className="inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground hover:bg-muted"
           aria-label="Voltar"
         >
