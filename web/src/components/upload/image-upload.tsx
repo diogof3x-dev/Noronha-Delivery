@@ -63,7 +63,7 @@ export function ImageUpload({
 
   const boxClass =
     aspect === "wide"
-      ? "relative aspect-[3/1] w-full overflow-hidden rounded-xl"
+      ? "relative h-24 w-72 sm:w-80 overflow-hidden rounded-xl"
       : "relative h-24 w-24 overflow-hidden rounded-xl";
 
   return (
