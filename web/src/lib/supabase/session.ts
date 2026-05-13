@@ -32,7 +32,8 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  if (!user && pathname.startsWith("/app")) {
+  const isAppRoute = pathname === "/app" || pathname.startsWith("/app/");
+  if (!user && isAppRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/entrar";
     redirectUrl.searchParams.set("next", pathname);
