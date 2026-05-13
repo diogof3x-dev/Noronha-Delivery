@@ -1,9 +1,32 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Leaf, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Bike,
+  ChevronRight,
+  Hotel,
+  Leaf,
+  Pill,
+  ShoppingBasket,
+  Sparkles,
+  Utensils,
+  Waves,
+} from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { iconFor, GROUP_META, GROUP_ORDER } from "@/lib/category-icon";
+import { BusinessCard } from "@/components/app/business-card";
+
+const shortcuts = [
+  { href: "/app/comida", label: "Comida", Icon: Utensils },
+  { href: "/app/categoria/mercado", label: "Mercado", Icon: ShoppingBasket },
+  { href: "/app/categoria/farmacia", label: "Farmácia", Icon: Pill },
+  { href: "/app/categoria/passeios", label: "Passeios", Icon: Waves },
+  { href: "/app/categoria/transfer", label: "Transfer", Icon: Bike },
+  { href: "/app/categoria/delivery-pousada", label: "Pousada", Icon: Hotel },
+];
+
+type BusinessMeta = { cuisine?: string; hero_color?: string };
 
 export default async function AppHome() {
   const supabase = await getServerClient();
@@ -20,6 +43,27 @@ export default async function AppHome() {
     .select("id, label, group_id, icon, position")
     .eq("is_active", true)
     .order("position", { ascending: true });
+
+  const { data: featured } = await supabase
+    .from("businesses")
+    .select(
+      "id, slug, name, district, logo_url, is_eco_certified, avg_prep_minutes, delivery_fee_cents, metadata",
+    )
+    .eq("type", "restaurante")
+    .eq("is_active", true)
+    .order("name")
+    .limit(4);
+
+  const featuredIds = (featured ?? []).map((b) => b.id);
+  const { data: scores } = featuredIds.length
+    ? await supabase.from("business_scores").select("business_id, avg_stars, total_reviews").in("business_id", featuredIds)
+    : { data: [] };
+  const scoreMap = new Map<string, { avg: number | null; total: number | null }>();
+  for (const s of scores ?? []) {
+    if (s.business_id) {
+      scoreMap.set(s.business_id, { avg: s.avg_stars, total: s.total_reviews });
+    }
+  }
 
   const firstName = (profile?.full_name ?? "").split(" ")[0] || "olá";
   const greeting = profile?.is_resident
@@ -43,6 +87,24 @@ export default async function AppHome() {
         <p className="text-sm text-muted-foreground">{subline}</p>
       </section>
 
+      <section>
+        <ul className="-mx-4 flex gap-3 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {shortcuts.map(({ href, label, Icon }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="flex w-20 flex-col items-center gap-1.5 rounded-2xl bg-card p-3 text-center transition-colors hover:bg-secondary/40"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="text-[11px] font-medium leading-tight">{label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="overflow-hidden rounded-2xl bg-ocean-grad p-5 text-white shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -59,6 +121,50 @@ export default async function AppHome() {
           </span>
         </div>
       </section>
+
+      {(featured ?? []).length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-end justify-between gap-2">
+            <div>
+              <h2 className="text-base font-semibold tracking-tight">Restaurantes pra você</h2>
+              <p className="text-xs text-muted-foreground">
+                Cozinhas que entregam onde você estiver na ilha
+              </p>
+            </div>
+            <Link
+              href="/app/comida"
+              className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary"
+            >
+              Ver todos
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <ul className="space-y-3">
+            {(featured ?? []).map((b) => {
+              const meta = (b.metadata as BusinessMeta | null) ?? {};
+              const score = scoreMap.get(b.id);
+              return (
+                <li key={b.id}>
+                  <BusinessCard
+                    slug={b.slug ?? b.id}
+                    name={b.name}
+                    district={b.district}
+                    cuisine={meta.cuisine}
+                    heroColor={meta.hero_color}
+                    logoUrl={b.logo_url}
+                    isEco={b.is_eco_certified}
+                    prepMinutes={b.avg_prep_minutes}
+                    feeCents={b.delivery_fee_cents}
+                    avgStars={score?.avg ?? null}
+                    totalReviews={score?.total ?? null}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <section className="rounded-2xl border border-[color:var(--turtle)]/30 bg-[color:var(--turtle)]/10 p-4">
         <div className="flex items-center gap-3">
