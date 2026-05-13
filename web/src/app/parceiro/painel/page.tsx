@@ -11,6 +11,9 @@ import {
 import { getServerClient } from "@/lib/supabase/server-client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const QUICK_ACTIONS = [
   { href: "/parceiro/painel/pedidos", label: "Ver pedidos", icon: ListChecks },
   { href: "/parceiro/painel/cardapio", label: "Editar cardápio", icon: UtensilsCrossed },
