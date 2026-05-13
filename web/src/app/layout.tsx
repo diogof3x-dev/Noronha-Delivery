@@ -35,15 +35,24 @@ export const metadata: Metadata = {
       "O super app de Fernando de Noronha. Delivery, transporte, passeios, hospedagem, aluguel, clima e mais.",
     locale: "pt_BR",
     type: "website",
-    url: "https://noronhadelivery.com.br",
+    url: "https://noronhadelivery.com",
     siteName: "Noronha Delivery",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Baía dos Porcos e Morro Dois Irmãos — Fernando de Noronha",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Noronha Delivery — aqui você tem Tudo",
     description: "O super app de Fernando de Noronha.",
+    images: ["/og-image.jpg"],
   },
-  metadataBase: new URL("https://noronhadelivery.com.br"),
+  metadataBase: new URL("https://noronhadelivery.com"),
 };
 
 export default function RootLayout({
