@@ -20,12 +20,16 @@ export function AuthShell({ eyebrow, title, subtitle, altLink, children }: Props
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Link>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold"
+            aria-label="Voltar à página inicial"
+          >
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <NoronhaMark className="h-4 w-4" />
             </span>
             Noronha Delivery
-          </span>
+          </Link>
         </div>
       </header>
 

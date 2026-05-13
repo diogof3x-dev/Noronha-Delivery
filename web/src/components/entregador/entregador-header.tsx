@@ -19,7 +19,7 @@ export function EntregadorHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/entregador" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2" aria-label="Voltar à página inicial">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <NoronhaMark className="h-5 w-5" />
           </span>

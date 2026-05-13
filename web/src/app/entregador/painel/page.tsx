@@ -47,7 +47,7 @@ export default async function EntregadorPainel() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4">
-        <Link href="/entregador" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2" aria-label="Voltar à página inicial">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <NoronhaMark className="h-4 w-4" />
           </span>
