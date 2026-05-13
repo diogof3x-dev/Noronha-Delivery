@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { EmailMagicLinkForm } from "@/components/auth/email-form";
+import { SignInForm } from "@/components/auth/signin-form";
 import { GoogleButton } from "@/components/auth/google-button";
 
 export const metadata: Metadata = {
@@ -33,11 +33,11 @@ export default async function EntregadorEntrarPage({ searchParams }: Props) {
             <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">ou</span>
+            <span className="bg-card px-2 text-muted-foreground">ou com e-mail</span>
           </div>
         </div>
 
-        <EmailMagicLinkForm next={dest} cta="Receber link de acesso" />
+        <SignInForm next={dest} />
       </div>
     </AuthShell>
   );

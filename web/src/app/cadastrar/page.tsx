@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { EmailMagicLinkForm } from "@/components/auth/email-form";
+import { SignUpForm } from "@/components/auth/signup-form";
 import { GoogleButton } from "@/components/auth/google-button";
 
 export const metadata: Metadata = {
   title: "Criar conta",
-  description: "Crie sua conta no Noronha Delivery e tenha a ilha na palma da mão.",
+  description: "Crie sua conta no Noronha Delivery em 30 segundos.",
 };
 
 type Props = {
@@ -19,7 +19,7 @@ export default async function CadastrarPage({ searchParams }: Props) {
     <AuthShell
       eyebrow="Criar conta"
       title="Crie sua conta em 30 segundos"
-      subtitle="Sem senha, sem fricção. Entre com Google ou receba um link no e-mail."
+      subtitle="Entre com Google ou cadastre nome + e-mail + senha."
       altLink={{
         href: `/entrar${next ? `?next=${encodeURIComponent(next)}` : ""}`,
         ctaPrefix: "Já tem conta?",
@@ -34,11 +34,11 @@ export default async function CadastrarPage({ searchParams }: Props) {
             <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">ou</span>
+            <span className="bg-card px-2 text-muted-foreground">ou com e-mail</span>
           </div>
         </div>
 
-        <EmailMagicLinkForm next={next} cta="Criar conta por e-mail" />
+        <SignUpForm next={next} />
       </div>
     </AuthShell>
   );
