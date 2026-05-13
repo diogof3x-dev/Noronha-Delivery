@@ -1,23 +1,30 @@
-import { CategoriesSection } from "@/components/landing/categories-section";
-import { GreenFleetSection } from "@/components/landing/green-fleet";
-import { LandingHeader } from "@/components/landing/header";
-import { LandingHero } from "@/components/landing/hero";
-import { HowItWorksSection } from "@/components/landing/how-it-works";
+import type { Metadata } from "next";
 import { LandingFooter } from "@/components/landing/footer";
-import { PartnerCardsSection } from "@/components/landing/partner-cards";
-import { WaitlistSection } from "@/components/landing/waitlist-section";
+import { ParceiroBenefits } from "@/components/parceiro/parceiro-benefits";
+import { ParceiroCta } from "@/components/parceiro/parceiro-cta";
+import { ParceiroFaq } from "@/components/parceiro/parceiro-faq";
+import { ParceiroHeader } from "@/components/parceiro/parceiro-header";
+import { ParceiroHero } from "@/components/parceiro/parceiro-hero";
+import { ParceiroHow } from "@/components/parceiro/parceiro-how";
+import { ParceiroPricing } from "@/components/parceiro/parceiro-pricing";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Para parceiros — restaurantes, pousadas, operadores, prestadores",
+  description:
+    "Coloque seu negócio na vitrine do único app oficial de Fernando de Noronha. Taxa 10%, pagamento PIX em D+8, exposição para 140 mil turistas/ano.",
+};
+
+export default function ParceiroLanding() {
   return (
     <>
-      <LandingHeader />
+      <ParceiroHeader />
       <main className="flex-1">
-        <LandingHero />
-        <CategoriesSection />
-        <GreenFleetSection />
-        <HowItWorksSection />
-        <PartnerCardsSection />
-        <WaitlistSection />
+        <ParceiroHero />
+        <ParceiroBenefits />
+        <ParceiroHow />
+        <ParceiroPricing />
+        <ParceiroFaq />
+        <ParceiroCta />
       </main>
       <LandingFooter />
     </>
