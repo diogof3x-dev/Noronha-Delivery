@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { NoronhaMark } from "@/components/illustrations/noronha-mark";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -21,7 +22,7 @@ export function LandingHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Sparkles className="h-5 w-5" />
+            <NoronhaMark className="h-5 w-5" />
           </span>
           <span className="flex flex-col leading-tight">
             <span className="text-base font-semibold tracking-tight">Noronha Delivery</span>

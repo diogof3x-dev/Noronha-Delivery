@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Mail, MessageCircle, Sparkles } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
+import { NoronhaMark } from "@/components/illustrations/noronha-mark";
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -29,7 +30,7 @@ export function LandingFooter() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <Sparkles className="h-5 w-5" />
+                <NoronhaMark className="h-5 w-5" />
               </span>
               <span className="text-base font-semibold tracking-tight">
                 Noronha Delivery

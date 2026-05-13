@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { NoronhaMark } from "@/components/illustrations/noronha-mark";
 import { Separator } from "@/components/ui/separator";
 
 type Props = {
@@ -21,7 +22,7 @@ export function AuthShell({ eyebrow, title, subtitle, altLink, children }: Props
           </Link>
           <span className="inline-flex items-center gap-1.5 text-sm font-semibold">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
+              <NoronhaMark className="h-4 w-4" />
             </span>
             Noronha Delivery
           </span>
