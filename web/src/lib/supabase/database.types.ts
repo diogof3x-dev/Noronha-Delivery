@@ -360,6 +360,8 @@ export type Database = {
           address: Json | null
           avatar_url: string | null
           birth_date: string | null
+          cnh_category: string | null
+          cnh_number: string | null
           cpf: string | null
           created_at: string
           district: string | null
@@ -370,12 +372,15 @@ export type Database = {
           pix_value: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
+          vehicle: Json | null
           whatsapp: string | null
         }
         Insert: {
           address?: Json | null
           avatar_url?: string | null
           birth_date?: string | null
+          cnh_category?: string | null
+          cnh_number?: string | null
           cpf?: string | null
           created_at?: string
           district?: string | null
@@ -386,12 +391,15 @@ export type Database = {
           pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          vehicle?: Json | null
           whatsapp?: string | null
         }
         Update: {
           address?: Json | null
           avatar_url?: string | null
           birth_date?: string | null
+          cnh_category?: string | null
+          cnh_number?: string | null
           cpf?: string | null
           created_at?: string
           district?: string | null
@@ -402,6 +410,7 @@ export type Database = {
           pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          vehicle?: Json | null
           whatsapp?: string | null
         }
         Relationships: []

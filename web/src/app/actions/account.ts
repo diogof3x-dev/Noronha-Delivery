@@ -153,6 +153,68 @@ export async function updatePix(
   return { ok: true, message: "Chave PIX atualizada" };
 }
 
+const VehicleSchema = z.object({
+  cnh_number: z.string().max(40).optional().or(z.literal("")),
+  cnh_category: z.string().max(5).optional().or(z.literal("")),
+  vehicle_kind: z
+    .enum(["bike_eletrica", "scooter_eletrica", "moto", "buggy", "carro_eletrico", "carro"])
+    .optional()
+    .or(z.literal("")),
+  plate: z.string().max(10).optional().or(z.literal("")),
+  model: z.string().max(80).optional().or(z.literal("")),
+  year: z.string().max(8).optional().or(z.literal("")),
+  color: z.string().max(40).optional().or(z.literal("")),
+  photo_url: z.string().url().optional().or(z.literal("")),
+});
+
+export async function updateVehicle(
+  _prev: AccountState,
+  formData: FormData,
+): Promise<AccountState> {
+  const parsed = VehicleSchema.safeParse({
+    cnh_number: formData.get("cnh_number") ?? undefined,
+    cnh_category: formData.get("cnh_category") ?? undefined,
+    vehicle_kind: formData.get("vehicle_kind") ?? undefined,
+    plate: formData.get("plate") ?? undefined,
+    model: formData.get("model") ?? undefined,
+    year: formData.get("year") ?? undefined,
+    color: formData.get("color") ?? undefined,
+    photo_url: formData.get("photo_url") ?? undefined,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  }
+
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada" };
+
+  const vehicle = {
+    kind: parsed.data.vehicle_kind || "",
+    plate: (parsed.data.plate || "").toUpperCase(),
+    model: parsed.data.model || "",
+    year: parsed.data.year || "",
+    color: parsed.data.color || "",
+    photo_url: parsed.data.photo_url || "",
+  };
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      cnh_number: parsed.data.cnh_number || null,
+      cnh_category: parsed.data.cnh_category || null,
+      vehicle,
+    })
+    .eq("id", user.id);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/entregador/painel/cadastro");
+  return { ok: true, message: "Dados do veículo atualizados" };
+}
+
 const PasswordSchema = z
   .object({
     new_password: z.string().min(6, "Senha muito curta").max(72),
