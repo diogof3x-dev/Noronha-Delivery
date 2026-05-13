@@ -4,6 +4,7 @@ import { ChevronRight, Store } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { formatCents } from "@/lib/format";
+import { CreateBusinessForm } from "./create-form";
 
 export const dynamic = "force-dynamic";
 
@@ -36,24 +37,7 @@ export default async function PainelLoja() {
       </header>
 
       {!businesses?.length ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-            <Store className="h-6 w-6" />
-          </span>
-          <h2 className="text-lg font-semibold">Nenhuma loja cadastrada</h2>
-          <p className="max-w-md text-sm text-muted-foreground">
-            Sua conta está aprovada, mas a loja em si ainda não foi criada. Fale com o
-            suporte pelo WhatsApp pra liberarmos o cadastro completo.
-          </p>
-          <a
-            href="https://wa.me/5581988880000"
-            target="_blank"
-            rel="noopener"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted"
-          >
-            Falar com suporte
-          </a>
-        </div>
+        <CreateBusinessForm defaultName={profile?.full_name ?? undefined} />
       ) : (
         <ul className="space-y-3">
           {businesses.map((b) => (

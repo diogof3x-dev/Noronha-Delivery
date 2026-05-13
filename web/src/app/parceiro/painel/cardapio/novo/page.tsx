@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { NovoCardapioTabs } from "./novo-cardapio-tabs";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -46,11 +48,18 @@ export default async function NovoCardapioPage() {
       </div>
 
       {!businesses?.length ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-          <h2 className="text-lg font-semibold">Nenhuma loja vinculada</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Fale com o suporte pelo WhatsApp pra criar sua loja primeiro.
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+          <h2 className="text-lg font-semibold">Crie sua loja primeiro</h2>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Pra subir o cardápio você precisa criar sua loja (1 minuto). Logo depois,
+            volta aqui pra adicionar os itens.
           </p>
+          <Link
+            href="/parceiro/painel/loja"
+            className={cn(buttonVariants(), "mt-1 h-10 px-4")}
+          >
+            Criar loja agora
+          </Link>
         </div>
       ) : (
         <NovoCardapioTabs businesses={businesses} />
