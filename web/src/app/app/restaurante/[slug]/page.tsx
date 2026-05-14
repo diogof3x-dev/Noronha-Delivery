@@ -3,9 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Leaf, Search, Star } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { MenuItemCard } from "@/components/app/menu-item-card";
-import { FeaturedRow } from "@/components/app/featured-row";
-import { SectionTabs } from "@/components/app/section-tabs";
+import { RestaurantMenu } from "@/components/app/restaurant-menu";
 import { formatCents, formatPrepTime } from "@/lib/format";
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
@@ -37,7 +35,7 @@ export default async function RestaurantePage({ params }: Props) {
   const { data: services } = await supabase
     .from("services")
     .select(
-      "id, name, description, price_cents, original_price_cents, image_url, stock, position, section, is_featured, serves_people, meta",
+      "id, name, description, price_cents, original_price_cents, image_url, stock, position, section, is_featured, serves_people",
     )
     .eq("business_id", business.id)
     .eq("is_active", true)
@@ -51,7 +49,7 @@ export default async function RestaurantePage({ params }: Props) {
         .select("service_id")
         .in("service_id", serviceIds)
     : { data: [] };
-  const servicesWithOptions = new Set((groupRows ?? []).map((g) => g.service_id));
+  const servicesWithOptions = Array.from(new Set((groupRows ?? []).map((g) => g.service_id)));
 
   const { data: scoreRow } = await supabase
     .from("business_scores")
@@ -62,15 +60,6 @@ export default async function RestaurantePage({ params }: Props) {
   const meta = (business.metadata as BusinessMeta | null) ?? {};
   const cover = business.cover_url ?? null;
   const heroColor = meta.hero_color ?? "#0B7FA8";
-
-  const featured = (services ?? []).filter((s) => s.is_featured);
-
-  const sections: Record<string, NonNullable<typeof services>> = {};
-  for (const s of services ?? []) {
-    const sectionName = s.section?.trim() || "Cardápio";
-    (sections[sectionName] ??= []).push(s);
-  }
-  const sectionNames = Object.keys(sections);
 
   const cartBusiness = {
     id: business.id,
@@ -204,59 +193,20 @@ export default async function RestaurantePage({ params }: Props) {
         </div>
       </section>
 
-      {featured.length > 0 && (
-        <section className="mt-5 px-4">
-          <h2 className="mb-2 text-base font-bold">Destaques</h2>
-          <FeaturedRow
-            items={featured.map((f) => ({
-              id: f.id,
-              name: f.name,
-              priceCents: f.price_cents,
-              originalPriceCents: f.original_price_cents,
-              imageUrl: f.image_url,
-              hasOptions: servicesWithOptions.has(f.id),
-            }))}
-            business={cartBusiness}
-          />
-        </section>
-      )}
-
-      {sectionNames.length > 0 && (
-        <SectionTabs sections={sectionNames} />
-      )}
-
-      <div className="space-y-6 px-4 pb-6 pt-5">
-        {sectionNames.map((name) => (
-          <section key={name} id={`sec-${encodeURIComponent(name)}`} className="scroll-mt-28">
-            <h2 className="mb-3 text-base font-bold">{name}</h2>
-            <ul className="space-y-3">
-              {sections[name]!.map((s) => (
-                <li key={s.id}>
-                  <MenuItemCard
-                    business={cartBusiness}
-                    serviceId={s.id}
-                    name={s.name}
-                    description={s.description}
-                    priceCents={s.price_cents}
-                    originalPriceCents={s.original_price_cents}
-                    imageUrl={s.image_url}
-                    serves={s.serves_people}
-                    outOfStock={s.stock !== null && s.stock <= 0}
-                    featured={s.is_featured}
-                    hasOptions={servicesWithOptions.has(s.id)}
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-
-        {sectionNames.length === 0 && (
+      {(services?.length ?? 0) > 0 ? (
+        <RestaurantMenu
+          business={cartBusiness}
+          businessName={business.name}
+          services={services ?? []}
+          servicesWithOptions={servicesWithOptions}
+        />
+      ) : (
+        <div className="px-4 pb-6 pt-5">
           <p className="rounded-xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Cardápio em preparação.
           </p>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
