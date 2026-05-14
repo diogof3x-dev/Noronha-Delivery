@@ -270,6 +270,7 @@ export type Database = {
           service_fee_cents: number
           coupon_discount_cents: number
           cpf_nota: string | null
+          delivery_code: string | null
           updated_at: string
         }
         Insert: {
@@ -304,6 +305,7 @@ export type Database = {
           service_fee_cents?: number
           coupon_discount_cents?: number
           cpf_nota?: string | null
+          delivery_code?: string | null
           updated_at?: string
         }
         Update: {
@@ -338,6 +340,7 @@ export type Database = {
           service_fee_cents?: number
           coupon_discount_cents?: number
           cpf_nota?: string | null
+          delivery_code?: string | null
           updated_at?: string
         }
         Relationships: [

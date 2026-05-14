@@ -41,7 +41,7 @@ export default async function PedidoDetailPage({ params }: Props) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, businesses(name, slug)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, delivery_code, businesses(name, slug)",
     )
     .eq("id", id)
     .eq("customer_id", user.id)
@@ -95,6 +95,23 @@ export default async function PedidoDetailPage({ params }: Props) {
       {order.payment_method === "card" && order.payment_status !== "paid" && (
         <CardLoader orderId={order.id} />
       )}
+
+      {order.delivery_code &&
+        ["confirmed", "preparing", "ready", "in_transit"].includes(order.status) &&
+        order.payment_status === "paid" && (
+          <section className="rounded-2xl border-2 border-[color:var(--turtle)]/60 bg-[color:var(--turtle)]/5 p-5 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--turtle)]">
+              Código de entrega
+            </p>
+            <p className="mt-2 font-mono text-4xl font-bold tracking-[0.4em]">
+              {order.delivery_code}
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Passe esse código pro entregador <strong>só na entrega</strong>. É a sua
+              confirmação de que recebeu o pedido. Nunca compartilhe antes.
+            </p>
+          </section>
+        )}
 
       <section className="rounded-2xl border border-border bg-card p-4 text-sm">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
