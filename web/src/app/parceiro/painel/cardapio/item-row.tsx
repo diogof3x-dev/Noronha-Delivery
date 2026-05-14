@@ -62,86 +62,129 @@ export function CardapioItemRow({
     const fmt = (c: number | null) =>
       c == null ? "" : (c / 100).toFixed(2).replace(".", ",");
     return (
-      <li className="rounded-2xl border border-primary/40 bg-card p-3">
-        <form action={action} className="space-y-3">
+      <li className="rounded-2xl border border-primary/50 bg-card">
+        <form action={action}>
           <input type="hidden" name="id" value={id} />
-          <ImageUpload name="image_url" label="Foto do item" defaultUrl={imageUrl} aspect="square" />
-
-          <div className="grid gap-2 sm:grid-cols-3">
-            <div className="sm:col-span-2 grid gap-1.5">
-              <Label htmlFor={`name-${id}`}>Nome</Label>
-              <Input id={`name-${id}`} name="name" defaultValue={name} maxLength={160} required />
+          <div className="flex gap-3 overflow-x-auto p-3 [scrollbar-width:thin]">
+            <div className="shrink-0">
+              <ImageUpload name="image_url" label="Foto" defaultUrl={imageUrl} aspect="square" />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor={`price-${id}`}>Preço (R$)</Label>
+
+            <div className="grid w-48 shrink-0 gap-1.5">
+              <Label htmlFor={`name-${id}`} className="text-xs">
+                Nome
+              </Label>
+              <Input
+                id={`name-${id}`}
+                name="name"
+                defaultValue={name}
+                maxLength={160}
+                required
+                className="h-9"
+              />
+            </div>
+
+            <div className="grid w-36 shrink-0 gap-1.5">
+              <Label htmlFor={`desc-${id}`} className="text-xs">
+                Descrição
+              </Label>
+              <Textarea
+                id={`desc-${id}`}
+                name="description"
+                defaultValue={description ?? ""}
+                maxLength={600}
+                rows={1}
+                className="h-9 min-h-9"
+              />
+            </div>
+
+            <div className="grid w-28 shrink-0 gap-1.5">
+              <Label htmlFor={`price-${id}`} className="text-xs">
+                Preço (R$)
+              </Label>
               <Input
                 id={`price-${id}`}
                 name="price_brl"
                 defaultValue={fmt(priceCents)}
                 inputMode="decimal"
                 required
+                className="h-9"
               />
             </div>
-          </div>
 
-          <div className="grid gap-2 sm:grid-cols-3">
-            <div className="grid gap-1.5">
-              <Label htmlFor={`orig-${id}`}>De (R$, riscado)</Label>
+            <div className="grid w-28 shrink-0 gap-1.5">
+              <Label htmlFor={`orig-${id}`} className="text-xs">
+                De (riscado)
+              </Label>
               <Input
                 id={`orig-${id}`}
                 name="original_price_brl"
                 defaultValue={fmt(originalPriceCents)}
                 inputMode="decimal"
-                placeholder="vazio = sem promo"
+                placeholder="—"
+                className="h-9"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor={`section-${id}`}>Seção</Label>
+
+            <div className="grid w-44 shrink-0 gap-1.5">
+              <Label htmlFor={`section-${id}`} className="text-xs">
+                Seção
+              </Label>
               <Input
                 id={`section-${id}`}
                 name="section"
                 defaultValue={section ?? ""}
                 maxLength={60}
-                placeholder="Destaques, Pizzas..."
+                className="h-9"
               />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor={`serves-${id}`}>Serve (pessoas)</Label>
+
+            <div className="grid w-20 shrink-0 gap-1.5">
+              <Label htmlFor={`serves-${id}`} className="text-xs">
+                Serve
+              </Label>
               <Input
                 id={`serves-${id}`}
                 name="serves_people"
                 defaultValue={servesPeople ?? ""}
                 inputMode="numeric"
+                className="h-9"
               />
             </div>
-          </div>
 
-          <label className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/30 p-2 text-sm">
-            <input type="checkbox" name="is_featured" defaultChecked={isFeatured} />
-            Destaque (Mais pedido)
-          </label>
+            <div className="grid shrink-0 gap-1.5">
+              <Label className="text-xs">Destaque</Label>
+              <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-3 text-xs">
+                <input type="checkbox" name="is_featured" defaultChecked={isFeatured} />
+                Mais pedido
+              </label>
+            </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor={`desc-${id}`}>Descrição</Label>
-            <Textarea
-              id={`desc-${id}`}
-              name="description"
-              defaultValue={description ?? ""}
-              rows={2}
-              maxLength={600}
-            />
+            <div className="grid shrink-0 gap-1.5">
+              <Label className="text-xs invisible">.</Label>
+              <div className="flex gap-1.5">
+                <Button type="submit" size="sm" disabled={saving} className="h-9">
+                  {saving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
+                  Salvar
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(false)}
+                  className="h-9"
+                >
+                  <X className="mr-1 h-3 w-3" />
+                  Cancelar
+                </Button>
+              </div>
+            </div>
           </div>
-
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-          <div className="flex gap-2">
-            <Button type="submit" size="sm" disabled={saving}>
-              {saving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
-              Salvar
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
-              <X className="mr-1 h-3 w-3" /> Cancelar
-            </Button>
-          </div>
+          {state.error && (
+            <p className="border-t border-border bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {state.error}
+            </p>
+          )}
         </form>
       </li>
     );
