@@ -507,6 +507,136 @@ export type Database = {
           },
         ]
       }
+      rooms: {
+        Row: {
+          id: string
+          business_id: string
+          name: string
+          description: string | null
+          capacity: number
+          price_per_night_cents: number
+          bed_layout: string | null
+          amenities: string[]
+          photos: string[]
+          position: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          name: string
+          description?: string | null
+          capacity?: number
+          price_per_night_cents: number
+          bed_layout?: string | null
+          amenities?: string[]
+          photos?: string[]
+          position?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          name?: string
+          description?: string | null
+          capacity?: number
+          price_per_night_cents?: number
+          bed_layout?: string | null
+          amenities?: string[]
+          photos?: string[]
+          position?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          id: string
+          code: string
+          business_id: string
+          room_id: string
+          customer_id: string | null
+          customer_name: string
+          customer_email: string | null
+          customer_whatsapp: string | null
+          guests: number
+          check_in: string
+          check_out: string
+          nights: number
+          nightly_cents: number
+          total_cents: number
+          platform_fee_cents: number
+          status: "hold" | "requested" | "confirmed" | "checked_in" | "checked_out" | "cancelled" | "refunded"
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_id: string | null
+          external_source: string | null
+          ical_uid: string | null
+          notes: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code?: string
+          business_id: string
+          room_id: string
+          customer_id?: string | null
+          customer_name: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          guests?: number
+          check_in: string
+          check_out: string
+          nightly_cents: number
+          total_cents: number
+          platform_fee_cents?: number
+          status?: "hold" | "requested" | "confirmed" | "checked_in" | "checked_out" | "cancelled" | "refunded"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          external_source?: string | null
+          ical_uid?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          business_id?: string
+          room_id?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          guests?: number
+          check_in?: string
+          check_out?: string
+          nightly_cents?: number
+          total_cents?: number
+          platform_fee_cents?: number
+          status?: "hold" | "requested" | "confirmed" | "checked_in" | "checked_out" | "cancelled" | "refunded"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          external_source?: string | null
+          ical_uid?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           id: string

@@ -3,29 +3,14 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-import {
-  BarChart3,
-  Banknote,
-  ListChecks,
-  Star,
-  Store,
-  UtensilsCrossed,
-} from "lucide-react";
+
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { signOut } from "@/app/actions/auth";
 import { NoronhaMark } from "@/components/illustrations/noronha-mark";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const NAV = [
-  { href: "/parceiro/painel", label: "Visão geral", icon: BarChart3 },
-  { href: "/parceiro/painel/pedidos", label: "Pedidos", icon: ListChecks },
-  { href: "/parceiro/painel/cardapio", label: "Cardápio", icon: UtensilsCrossed },
-  { href: "/parceiro/painel/vendas", label: "Vendas", icon: Banknote },
-  { href: "/parceiro/painel/avaliacoes", label: "Avaliações", icon: Star },
-  { href: "/parceiro/painel/loja", label: "Minha loja", icon: Store },
-];
+import { getPanelNav } from "@/lib/panel-nav";
 
 export default async function ParceiroPainelLayout({
   children,
@@ -66,6 +51,20 @@ export default async function ParceiroPainelLayout({
       </main>
     );
   }
+
+  // detecta o tipo de negócio do parceiro (primeira loja) pra ajustar a NAV
+  let businessType: string | null = null;
+  if (profile?.role !== "admin") {
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("type")
+      .eq("owner_id", user.id)
+      .limit(1)
+      .maybeSingle();
+    businessType = biz?.type ?? null;
+  }
+
+  const NAV = getPanelNav(businessType);
 
   return (
     <div className="flex min-h-screen bg-secondary/20">
