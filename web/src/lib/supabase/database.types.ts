@@ -377,6 +377,8 @@ export type Database = {
           full_name: string | null
           id: string
           is_resident: boolean
+          is_online: boolean
+          last_seen_at: string | null
           pix_kind: string | null
           pix_value: string | null
           role: Database["public"]["Enums"]["user_role"]
@@ -396,6 +398,8 @@ export type Database = {
           full_name?: string | null
           id: string
           is_resident?: boolean
+          is_online?: boolean
+          last_seen_at?: string | null
           pix_kind?: string | null
           pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
@@ -415,6 +419,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_resident?: boolean
+          is_online?: boolean
+          last_seen_at?: string | null
           pix_kind?: string | null
           pix_value?: string | null
           role?: Database["public"]["Enums"]["user_role"]
