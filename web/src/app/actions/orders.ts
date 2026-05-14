@@ -6,12 +6,21 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
 
+const CartOptionSchema = z.object({
+  groupId: z.string().uuid(),
+  groupName: z.string().min(1).max(120),
+  optionId: z.string().uuid(),
+  optionName: z.string().min(1).max(160),
+  priceDeltaCents: z.number().int().min(0).max(50_000),
+});
+
 const CartItemSchema = z.object({
   serviceId: z.string().uuid(),
   name: z.string().min(1).max(200),
   priceCents: z.number().int().min(0),
   quantity: z.number().int().min(1).max(50),
   notes: z.string().max(500).optional(),
+  options: z.array(CartOptionSchema).optional(),
 });
 
 const CreateOrderSchema = z.object({
@@ -62,7 +71,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     if (!s || !s.is_active || s.business_id !== business.id) {
       return { ok: false, error: `Item indisponível: ${it.name}` };
     }
-    if (s.price_cents !== it.priceCents) {
+    const optionsDelta = (it.options ?? []).reduce((acc, o) => acc + o.priceDeltaCents, 0);
+    const expectedUnit = s.price_cents + optionsDelta;
+    if (expectedUnit !== it.priceCents) {
       return { ok: false, error: `Preço de "${s.name}" mudou. Atualize o carrinho.` };
     }
   }
@@ -124,6 +135,15 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     unit_price_cents: i.priceCents,
     total_cents: i.priceCents * i.quantity,
     notes: i.notes ?? null,
+    customizations: i.options?.length
+      ? {
+          options: i.options.map((o) => ({
+            group: o.groupName,
+            option: o.optionName,
+            delta_cents: o.priceDeltaCents,
+          })),
+        }
+      : {},
   }));
   const { error: itemsErr } = await supabase.from("order_items").insert(itemsPayload);
   if (itemsErr) {

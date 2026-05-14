@@ -498,6 +498,75 @@ export type Database = {
           },
         ]
       }
+      service_option_groups: {
+        Row: {
+          id: string
+          service_id: string
+          name: string
+          kind: "required" | "optional"
+          min_choices: number
+          max_choices: number
+          position: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          name: string
+          kind?: "required" | "optional"
+          min_choices?: number
+          max_choices?: number
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          name?: string
+          kind?: "required" | "optional"
+          min_choices?: number
+          max_choices?: number
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_options: {
+        Row: {
+          id: string
+          group_id: string
+          name: string
+          price_delta_cents: number
+          is_default: boolean
+          is_active: boolean
+          position: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          name: string
+          price_delta_cents?: number
+          is_default?: boolean
+          is_active?: boolean
+          position?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          name?: string
+          price_delta_cents?: number
+          is_default?: boolean
+          is_active?: boolean
+          position?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           business_id: string

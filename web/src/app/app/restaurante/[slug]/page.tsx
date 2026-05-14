@@ -44,6 +44,15 @@ export default async function RestaurantePage({ params }: Props) {
     .order("section", { ascending: true, nullsFirst: false })
     .order("position", { ascending: true });
 
+  const serviceIds = (services ?? []).map((s) => s.id);
+  const { data: groupRows } = serviceIds.length
+    ? await supabase
+        .from("service_option_groups")
+        .select("service_id")
+        .in("service_id", serviceIds)
+    : { data: [] };
+  const servicesWithOptions = new Set((groupRows ?? []).map((g) => g.service_id));
+
   const { data: scoreRow } = await supabase
     .from("business_scores")
     .select("avg_stars, total_reviews")
@@ -205,6 +214,7 @@ export default async function RestaurantePage({ params }: Props) {
               priceCents: f.price_cents,
               originalPriceCents: f.original_price_cents,
               imageUrl: f.image_url,
+              hasOptions: servicesWithOptions.has(f.id),
             }))}
             business={cartBusiness}
           />
@@ -233,6 +243,7 @@ export default async function RestaurantePage({ params }: Props) {
                     serves={s.serves_people}
                     outOfStock={s.stock !== null && s.stock <= 0}
                     featured={s.is_featured}
+                    hasOptions={servicesWithOptions.has(s.id)}
                   />
                 </li>
               ))}

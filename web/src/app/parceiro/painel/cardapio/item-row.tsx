@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import Image from "next/image";
-import { Check, Loader2, Pencil, Star, Trash2, UtensilsCrossed, X } from "lucide-react";
+import Link from "next/link";
+import { Check, Layers, Loader2, Pencil, Star, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -181,6 +182,14 @@ export function CardapioItemRow({
         )}
       </div>
       <div className="flex items-center gap-1">
+        <Link
+          href={`/parceiro/painel/cardapio/${id}/complementos`}
+          aria-label="Complementos"
+          title="Complementos"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <Layers className="h-3.5 w-3.5" />
+        </Link>
         <button
           type="button"
           onClick={() => setEditing(true)}

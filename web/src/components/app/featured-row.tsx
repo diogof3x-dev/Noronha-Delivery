@@ -10,6 +10,7 @@ type Item = {
   priceCents: number;
   originalPriceCents: number | null;
   imageUrl: string | null;
+  hasOptions?: boolean;
 };
 
 export function FeaturedRow({
@@ -53,6 +54,7 @@ export function FeaturedRow({
                   priceCents: it.priceCents,
                   imageUrl: it.imageUrl ?? undefined,
                 }}
+                hasOptions={it.hasOptions}
               />
             </div>
             <div className="mt-1.5">

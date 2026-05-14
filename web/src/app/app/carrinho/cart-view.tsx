@@ -114,12 +114,24 @@ export function CartView() {
                 <p className="text-xs text-muted-foreground">
                   {formatCents(item.priceCents)} × {item.quantity}
                 </p>
+                {item.options && item.options.length > 0 && (
+                  <ul className="mt-1 space-y-0.5 text-[11px] text-muted-foreground">
+                    {item.options.map((opt) => (
+                      <li key={`${opt.groupId}-${opt.optionId}`}>
+                        · {opt.optionName}
+                        {opt.priceDeltaCents > 0
+                          ? ` (+${formatCents(opt.priceDeltaCents)})`
+                          : ""}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div className="inline-flex items-center gap-1 rounded-full border border-border bg-background">
                 <button
                   type="button"
                   onClick={() =>
-                    item.quantity > 1 ? decrement(item.serviceId) : remove(item.serviceId)
+                    item.quantity > 1 ? decrement(item.lineId) : remove(item.lineId)
                   }
                   className="inline-flex h-8 w-8 items-center justify-center"
                   aria-label="Diminuir"
@@ -135,7 +147,7 @@ export function CartView() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => increment(item.serviceId)}
+                  onClick={() => increment(item.lineId)}
                   className="inline-flex h-8 w-8 items-center justify-center"
                   aria-label="Aumentar"
                 >
@@ -252,6 +264,7 @@ export function CartView() {
                 priceCents: i.priceCents,
                 quantity: i.quantity,
                 notes: i.notes,
+                options: i.options,
               })),
               destinationKind: destination as "pousada" | "praia" | "barco" | "outro",
               destinationLabel: destinationLabel || undefined,

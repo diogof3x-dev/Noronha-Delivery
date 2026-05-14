@@ -13,6 +13,7 @@ type Props = {
   serves?: number | null;
   outOfStock?: boolean;
   featured?: boolean;
+  hasOptions?: boolean;
 };
 
 export function MenuItemCard({
@@ -26,6 +27,7 @@ export function MenuItemCard({
   serves,
   outOfStock,
   featured,
+  hasOptions,
 }: Props) {
   const hasPromo =
     originalPriceCents != null && originalPriceCents > priceCents && priceCents > 0;
@@ -80,6 +82,7 @@ export function MenuItemCard({
           business={business}
           item={{ serviceId, name, priceCents, imageUrl }}
           outOfStock={outOfStock}
+          hasOptions={hasOptions}
         />
       </div>
     </div>
