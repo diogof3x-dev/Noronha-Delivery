@@ -498,6 +498,72 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          id: number
+          default_take_rate_bps: number
+          d_plus_days: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          default_take_rate_bps?: number
+          d_plus_days?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          default_take_rate_bps?: number
+          d_plus_days?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      take_rate_campaigns: {
+        Row: {
+          id: string
+          name: string
+          notes: string | null
+          take_rate_bps: number
+          starts_at: string | null
+          ends_at: string | null
+          applies_to: string
+          applies_id: string | null
+          priority: number
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          notes?: string | null
+          take_rate_bps: number
+          starts_at?: string | null
+          ends_at?: string | null
+          applies_to: string
+          applies_id?: string | null
+          priority?: number
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          notes?: string | null
+          take_rate_bps?: number
+          starts_at?: string | null
+          ends_at?: string | null
+          applies_to?: string
+          applies_id?: string | null
+          priority?: number
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       service_option_groups: {
         Row: {
           id: string
