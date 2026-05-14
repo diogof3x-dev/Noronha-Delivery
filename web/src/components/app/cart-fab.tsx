@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatCents } from "@/lib/format";
 
 export function CartFab() {
+  const pathname = usePathname();
   const count = useCart((s) => s.itemCount());
   const subtotal = useCart((s) => s.subtotalCents());
   const business = useCart((s) => s.business);
 
   if (count === 0) return null;
+  if (pathname?.startsWith("/app/carrinho")) return null;
+  if (pathname?.startsWith("/app/pedidos/")) return null;
 
   return (
     <div className="fixed bottom-20 left-0 right-0 z-40 mx-auto w-full max-w-md px-4">

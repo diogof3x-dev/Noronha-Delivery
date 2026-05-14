@@ -69,7 +69,7 @@ export function CartView() {
   const belowMin = minOrder > 0 && subtotal < minOrder;
 
   return (
-    <div className="space-y-5 pb-32">
+    <div className="space-y-5 pb-40">
       <div className="flex items-center gap-2">
         <Link
           href={`/app/restaurante/${business.slug}`}
@@ -240,19 +240,14 @@ export function CartView() {
         <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 p-3 backdrop-blur">
-        <div className="mx-auto flex max-w-md items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Total com {totals.deliveryFee === 0 ? "entrega grátis" : "entrega"}
-            </p>
-            <p className="text-base font-bold">
-              {formatCents(totals.total)} <span className="text-xs font-normal text-muted-foreground">/ {items.length} item{items.length > 1 ? "s" : ""}</span>
-            </p>
-          </div>
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-primary/20 bg-background/95 px-4 pt-3 backdrop-blur"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}
+      >
+        <div className="mx-auto max-w-md">
           <Button
             size="lg"
-            className="h-12 flex-1 text-sm"
+            className="h-14 w-full text-base font-bold shadow-lg shadow-primary/40"
             disabled={belowMin || pending}
             onClick={() => {
               setError(null);
@@ -290,13 +285,20 @@ export function CartView() {
           >
             {pending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Criando...
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Criando pedido...
               </>
             ) : (
-              <>Continuar · {formatCents(totals.total)}</>
+              <>
+                Pagar agora · {formatCents(totals.total)}
+              </>
             )}
           </Button>
+          {belowMin && (
+            <p className="mt-2 text-center text-[11px] text-destructive">
+              Adicione mais {formatCents(minOrder - subtotal)} pra fechar o pedido
+            </p>
+          )}
         </div>
       </div>
     </div>

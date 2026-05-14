@@ -19,6 +19,10 @@ const tabs: Tab[] = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  // some screens have own sticky footers (cart checkout button, order PIX panel)
+  if (pathname?.startsWith("/app/carrinho")) return null;
+  if (pathname?.startsWith("/app/produto/")) return null;
+
   return (
     <nav className="sticky bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85 pb-[max(env(safe-area-inset-bottom),0.25rem)]">
       <ul className="mx-auto flex max-w-md items-stretch justify-around px-2">
