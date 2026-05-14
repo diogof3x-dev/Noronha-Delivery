@@ -23,19 +23,36 @@ const CartItemSchema = z.object({
   options: z.array(CartOptionSchema).optional(),
 });
 
+const DestinationGeoSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  accuracy: z.number().optional(),
+});
+
 const CreateOrderSchema = z.object({
   businessId: z.string().uuid(),
   items: z.array(CartItemSchema).min(1).max(50),
   destinationKind: z.enum(["pousada", "praia", "barco", "outro"]),
   destinationLabel: z.string().max(300).optional(),
+  destinationGeo: DestinationGeoSchema.optional(),
   paymentMethod: z.enum(["pix", "card", "cash"]),
   notes: z.string().max(500).optional(),
+  couponCode: z.string().max(40).optional(),
+  cpfNota: z.string().max(14).optional(),
 });
+
+const SERVICE_FEE_BPS = 199;
 
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 
 export type CreateOrderResult =
-  | { ok: true; orderId: string; orderCode: string; pix?: { qrCode: string | null; copyPaste: string | null }; cardClientSecret?: string }
+  | {
+      ok: true;
+      orderId: string;
+      orderCode: string;
+      pix?: { qrCode: string | null; copyPaste: string | null };
+      cardClientSecret?: string;
+    }
   | { ok: false; error: string };
 
 export async function createOrder(input: CreateOrderInput): Promise<CreateOrderResult> {
@@ -83,24 +100,40 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     0,
   );
   const deliveryFee = business.delivery_fee_cents ?? 0;
-  const total = subtotal + deliveryFee;
 
   if (business.min_order_cents && subtotal < business.min_order_cents) {
     return { ok: false, error: "Pedido abaixo do mínimo do estabelecimento." };
   }
 
-  const { data: rateRow, error: rateErr } = await supabase.rpc(
-    "effective_take_rate_bps",
-    {
+  let couponDiscount = 0;
+  let couponCodeFinal: string | null = null;
+  if (parsed.data.couponCode) {
+    const { data: cpData, error: cpErr } = await supabase.rpc("validate_coupon", {
+      p_code: parsed.data.couponCode,
+      p_subtotal_cents: subtotal,
       p_business_id: business.id,
-      p_category_id: business.category_id ?? "",
-    },
-  );
+    });
+    if (cpErr) return { ok: false, error: "Não foi possível aplicar o cupom" };
+    const row = (cpData ?? [])[0];
+    if (!row || row.error || !row.coupon_id) {
+      return { ok: false, error: row?.error ?? "Cupom inválido" };
+    }
+    couponDiscount = row.discount_cents;
+    couponCodeFinal = parsed.data.couponCode.toUpperCase();
+  }
+
+  const serviceFee = Math.round((subtotal * SERVICE_FEE_BPS) / 10_000);
+  const total = Math.max(0, subtotal - couponDiscount) + deliveryFee + serviceFee;
+
+  const { data: rateRow, error: rateErr } = await supabase.rpc("effective_take_rate_bps", {
+    p_business_id: business.id,
+    p_category_id: business.category_id ?? "",
+  });
   if (rateErr) {
     return { ok: false, error: "Não foi possível calcular a taxa. Tente novamente." };
   }
   const bps = rateRow ?? 1000;
-  const platformFee = Math.round((subtotal * bps) / 10_000);
+  const platformFee = Math.round(((subtotal - couponDiscount) * bps) / 10_000) + serviceFee;
 
   const { data: order, error: orderErr } = await supabase
     .from("orders")
@@ -110,16 +143,27 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       status: "pending",
       subtotal_cents: subtotal,
       delivery_fee_cents: deliveryFee,
-      discount_cents: 0,
+      discount_cents: couponDiscount,
+      coupon_discount_cents: couponDiscount,
+      coupon_code: couponCodeFinal,
+      service_fee_cents: serviceFee,
+      cpf_nota: parsed.data.cpfNota?.replace(/\D/g, "") || null,
       total_cents: total,
       platform_fee_cents: platformFee,
       destination_kind: parsed.data.destinationKind,
       destination_label: parsed.data.destinationLabel ?? null,
+      destination_geo: parsed.data.destinationGeo
+        ? {
+            lat: parsed.data.destinationGeo.lat,
+            lng: parsed.data.destinationGeo.lng,
+            accuracy: parsed.data.destinationGeo.accuracy ?? null,
+          }
+        : null,
       destination_notes: parsed.data.notes ?? null,
       payment_method: parsed.data.paymentMethod,
-      payment_status: parsed.data.paymentMethod === "cash" ? "pending" : "pending",
+      payment_status: "pending",
       placed_at: new Date().toISOString(),
-      metadata: { take_rate_bps: bps },
+      metadata: { take_rate_bps: bps, service_fee_bps: SERVICE_FEE_BPS },
     })
     .select("id, code")
     .single();
@@ -165,6 +209,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
           payment_id: charge.paymentId,
           metadata: {
             take_rate_bps: bps,
+            service_fee_bps: SERVICE_FEE_BPS,
             pix_qr: charge.qrCodeBase64,
             pix_copy: charge.qrCodeCopyPaste,
             pix_expires: charge.expiresAt,

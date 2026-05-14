@@ -267,6 +267,9 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
           subtotal_cents: number
           total_cents: number
+          service_fee_cents: number
+          coupon_discount_cents: number
+          cpf_nota: string | null
           updated_at: string
         }
         Insert: {
@@ -298,6 +301,9 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal_cents: number
           total_cents: number
+          service_fee_cents?: number
+          coupon_discount_cents?: number
+          cpf_nota?: string | null
           updated_at?: string
         }
         Update: {
@@ -329,6 +335,9 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal_cents?: number
           total_cents?: number
+          service_fee_cents?: number
+          coupon_discount_cents?: number
+          cpf_nota?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -497,6 +506,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coupons: {
+        Row: {
+          id: string
+          code: string
+          kind: "percent" | "fixed"
+          value_int: number
+          min_subtotal_cents: number
+          max_discount_cents: number | null
+          business_id: string | null
+          starts_at: string | null
+          ends_at: string | null
+          max_uses: number | null
+          used_count: number
+          is_active: boolean
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          kind: "percent" | "fixed"
+          value_int: number
+          min_subtotal_cents?: number
+          max_discount_cents?: number | null
+          business_id?: string | null
+          starts_at?: string | null
+          ends_at?: string | null
+          max_uses?: number | null
+          used_count?: number
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          kind?: "percent" | "fixed"
+          value_int?: number
+          min_subtotal_cents?: number
+          max_discount_cents?: number | null
+          business_id?: string | null
+          starts_at?: string | null
+          ends_at?: string | null
+          max_uses?: number | null
+          used_count?: number
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: []
       }
       platform_settings: {
         Row: {
@@ -901,6 +961,18 @@ export type Database = {
         Returns: number
       }
       is_admin: { Args: Record<string, never>; Returns: boolean }
+      validate_coupon: {
+        Args: {
+          p_code: string
+          p_subtotal_cents: number
+          p_business_id: string
+        }
+        Returns: { coupon_id: string | null; discount_cents: number; error: string | null }[]
+      }
+      settle_completed_orders: {
+        Args: Record<string, never>
+        Returns: { settled: number; total_credited_cents: number }[]
+      }
     }
     Enums: {
       business_type:

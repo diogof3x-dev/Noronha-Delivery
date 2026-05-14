@@ -5,6 +5,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { formatCents } from "@/lib/format";
 import { OrderStatusLive } from "./order-status-live";
 import { PixPanel } from "./pix-panel";
+import { CardLoader } from "./card-loader";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function PedidoDetailPage({ params }: Props) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, payment_method, payment_status, destination_kind, destination_label, destination_notes, created_at, metadata, business_id, businesses(name, slug)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, businesses(name, slug)",
     )
     .eq("id", id)
     .eq("customer_id", user.id)
@@ -91,6 +92,10 @@ export default async function PedidoDetailPage({ params }: Props) {
         />
       )}
 
+      {order.payment_method === "card" && order.payment_status !== "paid" && (
+        <CardLoader orderId={order.id} />
+      )}
+
       <section className="rounded-2xl border border-border bg-card p-4 text-sm">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Estabelecimento
@@ -117,10 +122,22 @@ export default async function PedidoDetailPage({ params }: Props) {
             <span className="text-muted-foreground">Subtotal</span>
             <span>{formatCents(order.subtotal_cents)}</span>
           </div>
+          {order.coupon_discount_cents > 0 && (
+            <div className="flex justify-between text-[color:var(--turtle)]">
+              <span>Cupom {order.coupon_code}</span>
+              <span>-{formatCents(order.coupon_discount_cents)}</span>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Entrega</span>
-            <span>{formatCents(order.delivery_fee_cents)}</span>
+            <span>{order.delivery_fee_cents === 0 ? "Grátis" : formatCents(order.delivery_fee_cents)}</span>
           </div>
+          {order.service_fee_cents > 0 && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Taxa de serviço</span>
+              <span>{formatCents(order.service_fee_cents)}</span>
+            </div>
+          )}
           <div className="flex justify-between border-t border-border pt-1 text-sm font-bold">
             <span>Total</span>
             <span>{formatCents(order.total_cents)}</span>
