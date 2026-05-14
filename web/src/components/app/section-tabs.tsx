@@ -40,7 +40,7 @@ export function SectionTabs({ sections }: { sections: string[] }) {
               <button
                 type="button"
                 onClick={() => go(name)}
-                className={`inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
