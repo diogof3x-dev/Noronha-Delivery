@@ -5,7 +5,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CardapioItemRow } from "./item-row";
+import { CardapioCatalog, type CatalogService } from "./catalog-view";
 
 export const dynamic = "force-dynamic";
 
@@ -22,25 +22,9 @@ export default async function PainelCardapio() {
   if (!isAdmin) businessQuery = businessQuery.eq("owner_id", user.id);
   const { data: businesses } = await businessQuery;
 
-  type ServiceRow = {
-    id: string;
-    business_id: string;
-    name: string;
-    description: string | null;
-    price_cents: number;
-    original_price_cents: number | null;
-    kind: string;
-    is_active: boolean;
-    position: number;
-    image_url: string | null;
-    section: string | null;
-    is_featured: boolean;
-    serves_people: number | null;
-  };
-
   const ids = (businesses ?? []).map((b) => b.id);
-  const services: ServiceRow[] = ids.length
-    ? (
+  const services: CatalogService[] = ids.length
+    ? ((
         await supabase
           .from("services")
           .select(
@@ -50,13 +34,8 @@ export default async function PainelCardapio() {
           .order("business_id")
           .order("section", { ascending: true, nullsFirst: false })
           .order("position", { ascending: true })
-      ).data ?? []
+      ).data as CatalogService[] | null) ?? []
     : [];
-
-  const byBusiness: Record<string, ServiceRow[]> = {};
-  for (const s of services) {
-    (byBusiness[s.business_id] ??= []).push(s);
-  }
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -79,53 +58,17 @@ export default async function PainelCardapio() {
       </header>
 
       {!businesses?.length ? (
-        <EmptyState message="Nenhuma loja vinculada ainda. Quando você for credenciado e tiver loja criada, o cardápio aparece aqui." />
-      ) : (businesses ?? []).map((b) => {
-        const items = byBusiness[b.id] ?? [];
-        return (
-          <section key={b.id} className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {b.name} · {items.length} itens
-            </h2>
-            {items.length === 0 ? (
-              <EmptyState message="Cardápio vazio. Use o botão acima pra subir itens (manual, em lote ou importando)." />
-            ) : (
-              <ul className="space-y-2">
-                {items.map((s) => (
-                  <CardapioItemRow
-                    key={s.id}
-                    id={s.id}
-                    name={s.name}
-                    description={s.description}
-                    priceCents={s.price_cents}
-                    originalPriceCents={s.original_price_cents}
-                    imageUrl={s.image_url}
-                    isActive={s.is_active}
-                    section={s.section}
-                    isFeatured={s.is_featured}
-                    servesPeople={s.serves_people}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
-        );
-      })}
-
-      <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-        Em breve: upload de fotos direto, drag-to-reorder, seções e controle de estoque.
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <UtensilsCrossed className="h-5 w-5" />
-      </span>
-      <p className="max-w-md text-sm text-muted-foreground">{message}</p>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+            <UtensilsCrossed className="h-5 w-5" />
+          </span>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Nenhuma loja vinculada ainda. Crie uma em <strong>Minha loja</strong>.
+          </p>
+        </div>
+      ) : (
+        <CardapioCatalog businesses={businesses} services={services} />
+      )}
     </div>
   );
 }
