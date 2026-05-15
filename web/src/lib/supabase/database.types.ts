@@ -1112,6 +1112,15 @@ export type Database = {
         Args: Record<string, never>
         Returns: { settled: number; total_credited_cents: number }[]
       }
+      is_room_available: {
+        Args: {
+          p_room_id: string
+          p_check_in: string
+          p_check_out: string
+          p_exclude_booking: string | null
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       business_type:
