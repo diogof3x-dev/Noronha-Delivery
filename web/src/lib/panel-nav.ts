@@ -3,7 +3,9 @@ import {
   BedDouble,
   Banknote,
   CalendarCheck,
+  CalendarDays,
   ListChecks,
+  Sailboat,
   Star,
   Store,
   UserCog,
@@ -38,10 +40,18 @@ const LODGING: PanelNavItem[] = [
   { href: "/parceiro/painel/reservas", label: "Reservas", icon: CalendarCheck },
 ];
 
+const TOURS: PanelNavItem[] = [
+  { href: "/parceiro/painel/passeios", label: "Passeios", icon: Sailboat },
+  { href: "/parceiro/painel/agenda", label: "Agenda", icon: CalendarDays },
+  { href: "/parceiro/painel/reservas-passeio", label: "Reservas", icon: CalendarCheck },
+];
+
 export function getPanelNav(type: string | null | undefined): PanelNavItem[] {
   switch (type) {
     case "pousada":
       return [...BASE, ...LODGING, ...CADASTRO_LOJA];
+    case "operador_passeio":
+      return [...BASE, ...TOURS, ...CADASTRO_LOJA];
     case "restaurante":
     case "mercado":
     case "farmacia":

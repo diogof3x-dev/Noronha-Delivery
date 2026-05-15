@@ -516,6 +516,123 @@ export type Database = {
           },
         ]
       }
+      tour_sessions: {
+        Row: {
+          id: string
+          business_id: string
+          service_id: string
+          start_at: string
+          capacity: number
+          sold_pax: number
+          meeting_point: string | null
+          is_active: boolean
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          service_id: string
+          start_at: string
+          capacity: number
+          sold_pax?: number
+          meeting_point?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          service_id?: string
+          start_at?: string
+          capacity?: number
+          sold_pax?: number
+          meeting_point?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tour_bookings: {
+        Row: {
+          id: string
+          code: string
+          business_id: string
+          service_id: string
+          session_id: string
+          customer_id: string | null
+          customer_name: string
+          customer_email: string | null
+          customer_whatsapp: string | null
+          pax_count: number
+          unit_price_cents: number
+          total_cents: number
+          platform_fee_cents: number
+          status: "requested" | "confirmed" | "cancelled" | "refunded" | "no_show" | "completed"
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_id: string | null
+          delivery_code: string | null
+          notes: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code?: string
+          business_id: string
+          service_id: string
+          session_id: string
+          customer_id?: string | null
+          customer_name: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          pax_count: number
+          unit_price_cents: number
+          total_cents: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "cancelled" | "refunded" | "no_show" | "completed"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          business_id?: string
+          service_id?: string
+          session_id?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          pax_count?: number
+          unit_price_cents?: number
+          total_cents?: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "cancelled" | "refunded" | "no_show" | "completed"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rooms: {
         Row: {
           id: string
