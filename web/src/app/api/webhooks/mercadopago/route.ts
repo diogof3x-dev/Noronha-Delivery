@@ -1,10 +1,38 @@
 import { NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { getPaymentStatus } from "@/lib/payments/mercadopago";
 import type { Database } from "@/lib/supabase/database.types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function verifyMpSignature(req: Request, paymentId: string): boolean {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  if (!secret) return true; // sem secret, deixa passar (dev)
+
+  const xSignature = req.headers.get("x-signature");
+  const xRequestId = req.headers.get("x-request-id");
+  if (!xSignature || !xRequestId || !paymentId) return false;
+
+  const parts = Object.fromEntries(
+    xSignature
+      .split(",")
+      .map((p) => p.trim().split("="))
+      .filter((kv) => kv.length === 2),
+  );
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+  if (!ts || !v1) return false;
+
+  const manifest = `id:${paymentId};request-id:${xRequestId};ts:${ts};`;
+  const computed = createHmac("sha256", secret).update(manifest).digest("hex");
+  try {
+    return timingSafeEqual(Buffer.from(v1, "hex"), Buffer.from(computed, "hex"));
+  } catch {
+    return false;
+  }
+}
 
 function admin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -56,6 +84,10 @@ export async function POST(req: Request) {
   const paymentId = data.data?.id ? String(data.data.id) : null;
   if (!paymentId) {
     return NextResponse.json({ ok: false, error: "Sem paymentId" }, { status: 400 });
+  }
+
+  if (!verifyMpSignature(req, paymentId)) {
+    return NextResponse.json({ ok: false, error: "Assinatura inválida" }, { status: 401 });
   }
 
   let pay;
