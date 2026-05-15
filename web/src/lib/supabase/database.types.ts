@@ -516,6 +516,97 @@ export type Database = {
           },
         ]
       }
+      rental_bookings: {
+        Row: {
+          id: string
+          code: string
+          business_id: string
+          service_id: string
+          customer_id: string | null
+          customer_name: string
+          customer_email: string | null
+          customer_whatsapp: string | null
+          customer_document: string | null
+          pickup_at: string
+          return_at: string
+          daily_cents: number
+          total_days: number
+          subtotal_cents: number
+          deposit_cents: number
+          total_cents: number
+          platform_fee_cents: number
+          status: "requested" | "confirmed" | "active" | "returned" | "cancelled" | "refunded" | "late"
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_id: string | null
+          delivery_code: string | null
+          return_code: string | null
+          pickup_location: string | null
+          notes: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code?: string
+          business_id: string
+          service_id: string
+          customer_id?: string | null
+          customer_name: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          customer_document?: string | null
+          pickup_at: string
+          return_at: string
+          daily_cents: number
+          subtotal_cents: number
+          deposit_cents?: number
+          total_cents: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "active" | "returned" | "cancelled" | "refunded" | "late"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          return_code?: string | null
+          pickup_location?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          business_id?: string
+          service_id?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          customer_document?: string | null
+          pickup_at?: string
+          return_at?: string
+          daily_cents?: number
+          subtotal_cents?: number
+          deposit_cents?: number
+          total_cents?: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "active" | "returned" | "cancelled" | "refunded" | "late"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          return_code?: string | null
+          pickup_location?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tour_sessions: {
         Row: {
           id: string
@@ -1235,6 +1326,15 @@ export type Database = {
           p_check_in: string
           p_check_out: string
           p_exclude_booking: string | null
+        }
+        Returns: boolean
+      }
+      is_rental_available: {
+        Args: {
+          p_service_id: string
+          p_pickup_at: string
+          p_return_at: string
+          p_exclude_id: string | null
         }
         Returns: boolean
       }

@@ -2,6 +2,7 @@ import {
   BarChart3,
   BedDouble,
   Banknote,
+  Bike,
   CalendarCheck,
   CalendarDays,
   ListChecks,
@@ -46,12 +47,19 @@ const TOURS: PanelNavItem[] = [
   { href: "/parceiro/painel/reservas-passeio", label: "Reservas", icon: CalendarCheck },
 ];
 
+const RENTALS: PanelNavItem[] = [
+  { href: "/parceiro/painel/equipamentos", label: "Equipamentos", icon: Bike },
+  { href: "/parceiro/painel/locacoes", label: "Locações", icon: CalendarCheck },
+];
+
 export function getPanelNav(type: string | null | undefined): PanelNavItem[] {
   switch (type) {
     case "pousada":
       return [...BASE, ...LODGING, ...CADASTRO_LOJA];
     case "operador_passeio":
       return [...BASE, ...TOURS, ...CADASTRO_LOJA];
+    case "locadora":
+      return [...BASE, ...RENTALS, ...CADASTRO_LOJA];
     case "restaurante":
     case "mercado":
     case "farmacia":
