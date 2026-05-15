@@ -6,10 +6,13 @@ import {
   Clock,
   ListChecks,
   Star,
+  TrendingUp,
   UtensilsCrossed,
+  Wallet,
 } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { redirect } from "next/navigation";
+import { formatCents } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,7 +20,7 @@ export const revalidate = 0;
 const QUICK_ACTIONS = [
   { href: "/parceiro/painel/pedidos", label: "Ver pedidos", icon: ListChecks },
   { href: "/parceiro/painel/cardapio", label: "Editar cardápio", icon: UtensilsCrossed },
-  { href: "/parceiro/painel/vendas", label: "Solicitar saque", icon: Banknote },
+  { href: "/parceiro/painel/vendas", label: "Carteira / Saque", icon: Banknote },
 ];
 
 export default async function ParceiroPainelHome() {
@@ -33,6 +36,65 @@ export default async function ParceiroPainelHome() {
     .eq("owner_id", user.id);
 
   const business = businesses?.[0];
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+
+  let pedidosHoje = 0;
+  let receita7d = 0;
+  let fee7d = 0;
+  let avgStars: number | null = null;
+  let totalReviews = 0;
+  let saldoCarteira = 0;
+  let pedidosAbertos = 0;
+
+  if (business) {
+    const [
+      { count: hojeCount },
+      { data: paid7d },
+      { data: scoreRow },
+      { data: acc },
+      { count: openCount },
+    ] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", business.id)
+        .gte("created_at", startOfDay.toISOString()),
+      supabase
+        .from("orders")
+        .select("total_cents, platform_fee_cents")
+        .eq("business_id", business.id)
+        .eq("payment_status", "paid")
+        .gte("created_at", sevenDaysAgo.toISOString()),
+      supabase
+        .from("business_scores")
+        .select("avg_stars, total_reviews")
+        .eq("business_id", business.id)
+        .maybeSingle(),
+      supabase
+        .from("wallet_accounts")
+        .select("balance_cents")
+        .eq("business_id", business.id)
+        .maybeSingle(),
+      supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", business.id)
+        .in("status", ["pending", "confirmed", "preparing", "ready", "in_transit"]),
+    ]);
+
+    pedidosHoje = hojeCount ?? 0;
+    receita7d = (paid7d ?? []).reduce((acc, o) => acc + (o.total_cents ?? 0), 0);
+    fee7d = (paid7d ?? []).reduce((acc, o) => acc + (o.platform_fee_cents ?? 0), 0);
+    avgStars = scoreRow?.avg_stars ?? null;
+    totalReviews = scoreRow?.total_reviews ?? 0;
+    saldoCarteira = acc?.balance_cents ?? 0;
+    pedidosAbertos = openCount ?? 0;
+  }
+
+  const receitaLiquida = receita7d - fee7d;
 
   return (
     <div className="space-y-6 p-4 md:space-y-8 md:p-8">
@@ -63,19 +125,59 @@ export default async function ParceiroPainelHome() {
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <h2 className="text-lg font-semibold">Nenhuma loja cadastrada ainda</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sua conta está aprovada mas a loja ainda não foi criada. Fale com o suporte pelo
-            WhatsApp pra liberarmos seu cadastro completo.
+            Crie sua loja em <strong>Minha loja</strong> pra começar a vender.
           </p>
         </div>
       )}
 
       {business && (
         <>
+          {pedidosAbertos > 0 && (
+            <Link
+              href="/parceiro/painel/pedidos"
+              className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-primary/5 p-4 hover:bg-primary/10"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <ListChecks className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-bold">
+                  {pedidosAbertos} pedido{pedidosAbertos > 1 ? "s" : ""} em aberto
+                </p>
+                <p className="text-xs text-muted-foreground">Atenda agora →</p>
+              </div>
+            </Link>
+          )}
+
           <div className="grid gap-3 md:grid-cols-4">
-            <Card title="Pedidos hoje" value="0" sub="Aguardando primeiro" icon={ListChecks} />
-            <Card title="Receita 7d" value="R$ 0" sub="Líquido de taxa" icon={Banknote} />
-            <Card title="Avaliação" value="—" sub="Novo na plataforma" icon={Star} />
-            <Card title="Tempo médio" value={`${business.avg_prep_minutes ?? "—"} min`} sub="De preparo" icon={Clock} />
+            <Card
+              title="Pedidos hoje"
+              value={String(pedidosHoje)}
+              sub={pedidosHoje === 0 ? "Aguardando primeiro" : "Hoje"}
+              icon={ListChecks}
+            />
+            <Card
+              title="Receita 7d"
+              value={formatCents(receita7d)}
+              sub={`Líquido ${formatCents(receitaLiquida)} (taxa ${formatCents(fee7d)})`}
+              icon={TrendingUp}
+            />
+            <Card
+              title="Carteira"
+              value={formatCents(saldoCarteira)}
+              sub="Saldo pra saque"
+              icon={Wallet}
+            />
+            <Card
+              title="Avaliação"
+              value={avgStars ? Number(avgStars).toFixed(1) : "—"}
+              sub={
+                totalReviews
+                  ? `${totalReviews} avaliaç${totalReviews === 1 ? "ão" : "ões"}`
+                  : "Novo na plataforma"
+              }
+              icon={Star}
+            />
           </div>
 
           <section className="space-y-3">
@@ -105,15 +207,12 @@ export default async function ParceiroPainelHome() {
             </ul>
           </section>
 
-          <section className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Painel completo em construção
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Em breve aqui: pedidos em tempo real com Realtime, gráficos de venda,
-              ranking de produtos, repasse D+8 e solicitação de saque PIX integrado ao
-              Mercado Pago. Por enquanto, fale com o suporte pelo WhatsApp se precisar de
-              qualquer ajuste no seu cadastro.
+          <section className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
+            <p className="font-semibold text-foreground">Como o saldo entra na carteira</p>
+            <p className="mt-1">
+              Cada pedido entregue libera o valor (descontada a taxa de serviço) na sua
+              carteira <strong>D+8</strong> automaticamente. Janela legal de 8 dias pra
+              evitar estornos. O cron roda diário às 03h.
             </p>
           </section>
         </>
