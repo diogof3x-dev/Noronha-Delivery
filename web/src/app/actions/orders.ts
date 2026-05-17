@@ -69,7 +69,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
   const { data: business, error: bizErr } = await supabase
     .from("businesses")
-    .select("id, name, delivery_fee_cents, min_order_cents, category_id, is_active")
+    .select("id, name, delivery_fee_cents, min_order_cents, category_id, is_active, owner_id")
     .eq("id", parsed.data.businessId)
     .maybeSingle();
   if (bizErr || !business || !business.is_active) {
@@ -171,6 +171,8 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     return { ok: false, error: orderErr?.message ?? "Falha ao criar pedido." };
   }
 
+  void notifyMerchantNewOrder(business.owner_id, business.name, order.code, total);
+
   const itemsPayload = parsed.data.items.map((i) => ({
     order_id: order.id,
     service_id: i.serviceId,
@@ -266,4 +268,27 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
 
   revalidatePath(`/app/pedidos/${order.id}`);
   return { ok: true, orderId: order.id, orderCode: order.code };
+}
+
+async function notifyMerchantNewOrder(
+  ownerId: string | null,
+  businessName: string,
+  orderCode: string,
+  totalCents: number,
+) {
+  if (!ownerId) return;
+  try {
+    const { sendPushToUser } = await import("@/lib/push");
+    await sendPushToUser(ownerId, {
+      title: `Pedido #${orderCode} · ${businessName}`,
+      body: `Novo pedido de R$ ${(totalCents / 100).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+      })}. Toque pra abrir o painel.`,
+      url: "/parceiro/painel/pedidos",
+      tag: `order-${orderCode}`,
+    });
+  } catch (e) {
+    const { captureError } = await import("@/lib/observability");
+    captureError(e, { message: "notifyMerchantNewOrder failed", tags: { owner_id: ownerId } });
+  }
 }

@@ -5,6 +5,7 @@ import { getAdminClient } from "@/lib/supabase/admin-client";
 import { getProfile } from "@/lib/profile";
 import { OrderCard, type MerchantOrder } from "./order-card";
 import { RealtimeOrdersListener } from "./realtime-listener";
+import { PushPrompt } from "@/components/push/push-prompt";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,7 @@ export default async function PainelPedidos() {
 
   return (
     <div className="space-y-6 p-4 md:p-8">
+      <PushPrompt context="parceiro" />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">

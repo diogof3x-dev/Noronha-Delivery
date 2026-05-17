@@ -1394,6 +1394,42 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent: string | null
+          created_at: string
+          last_used_at: string | null
+          failed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          user_agent?: string | null
+          created_at?: string
+          last_used_at?: string | null
+          failed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          endpoint?: string
+          p256dh?: string
+          auth?: string
+          user_agent?: string | null
+          created_at?: string
+          last_used_at?: string | null
+          failed_at?: string | null
+        }
+        Relationships: []
+      }
       webhook_events: {
         Row: {
           provider: string
@@ -1433,6 +1469,101 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mv_platform_daily: {
+        Row: {
+          day: string
+          orders_count: number
+          paid_count: number
+          cancelled_count: number
+          refunded_count: number
+          delivered_count: number
+          pix_count: number
+          card_count: number
+          gmv_cents: number
+          fee_cents: number
+          service_fee_cents: number
+        }
+        Relationships: []
+      }
+      mv_business_lifetime: {
+        Row: {
+          business_id: string
+          name: string
+          type: string
+          slug: string | null
+          is_active: boolean
+          business_created_at: string
+          orders_count: number
+          paid_count: number
+          cancelled_count: number
+          gmv_cents: number
+          fee_cents: number
+          first_order_at: string | null
+          last_order_at: string | null
+          avg_ticket_cents: number
+        }
+        Relationships: []
+      }
+      mv_driver_lifetime: {
+        Row: {
+          driver_id: string
+          name: string | null
+          whatsapp: string | null
+          driver_created_at: string
+          deliveries_count: number
+          delivered_count: number
+          earnings_cents: number
+          last_delivery_at: string | null
+        }
+        Relationships: []
+      }
+      mv_customer_lifetime: {
+        Row: {
+          customer_id: string
+          name: string | null
+          whatsapp: string | null
+          district: string | null
+          is_resident: boolean
+          customer_created_at: string
+          orders_count: number
+          paid_orders_count: number
+          total_spent_cents: number
+          last_order_at: string | null
+          avg_ticket_cents: number
+        }
+        Relationships: []
+      }
+      mv_funnel_leads_weekly: {
+        Row: {
+          week: string
+          leads_total: number
+          leads_contacted: number
+          leads_comercio: number
+          leads_motorista: number
+          leads_pousada: number
+          leads_operador: number
+        }
+        Relationships: []
+      }
+      mv_geography_orders: {
+        Row: {
+          destination_kind: string
+          orders_count: number
+          paid_count: number
+          gmv_cents: number
+        }
+        Relationships: []
+      }
+      mv_payment_methods_weekly: {
+        Row: {
+          week: string
+          pix_count: number
+          card_count: number
+          pix_gmv_cents: number
+          card_gmv_cents: number
+        }
+        Relationships: []
       }
     }
     Functions: {

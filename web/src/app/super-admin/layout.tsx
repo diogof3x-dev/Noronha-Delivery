@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BadgePercent, Banknote, Bike, Inbox, LayoutDashboard, ShieldAlert, Store, Ticket } from "lucide-react";
+import { BadgePercent, Banknote, Bike, Inbox, LayoutDashboard, LineChart, ShieldAlert, Store, Ticket } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { signOut } from "@/app/actions/auth";
@@ -12,12 +12,13 @@ export const revalidate = 0;
 
 const NAV = [
   { href: "/super-admin", label: "Visão geral", icon: LayoutDashboard },
+  { href: "/super-admin/financeiro", label: "Financeiro", icon: LineChart },
   { href: "/super-admin/lojas", label: "Lojas", icon: Store },
   { href: "/super-admin/entregadores", label: "Entregadores", icon: Bike },
+  { href: "/super-admin/pedidos", label: "Pedidos", icon: Inbox },
+  { href: "/super-admin/saques", label: "Saques", icon: Banknote },
   { href: "/super-admin/taxas", label: "Taxas", icon: BadgePercent },
   { href: "/super-admin/cupons", label: "Cupons", icon: Ticket },
-  { href: "/super-admin/saques", label: "Saques", icon: Banknote },
-  { href: "/super-admin/pedidos", label: "Pedidos", icon: Inbox },
 ];
 
 export default async function SuperAdminLayout({ children }: { children: React.ReactNode }) {
