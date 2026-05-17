@@ -196,36 +196,48 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   }
 
   if (parsed.data.paymentMethod === "pix") {
-    try {
-      const charge = await createPixCharge({
-        orderId: order.id,
-        amountCents: total,
-        payerEmail: user.email ?? "noronha@noreply.dev",
-        description: `${business.name} · ${order.code}`,
-      });
-      await supabase
-        .from("orders")
-        .update({
-          payment_id: charge.paymentId,
-          metadata: {
-            take_rate_bps: bps,
-            service_fee_bps: SERVICE_FEE_BPS,
-            pix_qr: charge.qrCodeBase64,
-            pix_copy: charge.qrCodeCopyPaste,
-            pix_expires: charge.expiresAt,
-          },
-        })
-        .eq("id", order.id);
-      revalidatePath(`/app/pedidos/${order.id}`);
-      return {
-        ok: true,
-        orderId: order.id,
-        orderCode: order.code,
-        pix: { qrCode: charge.qrCodeBase64, copyPaste: charge.qrCodeCopyPaste },
-      };
-    } catch (e) {
-      return { ok: false, error: e instanceof Error ? e.message : "Falha PIX" };
+    // tenta criar PIX com retry simples
+    let lastErr: Error | null = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const charge = await createPixCharge({
+          orderId: order.id,
+          amountCents: total,
+          payerEmail: user.email ?? "noronha@noreply.dev",
+          description: `${business.name} · ${order.code}`,
+        });
+        await supabase
+          .from("orders")
+          .update({
+            payment_id: charge.paymentId,
+            metadata: {
+              take_rate_bps: bps,
+              service_fee_bps: SERVICE_FEE_BPS,
+              pix_qr: charge.qrCodeBase64,
+              pix_copy: charge.qrCodeCopyPaste,
+              pix_expires: charge.expiresAt,
+            },
+          })
+          .eq("id", order.id);
+        revalidatePath(`/app/pedidos/${order.id}`);
+        return {
+          ok: true,
+          orderId: order.id,
+          orderCode: order.code,
+          pix: { qrCode: charge.qrCodeBase64, copyPaste: charge.qrCodeCopyPaste },
+        };
+      } catch (e) {
+        lastErr = e instanceof Error ? e : new Error("Falha PIX");
+        console.error(`[createOrder] PIX attempt ${attempt + 1} failed`, e);
+      }
     }
+    // PIX falhou 2x — pedido fica salvo pra retentativa manual via /app/pedidos/[id]
+    revalidatePath(`/app/pedidos/${order.id}`);
+    return {
+      ok: true,
+      orderId: order.id,
+      orderCode: order.code,
+    };
   }
 
   if (parsed.data.paymentMethod === "card") {
