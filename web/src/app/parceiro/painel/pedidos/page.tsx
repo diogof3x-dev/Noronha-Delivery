@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { getAdminClient } from "@/lib/supabase/admin-client";
 import { getProfile } from "@/lib/profile";
 import { OrderCard, type MerchantOrder } from "./order-card";
 import { RealtimeOrdersListener } from "./realtime-listener";
@@ -34,7 +35,7 @@ export default async function PainelPedidos() {
   let query = supabase
     .from("orders")
     .select(
-      "id, code, status, total_cents, created_at, business_id, destination_kind, destination_label, payment_method, payment_status, order_items(name_snapshot, quantity)",
+      "id, code, status, total_cents, created_at, business_id, customer_id, destination_kind, destination_label, destination_notes, payment_method, payment_status, delivery_code, order_items(name_snapshot, quantity)",
     )
     .order("created_at", { ascending: false })
     .limit(80);
@@ -42,21 +43,45 @@ export default async function PainelPedidos() {
 
   const { data: orders } = await query;
 
-  const items: MerchantOrder[] = (orders ?? []).map((o) => ({
-    id: o.id,
-    code: o.code,
-    status: o.status,
-    total_cents: o.total_cents,
-    created_at: o.created_at,
-    destination_kind: o.destination_kind,
-    destination_label: o.destination_label,
-    payment_method: o.payment_method,
-    payment_status: o.payment_status,
-    business_name: bizMap.get(o.business_id),
-    items: ((o.order_items as { name_snapshot: string; quantity: number }[] | null) ?? []).map(
-      (i) => ({ name_snapshot: i.name_snapshot, quantity: i.quantity }),
-    ),
-  }));
+  const customerIds = Array.from(
+    new Set((orders ?? []).map((o) => o.customer_id).filter((x): x is string => Boolean(x))),
+  );
+  const customerMap = new Map<string, { name: string | null; whatsapp: string | null }>();
+  if (customerIds.length) {
+    const admin = getAdminClient();
+    if (admin) {
+      const { data: customers } = await admin
+        .from("profiles")
+        .select("id, full_name, whatsapp")
+        .in("id", customerIds);
+      for (const c of customers ?? []) {
+        customerMap.set(c.id, { name: c.full_name, whatsapp: c.whatsapp });
+      }
+    }
+  }
+
+  const items: MerchantOrder[] = (orders ?? []).map((o) => {
+    const cust = o.customer_id ? customerMap.get(o.customer_id) : undefined;
+    return {
+      id: o.id,
+      code: o.code,
+      status: o.status,
+      total_cents: o.total_cents,
+      created_at: o.created_at,
+      destination_kind: o.destination_kind,
+      destination_label: o.destination_label,
+      destination_notes: o.destination_notes,
+      payment_method: o.payment_method,
+      payment_status: o.payment_status,
+      delivery_code: o.delivery_code,
+      business_name: bizMap.get(o.business_id),
+      customer_name: cust?.name ?? null,
+      customer_whatsapp: cust?.whatsapp ?? null,
+      items: ((o.order_items as { name_snapshot: string; quantity: number }[] | null) ?? []).map(
+        (i) => ({ name_snapshot: i.name_snapshot, quantity: i.quantity }),
+      ),
+    };
+  });
 
   const grouped = new Map<string, MerchantOrder[]>();
   for (const o of items) {
