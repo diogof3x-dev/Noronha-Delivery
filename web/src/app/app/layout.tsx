@@ -18,6 +18,7 @@ export default async function ClientLayout({ children }: { children: React.React
         district={profile?.district ?? null}
         initials={initialsFor(profile?.full_name, user?.email)}
         isAuthed={Boolean(user)}
+        role={profile?.role ?? null}
       />
       <main className="mx-auto w-full max-w-md flex-1 px-4 pb-4 pt-3">{children}</main>
       <CartFab />

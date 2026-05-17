@@ -104,6 +104,12 @@ export default async function ParceiroPainelLayout({
             <p className="font-medium">{profile?.full_name ?? user.email}</p>
             <p className="text-muted-foreground">{user.email}</p>
           </div>
+          <Link
+            href="/app"
+            className="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-xs hover:bg-muted"
+          >
+            ← App cliente
+          </Link>
           <form action={signOut}>
             <Button variant="outline" size="sm" type="submit" className="w-full h-8">
               Sair
@@ -120,11 +126,19 @@ export default async function ParceiroPainelLayout({
             </span>
             <span className="text-sm font-semibold">Painel parceiro</span>
           </Link>
-          <form action={signOut}>
-            <Button variant="outline" size="sm" type="submit" className="h-8">
-              Sair
-            </Button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/app"
+              className="inline-flex h-8 items-center rounded-full border border-border px-2.5 text-[11px] font-medium hover:bg-muted"
+            >
+              App cliente
+            </Link>
+            <form action={signOut}>
+              <Button variant="outline" size="sm" type="submit" className="h-8">
+                Sair
+              </Button>
+            </form>
+          </div>
         </header>
 
         <nav className="flex gap-1 overflow-x-auto border-b border-border bg-background px-2 py-2 lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

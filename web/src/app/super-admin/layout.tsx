@@ -80,6 +80,12 @@ export default async function SuperAdminLayout({ children }: { children: React.R
             <p className="font-medium">{profile?.full_name ?? user.email}</p>
             <p className="text-muted-foreground">{user.email}</p>
           </div>
+          <Link
+            href="/app"
+            className="mb-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border px-2 py-1.5 text-xs hover:bg-muted"
+          >
+            ← App cliente
+          </Link>
           <form action={signOut}>
             <Button variant="outline" size="sm" type="submit" className="w-full h-8">
               Sair

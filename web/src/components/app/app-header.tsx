@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ChevronDown, LogIn, MapPin } from "lucide-react";
+import { Bell, Bike, ChevronDown, LogIn, MapPin, Shield, Store } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NoronhaMark } from "@/components/illustrations/noronha-mark";
 
@@ -7,9 +7,35 @@ type Props = {
   district: string | null;
   initials: string;
   isAuthed?: boolean;
+  role?: "customer" | "business_owner" | "driver" | "admin" | null;
 };
 
-export function AppHeader({ district, initials, isAuthed = false }: Props) {
+export function AppHeader({ district, initials, isAuthed = false, role = null }: Props) {
+  const personaChips: { href: string; label: string; icon: React.ComponentType<{ className?: string }>; tone: string }[] = [];
+  if (role === "business_owner" || role === "admin") {
+    personaChips.push({
+      href: "/parceiro/painel",
+      label: "Modo lojista",
+      icon: Store,
+      tone: "border-primary/30 bg-primary/5 text-primary",
+    });
+  }
+  if (role === "driver" || role === "admin") {
+    personaChips.push({
+      href: "/entregador/painel",
+      label: "Modo entregador",
+      icon: Bike,
+      tone: "border-[color:var(--turtle)]/30 bg-[color:var(--turtle)]/5 text-[color:var(--turtle)]",
+    });
+  }
+  if (role === "admin") {
+    personaChips.push({
+      href: "/super-admin",
+      label: "Super admin",
+      icon: Shield,
+      tone: "border-[color:var(--sun)]/40 bg-[color:var(--sun)]/10 text-[color:var(--sun)]",
+    });
+  }
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="mx-auto flex h-14 max-w-md items-center gap-2 px-3">
@@ -66,6 +92,25 @@ export function AppHeader({ district, initials, isAuthed = false }: Props) {
           </Link>
         )}
       </div>
+      {personaChips.length > 0 && (
+        <div className="border-t border-border/60 bg-background/80">
+          <div className="mx-auto flex max-w-md gap-2 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {personaChips.map((chip) => {
+              const Icon = chip.icon;
+              return (
+                <Link
+                  key={chip.href}
+                  href={chip.href}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold ${chip.tone}`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {chip.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
