@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { getPaymentStatus } from "@/lib/payments/mercadopago";
 import type { Database } from "@/lib/supabase/database.types";
+import { sendOrderPaidNotification } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -135,7 +136,56 @@ export async function POST(req: Request) {
 
   await supa.from("orders").update(update).eq("id", order.id);
 
+  // Notificações por email só quando virou paid
+  if (mapped.paymentStatus === "paid") {
+    void notifyOrderPaid(supa, order.id);
+  }
+
   return NextResponse.json({ ok: true });
+}
+
+async function notifyOrderPaid(supa: ReturnType<typeof admin>, orderId: string) {
+  try {
+    const { data: full } = await supa
+      .from("orders")
+      .select(
+        "id, code, total_cents, customer_id, delivery_code, destination_label, business_id, businesses(name, owner_id)",
+      )
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!full) return;
+
+    const biz = full.businesses as { name?: string; owner_id?: string } | null;
+    const ownerId = biz?.owner_id ?? null;
+
+    const [ownerProfile, customerProfile, ownerAuth, customerAuth] = await Promise.all([
+      ownerId
+        ? supa.from("profiles").select("full_name").eq("id", ownerId).maybeSingle()
+        : Promise.resolve({ data: null }),
+      full.customer_id
+        ? supa.from("profiles").select("full_name").eq("id", full.customer_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      ownerId ? supa.auth.admin.getUserById(ownerId) : Promise.resolve({ data: { user: null } }),
+      full.customer_id
+        ? supa.auth.admin.getUserById(full.customer_id)
+        : Promise.resolve({ data: { user: null } }),
+    ]);
+
+    await sendOrderPaidNotification({
+      orderId: full.id,
+      orderCode: full.code,
+      businessName: biz?.name ?? "—",
+      totalCents: full.total_cents,
+      ownerEmail: ownerAuth.data.user?.email ?? null,
+      ownerName: (ownerProfile.data as { full_name?: string } | null)?.full_name ?? null,
+      customerEmail: customerAuth.data.user?.email ?? null,
+      customerName: (customerProfile.data as { full_name?: string } | null)?.full_name ?? null,
+      deliveryCode: full.delivery_code,
+      destinationLabel: full.destination_label,
+    });
+  } catch (e) {
+    console.error("[mp webhook] notifyOrderPaid failed", e);
+  }
 }
 
 export async function GET() {
