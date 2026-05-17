@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ListChecks,
   Sailboat,
+  Sparkles,
   Star,
   Store,
   UserCog,
@@ -52,6 +53,12 @@ const RENTALS: PanelNavItem[] = [
   { href: "/parceiro/painel/locacoes", label: "Locações", icon: CalendarCheck },
 ];
 
+const SERVICES_VERTICAL: PanelNavItem[] = [
+  { href: "/parceiro/painel/servicos", label: "Serviços", icon: Sparkles },
+  { href: "/parceiro/painel/horarios", label: "Horários", icon: CalendarDays },
+  { href: "/parceiro/painel/agendamentos", label: "Agendamentos", icon: CalendarCheck },
+];
+
 export function getPanelNav(type: string | null | undefined): PanelNavItem[] {
   switch (type) {
     case "pousada":
@@ -60,6 +67,8 @@ export function getPanelNav(type: string | null | undefined): PanelNavItem[] {
       return [...BASE, ...TOURS, ...CADASTRO_LOJA];
     case "locadora":
       return [...BASE, ...RENTALS, ...CADASTRO_LOJA];
+    case "servico":
+      return [...BASE, ...SERVICES_VERTICAL, ...CADASTRO_LOJA];
     case "restaurante":
     case "mercado":
     case "farmacia":

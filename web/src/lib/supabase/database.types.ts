@@ -516,6 +516,120 @@ export type Database = {
           },
         ]
       }
+      service_slots: {
+        Row: {
+          id: string
+          business_id: string
+          service_id: string
+          start_at: string
+          duration_minutes: number
+          capacity: number
+          booked_count: number
+          staff_name: string | null
+          is_active: boolean
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          service_id: string
+          start_at: string
+          duration_minutes?: number
+          capacity?: number
+          booked_count?: number
+          staff_name?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          service_id?: string
+          start_at?: string
+          duration_minutes?: number
+          capacity?: number
+          booked_count?: number
+          staff_name?: string | null
+          is_active?: boolean
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_bookings: {
+        Row: {
+          id: string
+          code: string
+          business_id: string
+          service_id: string
+          slot_id: string
+          customer_id: string | null
+          customer_name: string
+          customer_email: string | null
+          customer_whatsapp: string | null
+          total_cents: number
+          platform_fee_cents: number
+          status: "requested" | "confirmed" | "completed" | "cancelled" | "refunded" | "no_show"
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_id: string | null
+          delivery_code: string | null
+          notes: string | null
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code?: string
+          business_id: string
+          service_id: string
+          slot_id: string
+          customer_id?: string | null
+          customer_name: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          total_cents: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "completed" | "cancelled" | "refunded" | "no_show"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          business_id?: string
+          service_id?: string
+          slot_id?: string
+          customer_id?: string | null
+          customer_name?: string
+          customer_email?: string | null
+          customer_whatsapp?: string | null
+          total_cents?: number
+          platform_fee_cents?: number
+          status?: "requested" | "confirmed" | "completed" | "cancelled" | "refunded" | "no_show"
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_id?: string | null
+          delivery_code?: string | null
+          notes?: string | null
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rental_bookings: {
         Row: {
           id: string
