@@ -68,6 +68,13 @@ export default async function EntregadorEntregas() {
           <ul className="space-y-3">
             {orders.map((o) => {
               const biz = o.businesses as { name?: string; address?: string; district?: string } | null;
+              const pickupAddr = biz?.address ?? biz?.district ?? null;
+              const pickupQuery = pickupAddr
+                ? `${biz?.name ? biz.name + ", " : ""}${pickupAddr}, Fernando de Noronha`
+                : null;
+              const destQuery = o.destination_label
+                ? `${o.destination_label}, Fernando de Noronha`
+                : null;
               return (
                 <li key={o.id} className="rounded-2xl border border-border bg-card p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -76,19 +83,38 @@ export default async function EntregadorEntregas() {
                         #{o.code} · {biz?.name ?? "—"}
                       </p>
                       <p className="text-xs text-muted-foreground">{STATUS_LABEL[o.status]}</p>
-                      <p className="mt-2 inline-flex items-center gap-1 text-xs">
-                        <MapPin className="h-3 w-3 text-primary" />
-                        <span className="font-medium">Coletar:</span>{" "}
-                        {biz?.address ?? biz?.district ?? "—"}
-                      </p>
-                      {o.destination_label && (
-                        <p className="mt-1 inline-flex items-center gap-1 text-xs">
+                      {pickupQuery ? (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pickupQuery)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-flex items-center gap-1 text-xs hover:underline"
+                        >
+                          <MapPin className="h-3 w-3 text-primary" />
+                          <span className="font-medium">Coletar:</span>{" "}
+                          {pickupAddr ?? "—"}{" "}
+                          <span className="text-primary">↗</span>
+                        </a>
+                      ) : (
+                        <p className="mt-2 inline-flex items-center gap-1 text-xs">
+                          <MapPin className="h-3 w-3 text-primary" />
+                          <span className="font-medium">Coletar:</span> —
+                        </p>
+                      )}
+                      {destQuery && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destQuery)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-xs hover:underline"
+                        >
                           <MapPin className="h-3 w-3 text-[color:var(--turtle)]" />
                           <span className="font-medium capitalize">
                             {o.destination_kind ?? "Destino"}:
                           </span>{" "}
-                          {o.destination_label}
-                        </p>
+                          {o.destination_label}{" "}
+                          <span className="text-[color:var(--turtle)]">↗</span>
+                        </a>
                       )}
                     </div>
                     <span className="shrink-0 text-base font-bold">
@@ -96,12 +122,24 @@ export default async function EntregadorEntregas() {
                     </span>
                   </div>
                   <DeliveryStepButtons orderId={o.id} status={o.status} />
-                  <Link
-                    href={`/app/pedidos/${o.id}`}
-                    className="mt-2 inline-block text-xs text-primary hover:underline"
-                  >
-                    Ver detalhes do pedido ↗
-                  </Link>
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                    <Link
+                      href={`/app/pedidos/${o.id}`}
+                      className="text-primary hover:underline"
+                    >
+                      Ver detalhes do pedido ↗
+                    </Link>
+                    {pickupQuery && destQuery && (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupQuery)}&destination=${encodeURIComponent(destQuery)}&travelmode=driving`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[color:var(--turtle)] hover:underline"
+                      >
+                        Abrir rota completa ↗
+                      </a>
+                    )}
+                  </div>
                 </li>
               );
             })}

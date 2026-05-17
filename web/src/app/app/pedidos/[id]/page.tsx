@@ -40,14 +40,17 @@ export default async function PedidoDetailPage({ params }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/entrar?next=/app/pedidos/${id}`);
 
+  // libera pra customer, driver, business owner ou admin verem o pedido
+  // (RLS já restringe; a consulta retorna nada se o user não tiver permissão)
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, driver_id, delivery_code, businesses(name, slug)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, driver_id, customer_id, delivery_code, businesses(name, slug)",
     )
     .eq("id", id)
-    .eq("customer_id", user.id)
     .maybeSingle();
+
+  const isOwnCustomer = order?.customer_id === user.id;
 
   if (!order) notFound();
 
@@ -85,7 +88,7 @@ export default async function PedidoDetailPage({ params }: Props) {
         statusLabel={STATUS_LABEL}
       />
 
-      {order.payment_method === "pix" && order.payment_status !== "paid" && meta.pix_copy && (
+      {isOwnCustomer && order.payment_method === "pix" && order.payment_status !== "paid" && meta.pix_copy && (
         <PixPanel
           qrCodeBase64={meta.pix_qr ?? null}
           copyPaste={meta.pix_copy}
@@ -94,22 +97,24 @@ export default async function PedidoDetailPage({ params }: Props) {
         />
       )}
 
-      {order.payment_method === "pix" &&
+      {isOwnCustomer &&
+        order.payment_method === "pix" &&
         order.payment_status !== "paid" &&
         !meta.pix_copy &&
         !["cancelled", "refunded"].includes(order.status) && (
           <RegeneratePixButton orderId={order.id} />
         )}
 
-      {order.payment_method === "card" && order.payment_status !== "paid" && (
+      {isOwnCustomer && order.payment_method === "card" && order.payment_status !== "paid" && (
         <CardLoader orderId={order.id} />
       )}
 
-      {["delivered", "completed"].includes(order.status) && (
+      {isOwnCustomer && ["delivered", "completed"].includes(order.status) && (
         <RatingForm orderId={order.id} hasDriver={!!order.driver_id} />
       )}
 
-      {order.delivery_code &&
+      {isOwnCustomer &&
+        order.delivery_code &&
         ["confirmed", "preparing", "ready", "in_transit"].includes(order.status) &&
         order.payment_status === "paid" && (
           <section className="rounded-2xl border-2 border-[color:var(--turtle)]/60 bg-[color:var(--turtle)]/5 p-5 text-center">
@@ -182,6 +187,18 @@ export default async function PedidoDetailPage({ params }: Props) {
         <p className="mt-1 capitalize">{order.destination_kind ?? "—"}</p>
         {order.destination_label && (
           <p className="text-xs text-muted-foreground">{order.destination_label}</p>
+        )}
+        {order.destination_label && (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              `${order.destination_label}, Fernando de Noronha`,
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          >
+            Abrir no Google Maps ↗
+          </a>
         )}
         {order.destination_notes && (
           <p className="mt-2 text-xs text-muted-foreground">

@@ -174,8 +174,10 @@ export default async function EntregadorPainel() {
         >
           <CheckCircle2 className="mb-2 h-4 w-4 text-[color:var(--turtle)]" />
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Hoje</p>
-          <p className="mt-1 text-xl font-bold">
-            {deliveredToday ?? 0} entrega{(deliveredToday ?? 0) === 1 ? "" : "s"}
+          <p className="mt-1 text-xl font-bold">{deliveredToday ?? 0}</p>
+          <p className="text-[11px] text-muted-foreground">
+            entrega{(deliveredToday ?? 0) === 1 ? "" : "s"} concluída
+            {(deliveredToday ?? 0) === 1 ? "" : "s"}
           </p>
         </Link>
       </div>

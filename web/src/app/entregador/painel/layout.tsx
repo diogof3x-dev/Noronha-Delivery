@@ -111,7 +111,7 @@ export default async function EntregadorPainelLayout({
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col pb-16 lg:pb-0">
         <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4 lg:hidden">
           <Link href="/entregador/painel" className="flex items-center gap-2" aria-label="Painel">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -126,23 +126,31 @@ export default async function EntregadorPainelLayout({
           </form>
         </header>
 
-        <nav className="flex gap-1 overflow-x-auto border-b border-border bg-background px-2 py-2 lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {NAV.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium"
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
         <main className="flex-1 overflow-x-hidden">{children}</main>
+
+        <nav
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur lg:hidden"
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
+          <ul className="grid grid-cols-6">
+            {NAV.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="leading-tight">
+                      {item.label === "Meu cadastro" ? "Cadastro" : item.label}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
     </div>
   );
