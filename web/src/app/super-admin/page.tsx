@@ -21,6 +21,7 @@ export default async function SuperAdminHome() {
     { count: lojas },
     { count: lojasPendentes },
     { count: motoboysCandidatos },
+    { count: leadsPendentes },
     { count: pedidosHoje },
     { count: saques },
     { data: settings },
@@ -33,6 +34,7 @@ export default async function SuperAdminHome() {
       .select("id", { count: "exact", head: true })
       .eq("role", "customer")
       .not("cnh_number", "is", null),
+    supabase.from("leads").select("id", { count: "exact", head: true }).eq("contacted", false),
     supabase
       .from("orders")
       .select("id", { count: "exact", head: true })
@@ -53,7 +55,7 @@ export default async function SuperAdminHome() {
   const fee30 = (gmvRow ?? []).reduce((acc, o) => acc + (o.platform_fee_cents ?? 0), 0);
 
   const aprovacoesNeeded =
-    (lojasPendentes ?? 0) + (motoboysCandidatos ?? 0) + (saques ?? 0);
+    (lojasPendentes ?? 0) + (motoboysCandidatos ?? 0) + (saques ?? 0) + (leadsPendentes ?? 0);
 
   return (
     <div className="space-y-6 p-4 md:p-8">
@@ -71,6 +73,16 @@ export default async function SuperAdminHome() {
             {aprovacoesNeeded} ite{aprovacoesNeeded === 1 ? "m" : "ns"} aguardando aprovação
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
+            {(leadsPendentes ?? 0) > 0 && (
+              <Link
+                href="/super-admin/leads?filter=pendentes"
+                className="inline-flex items-center gap-2 rounded-full bg-background px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+              >
+                <Store className="h-3.5 w-3.5 text-[color:var(--sun)]" />
+                {leadsPendentes} solicitaç{(leadsPendentes ?? 0) > 1 ? "ões" : "ão"} de
+                credenciamento
+              </Link>
+            )}
             {(lojasPendentes ?? 0) > 0 && (
               <Link
                 href="/super-admin/lojas?filter=pendentes"
