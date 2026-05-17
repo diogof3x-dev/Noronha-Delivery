@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { notifyOrderStatusChange } from "@/lib/email-helpers";
+import { notifyCustomerOrderStatus } from "@/lib/order-push";
 
 export type ClaimResult =
   | { ok: true; orderId: string; orderCode: string }
@@ -108,6 +109,7 @@ export async function markPickedUp(formData: FormData) {
   revalidatePath("/entregador/painel/entregas");
   revalidatePath(`/app/pedidos/${orderId}`);
   void notifyOrderStatusChange(orderId, "in_transit");
+  void notifyCustomerOrderStatus(orderId, "in_transit");
 }
 
 export type DeliverResult = { ok: boolean; error?: string };
@@ -150,6 +152,7 @@ export async function markDelivered(_prev: DeliverResult, formData: FormData): P
   revalidatePath("/entregador/painel/historico");
   revalidatePath(`/app/pedidos/${orderId}`);
   void notifyOrderStatusChange(orderId, "delivered");
+  void notifyCustomerOrderStatus(orderId, "delivered");
   return { ok: true };
 }
 

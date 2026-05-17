@@ -1,0 +1,46 @@
+{
+  "name": "Noronha Delivery",
+  "short_name": "Noronha",
+  "description": "Comida, hospedagem, passeios e mais em Fernando de Noronha — aqui você tem Tudo.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0B7FA8",
+  "orientation": "portrait",
+  "categories": ["food", "shopping", "travel"],
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Meus pedidos",
+      "short_name": "Pedidos",
+      "url": "/app/pedidos",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Painel lojista",
+      "short_name": "Lojista",
+      "url": "/parceiro/painel/pedidos",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Painel entregador",
+      "short_name": "Entregador",
+      "url": "/entregador/painel",
+      "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { notifyOrderStatusChange } from "@/lib/email-helpers";
+import { notifyCustomerOrderStatus, notifyAvailableDrivers } from "@/lib/order-push";
 
 const NextSchema = z.object({
   order_id: z.string().uuid(),
@@ -19,7 +20,7 @@ async function ensureMerchantAccess(orderId: string) {
 
   const { data: order } = await supabase
     .from("orders")
-    .select("id, status, business_id, businesses(owner_id)")
+    .select("id, status, business_id, driver_id, businesses(owner_id)")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) return { error: "Pedido não encontrado" as const };
@@ -65,4 +66,8 @@ export async function moveOrderStatus(formData: FormData): Promise<void> {
   revalidatePath("/parceiro/painel/pedidos");
   revalidatePath(`/app/pedidos/${parsed.data.order_id}`);
   void notifyOrderStatusChange(parsed.data.order_id, parsed.data.next);
+  void notifyCustomerOrderStatus(parsed.data.order_id, parsed.data.next);
+  if (parsed.data.next === "ready" && !access.order.driver_id) {
+    void notifyAvailableDrivers(parsed.data.order_id);
+  }
 }

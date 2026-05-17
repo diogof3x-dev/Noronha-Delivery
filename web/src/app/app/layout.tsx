@@ -3,6 +3,8 @@ import { getProfile, initialsFor } from "@/lib/profile";
 import { AppHeader } from "@/components/app/app-header";
 import { BottomNav } from "@/components/app/bottom-nav";
 import { CartFab } from "@/components/app/cart-fab";
+import { PushPrompt } from "@/components/push/push-prompt";
+import { InstallBanner } from "@/components/pwa/install-banner";
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
   const supabase = await getServerClient();
@@ -20,9 +22,17 @@ export default async function ClientLayout({ children }: { children: React.React
         isAuthed={Boolean(user)}
         role={profile?.role ?? null}
       />
-      <main className="mx-auto w-full max-w-md flex-1 px-4 pb-4 pt-3">{children}</main>
+      <main className="mx-auto w-full max-w-md flex-1 px-4 pb-4 pt-3">
+        {user && (
+          <div className="mb-3">
+            <PushPrompt context="cliente" />
+          </div>
+        )}
+        {children}
+      </main>
       <CartFab />
       <BottomNav />
+      <InstallBanner />
     </div>
   );
 }

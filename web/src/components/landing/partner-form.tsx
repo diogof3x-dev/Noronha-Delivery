@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { submitPartner, type PartnerState } from "@/app/actions/partner";
+import { Turnstile } from "@/components/turnstile/turnstile";
 
 const initial: PartnerState = { ok: false };
 
@@ -141,6 +142,8 @@ export function PartnerForm({
         </Label>
         <Textarea id="about" name="about" rows={4} maxLength={1000} />
       </div>
+
+      <Turnstile />
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 

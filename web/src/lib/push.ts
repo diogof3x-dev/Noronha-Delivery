@@ -22,6 +22,44 @@ export type PushPayload = {
   icon?: string;
 };
 
+export async function sendPushToManyUsers(userIds: string[], payload: PushPayload): Promise<number> {
+  if (!configureOnce() || userIds.length === 0) return 0;
+  const admin = getAdminClient();
+  if (!admin) return 0;
+
+  const { data: subs } = await admin
+    .from("push_subscriptions")
+    .select("id, endpoint, p256dh, auth")
+    .in("user_id", userIds)
+    .is("failed_at", null);
+  if (!subs?.length) return 0;
+
+  let sent = 0;
+  await Promise.all(
+    subs.map(async (s) => {
+      try {
+        await webpush.sendNotification(
+          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+          JSON.stringify(payload),
+          { TTL: 60 * 60 },
+        );
+        sent++;
+      } catch (e) {
+        const status = (e as { statusCode?: number }).statusCode;
+        if (status === 404 || status === 410) {
+          void admin
+            .from("push_subscriptions")
+            .update({ failed_at: new Date().toISOString() })
+            .eq("id", s.id);
+        } else {
+          captureError(e, { message: "sendPushToManyUsers failed", tags: { subscription_id: s.id, status_code: status } });
+        }
+      }
+    }),
+  );
+  return sent;
+}
+
 export async function sendPushToUser(userId: string, payload: PushPayload): Promise<number> {
   if (!configureOnce()) return 0;
   const admin = getAdminClient();

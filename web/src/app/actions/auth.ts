@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 const SignInSchema = z.object({
   email: z.string().email("E-mail inválido").max(160),
@@ -71,6 +72,11 @@ export async function signUpWithPassword(
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  }
+
+  const turnstile = await verifyTurnstileToken(formData.get("turnstile_token")?.toString() ?? null);
+  if (!turnstile.ok) {
+    return { ok: false, error: "Verificação anti-bot falhou. Recarregue a página." };
   }
 
   const supabase = await getServerClient();

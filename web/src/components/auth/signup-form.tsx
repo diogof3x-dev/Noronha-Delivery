@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUpWithPassword, type AuthState } from "@/app/actions/auth";
+import { Turnstile } from "@/components/turnstile/turnstile";
 
 const initial: AuthState = { ok: false };
 
@@ -75,6 +76,8 @@ export function SignUpForm({ next }: { next?: string }) {
           </button>
         </div>
       </div>
+
+      <Turnstile />
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 

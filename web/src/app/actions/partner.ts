@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import { saveLead, type LeadType } from "@/lib/leads";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const PartnerSchema = z.object({
   type: z.enum(["comercio", "operador", "motorista", "pousada"]),
@@ -46,6 +48,17 @@ export async function submitPartner(
       error: parsed.error.issues[0]?.message ?? "Dados inválidos",
     };
   }
+
+  const turnstile = await verifyTurnstileToken(formData.get("turnstile_token")?.toString() ?? null);
+  if (!turnstile.ok) {
+    return { ok: false, error: "Verificação anti-bot falhou. Recarregue a página." };
+  }
+
+  const rl = await consumeRateLimit(
+    rateLimitKey("submitPartner", parsed.data.whatsapp),
+    { limit: 3, windowSeconds: 300 },
+  );
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   try {
     await saveLead({

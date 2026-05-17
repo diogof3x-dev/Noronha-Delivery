@@ -53,6 +53,17 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   metadataBase: new URL("https://noronhadelivery.com"),
+  manifest: "/manifest.webmanifest",
+  themeColor: "#0B7FA8",
+  appleWebApp: {
+    capable: true,
+    title: "Noronha",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg" }],
+  },
 };
 
 export default function RootLayout({
