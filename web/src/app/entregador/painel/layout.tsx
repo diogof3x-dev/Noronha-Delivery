@@ -69,9 +69,9 @@ export default async function EntregadorPainelLayout({
     <div className="flex min-h-screen bg-secondary/20">
       <aside className="hidden w-60 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
         <Link
-          href="/"
+          href="/entregador/painel"
           className="flex h-16 items-center gap-2 border-b border-border px-5 hover:bg-muted/50"
-          aria-label="Voltar à página inicial"
+          aria-label="Painel"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <NoronhaMark className="h-5 w-5" />
@@ -113,7 +113,7 @@ export default async function EntregadorPainelLayout({
 
       <div className="flex flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4 lg:hidden">
-          <Link href="/" className="flex items-center gap-2" aria-label="Voltar à página inicial">
+          <Link href="/entregador/painel" className="flex items-center gap-2" aria-label="Painel">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <NoronhaMark className="h-4 w-4" />
             </span>

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Layers, Loader2, Pencil, Star, Trash2, UtensilsCrossed, X } from "lucide-react";
+import { Check, Layers, Loader2, Pause, Pencil, Play, Star, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -192,54 +192,58 @@ export function CardapioItemRow({
 
   return (
     <li
-      className={`flex items-center gap-3 rounded-2xl border border-border bg-card p-3 ${
+      className={`rounded-2xl border border-border bg-card p-3 ${
         !isActive ? "opacity-60" : ""
       }`}
     >
-      <span className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary text-primary">
-        {imageUrl ? (
-          <Image src={imageUrl} alt={name} fill className="object-cover" sizes="48px" unoptimized />
-        ) : (
-          <UtensilsCrossed className="h-4 w-4" />
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
-          {isFeatured && (
-            <Star className="h-3 w-3 shrink-0 fill-[color:var(--sun)] text-[color:var(--sun)]" />
+      <div className="flex items-center gap-3">
+        <span className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary text-primary">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={name} fill className="object-cover" sizes="48px" unoptimized />
+          ) : (
+            <UtensilsCrossed className="h-4 w-4" />
           )}
-          {name}
-          {!isActive && <span className="text-[10px] text-muted-foreground">(pausado)</span>}
-        </p>
-        <p className="line-clamp-1 text-xs text-muted-foreground">
-          {section ? <span className="font-medium">{section} · </span> : null}
-          {description ?? "—"}
-        </p>
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+            {isFeatured && (
+              <Star className="h-3 w-3 shrink-0 fill-[color:var(--sun)] text-[color:var(--sun)]" />
+            )}
+            {name}
+            {!isActive && <span className="text-[10px] text-muted-foreground">(pausado)</span>}
+          </p>
+          <p className="line-clamp-1 text-xs text-muted-foreground">
+            {section ? <span className="font-medium">{section} · </span> : null}
+            {description ?? "—"}
+          </p>
+        </div>
+        <div className="flex flex-col items-end shrink-0">
+          <span className="text-sm font-bold">{formatCents(priceCents)}</span>
+          {hasPromo && (
+            <span className="text-[10px] text-[color:var(--turtle)]">
+              -{discountPct}%
+            </span>
+          )}
+        </div>
       </div>
-      <div className="flex flex-col items-end shrink-0">
-        <span className="font-bold">{formatCents(priceCents)}</span>
-        {hasPromo && (
-          <span className="text-[10px] text-[color:var(--turtle)]">
-            -{discountPct}% · <s className="text-muted-foreground">{formatCents(originalPriceCents)}</s>
-          </span>
-        )}
-      </div>
-      <div className="flex items-center gap-1">
+      <div className="mt-2 flex items-center justify-end gap-1 border-t border-border pt-2">
         <Link
           href={`/parceiro/painel/cardapio/${id}/complementos`}
           aria-label="Complementos"
           title="Complementos"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="inline-flex h-8 items-center gap-1 rounded-full px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Layers className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Opções</span>
         </Link>
         <button
           type="button"
           onClick={() => setEditing(true)}
           aria-label="Editar"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="inline-flex h-8 items-center gap-1 rounded-full px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Pencil className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Editar</span>
         </button>
         <form
           action={(fd) => {
@@ -252,9 +256,10 @@ export function CardapioItemRow({
             type="submit"
             disabled={pending}
             aria-label={isActive ? "Pausar" : "Ativar"}
-            className="inline-flex h-8 px-2 items-center justify-center rounded-full text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="inline-flex h-8 items-center gap-1 rounded-full px-2 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            {isActive ? "Pausar" : "Ativar"}
+            {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+            <span className="hidden sm:inline">{isActive ? "Pausar" : "Ativar"}</span>
           </button>
         </form>
         <form

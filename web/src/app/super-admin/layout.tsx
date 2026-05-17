@@ -49,7 +49,7 @@ export default async function SuperAdminLayout({ children }: { children: React.R
   return (
     <div className="flex min-h-screen bg-secondary/20">
       <aside className="hidden w-60 shrink-0 border-r border-border bg-background lg:flex lg:flex-col">
-        <Link href="/" className="flex h-16 items-center gap-2 border-b border-border px-5">
+        <Link href="/super-admin" className="flex h-16 items-center gap-2 border-b border-border px-5 hover:bg-muted/50">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
             <NoronhaMark className="h-5 w-5" />
           </span>

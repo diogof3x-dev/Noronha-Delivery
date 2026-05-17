@@ -13,6 +13,7 @@ import {
 import { getServerClient } from "@/lib/supabase/server-client";
 import { redirect } from "next/navigation";
 import { formatCents } from "@/lib/format";
+import { ShareLinkPanel } from "./share-link";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -126,6 +127,20 @@ export default async function ParceiroPainelHome() {
           <h2 className="text-lg font-semibold">Nenhuma loja cadastrada ainda</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Crie sua loja em <strong>Minha loja</strong> pra começar a vender.
+          </p>
+        </div>
+      )}
+
+      {business && business.slug && business.is_verified && business.is_active && (
+        <ShareLinkPanel type={business.type} slug={business.slug} name={business.name} />
+      )}
+
+      {business && !business.is_verified && (
+        <div className="rounded-2xl border-2 border-[color:var(--sun)]/40 bg-[color:var(--sun)]/5 p-4 text-sm">
+          <p className="font-semibold">Loja aguardando aprovação</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Você já pode cadastrar produtos, mas o link público só fica acessível depois
+            que a Agência F3X aprovar. Geralmente em até 24h. Dúvidas? WhatsApp da F3X.
           </p>
         </div>
       )}
