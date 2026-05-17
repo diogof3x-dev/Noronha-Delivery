@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { sendLeadApprovedNotification } from "@/lib/email";
 
 async function requireAdmin() {
   const supabase = await getServerClient();
@@ -154,6 +155,17 @@ export async function approveLead(_prev: LeadAdminState, formData: FormData): Pr
   if (bErr || !created) return { ok: false, error: bErr?.message ?? "Falha ao criar loja" };
 
   await supabase.from("leads").update({ contacted: true }).eq("id", lead.id);
+
+  // notifica o lojista que sua loja foi aprovada
+  if (lead.email || ownerEmail) {
+    void sendLeadApprovedNotification({
+      email: lead.email ?? ownerEmail,
+      name: lead.name.split(" ")[0] ?? lead.name,
+      businessName: parsed.data.business_name,
+      businessSlug: slug,
+      businessType: parsed.data.business_type,
+    });
+  }
 
   revalidatePath("/super-admin/leads");
   revalidatePath("/super-admin/lojas");

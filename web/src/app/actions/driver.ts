@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { notifyOrderStatusChange } from "@/lib/email-helpers";
 
 export type ClaimResult =
   | { ok: true; orderId: string; orderCode: string }
@@ -48,6 +49,7 @@ export async function claimNextDelivery(): Promise<ClaimResult> {
 
   revalidatePath("/entregador/painel/entregas");
   revalidatePath(`/app/pedidos/${candidate.id}`);
+  void notifyOrderStatusChange(candidate.id, "driver_assigned");
   return { ok: true, orderId: candidate.id, orderCode: candidate.code };
 }
 
@@ -85,6 +87,7 @@ export async function claimSpecificOrder(formData: FormData): Promise<ClaimResul
 
   revalidatePath("/entregador/painel/entregas");
   revalidatePath(`/app/pedidos/${orderId}`);
+  void notifyOrderStatusChange(orderId, "driver_assigned");
   return { ok: true, orderId: order.id, orderCode: order.code };
 }
 
@@ -103,6 +106,8 @@ export async function markPickedUp(formData: FormData) {
     .eq("driver_id", user.id)
     .in("status", ["ready", "preparing", "confirmed"]);
   revalidatePath("/entregador/painel/entregas");
+  revalidatePath(`/app/pedidos/${orderId}`);
+  void notifyOrderStatusChange(orderId, "in_transit");
 }
 
 export type DeliverResult = { ok: boolean; error?: string };
@@ -144,6 +149,7 @@ export async function markDelivered(_prev: DeliverResult, formData: FormData): P
   revalidatePath("/entregador/painel/entregas");
   revalidatePath("/entregador/painel/historico");
   revalidatePath(`/app/pedidos/${orderId}`);
+  void notifyOrderStatusChange(orderId, "delivered");
   return { ok: true };
 }
 

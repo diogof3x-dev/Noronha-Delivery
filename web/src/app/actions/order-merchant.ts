@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { notifyOrderStatusChange } from "@/lib/email-helpers";
 
 const NextSchema = z.object({
   order_id: z.string().uuid(),
@@ -62,4 +63,6 @@ export async function moveOrderStatus(formData: FormData): Promise<void> {
 
   await access.supabase!.from("orders").update(update).eq("id", parsed.data.order_id);
   revalidatePath("/parceiro/painel/pedidos");
+  revalidatePath(`/app/pedidos/${parsed.data.order_id}`);
+  void notifyOrderStatusChange(parsed.data.order_id, parsed.data.next);
 }

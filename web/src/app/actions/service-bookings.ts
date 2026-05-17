@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
+import { notifyBookingCreated } from "@/lib/email-helpers";
 
 async function requireBusinessAccess(businessId: string) {
   const supabase = await getServerClient();
@@ -271,6 +272,7 @@ export async function createServiceBooking(input: z.infer<typeof BookSchema>): P
           },
         })
         .eq("id", booking.id);
+      void notifyBookingCreated("service", booking.id);
       return {
         ok: true,
         bookingId: booking.id,
@@ -291,6 +293,7 @@ export async function createServiceBooking(input: z.infer<typeof BookSchema>): P
         customerEmail: user.email ?? parsed.data.customerEmail ?? undefined,
       });
       await supabase.from("service_bookings").update({ payment_id: paymentIntentId }).eq("id", booking.id);
+      void notifyBookingCreated("service", booking.id);
       return { ok: true, bookingId: booking.id, bookingCode: booking.code, cardClientSecret: clientSecret };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "Falha cartão" };

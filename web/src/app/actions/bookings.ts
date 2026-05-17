@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
+import { notifyBookingCreated } from "@/lib/email-helpers";
 
 const SERVICE_FEE_BPS = 199;
 
@@ -147,6 +148,7 @@ export async function createBooking(input: z.infer<typeof BookingSchema>): Promi
         })
         .eq("id", booking.id);
       revalidatePath(`/app/reservas/${booking.id}`);
+      void notifyBookingCreated("lodging", booking.id);
       return {
         ok: true,
         bookingId: booking.id,
@@ -167,6 +169,7 @@ export async function createBooking(input: z.infer<typeof BookingSchema>): Promi
         customerEmail: user.email ?? parsed.data.customerEmail ?? undefined,
       });
       await supabase.from("bookings").update({ payment_id: paymentIntentId }).eq("id", booking.id);
+      void notifyBookingCreated("lodging", booking.id);
       return {
         ok: true,
         bookingId: booking.id,
