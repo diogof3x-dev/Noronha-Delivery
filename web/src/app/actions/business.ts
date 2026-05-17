@@ -223,7 +223,39 @@ export async function updateBusiness(
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/parceiro/painel/loja");
+  const slug = (await access.supabase!
+    .from("businesses")
+    .select("slug, type")
+    .eq("id", parsed.data.id)
+    .maybeSingle()).data;
+  if (slug?.slug) {
+    const segment = vitrineSegmentFor(slug.type);
+    if (segment) revalidatePath(`/app/${segment}/${slug.slug}`);
+  }
   return { ok: true };
+}
+
+function vitrineSegmentFor(type: string | null | undefined): string | null {
+  switch (type) {
+    case "restaurante":
+    case "mercado":
+    case "farmacia":
+    case "conveniencia":
+    case "loja":
+      return "restaurante";
+    case "pousada":
+      return "pousada";
+    case "residencia":
+      return "casa";
+    case "operador_passeio":
+      return "passeio";
+    case "locadora":
+      return "aluguel";
+    case "servico":
+      return "servico";
+    default:
+      return null;
+  }
 }
 
 export async function toggleBusinessOpen(formData: FormData): Promise<void> {
@@ -240,4 +272,13 @@ export async function toggleBusinessOpen(formData: FormData): Promise<void> {
     .eq("id", id);
   revalidatePath("/parceiro/painel/loja");
   revalidatePath("/parceiro/painel");
+  const biz = (await access.supabase!
+    .from("businesses")
+    .select("slug, type")
+    .eq("id", id)
+    .maybeSingle()).data;
+  if (biz?.slug) {
+    const segment = vitrineSegmentFor(biz.type);
+    if (segment) revalidatePath(`/app/${segment}/${biz.slug}`);
+  }
 }

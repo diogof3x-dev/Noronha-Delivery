@@ -2,18 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BedDouble, Leaf, MapPin, Search, Star, Users } from "lucide-react";
-import { getServerClient } from "@/lib/supabase/server-client";
+import { getPublicClient } from "@/lib/supabase/public-client";
 import { formatCents } from "@/lib/format";
 import { RoomsBookingFlow } from "./booking-flow";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
   const { data: business } = await supabase
     .from("businesses")
     .select("name, description, type, district, slug, logo_url, cover_url, is_eco_certified")
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function PousadaPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
 
   const { data: business } = await supabase
     .from("businesses")

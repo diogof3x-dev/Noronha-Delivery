@@ -1394,6 +1394,27 @@ export type Database = {
           },
         ]
       }
+      webhook_events: {
+        Row: {
+          provider: string
+          event_id: string
+          received_at: string
+          payload: Json | null
+        }
+        Insert: {
+          provider: string
+          event_id: string
+          received_at?: string
+          payload?: Json | null
+        }
+        Update: {
+          provider?: string
+          event_id?: string
+          received_at?: string
+          payload?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       business_scores: {

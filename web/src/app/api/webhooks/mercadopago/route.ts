@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import { getPaymentStatus } from "@/lib/payments/mercadopago";
 import type { Database } from "@/lib/supabase/database.types";
 import { sendOrderPaidNotification } from "@/lib/email";
+import { captureError } from "@/lib/observability";
+import { recordWebhookEvent } from "@/lib/webhook-dedup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
   }
 
   const data = body as {
+    id?: string | number;
     type?: string;
     action?: string;
     data?: { id?: string | number };
@@ -91,11 +94,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Assinatura inválida" }, { status: 401 });
   }
 
+  // dedup pelo notification id (com fallback paymentId+action)
+  const eventId = data.id
+    ? String(data.id)
+    : `${paymentId}:${data.action ?? data.type ?? "unknown"}`;
+  const supa = admin();
+  const dedup = await recordWebhookEvent(supa, "mercadopago", eventId, body);
+  if (dedup === "duplicate") {
+    return NextResponse.json({ ok: true, deduped: true });
+  }
+
   let pay;
   try {
     pay = await getPaymentStatus(paymentId);
   } catch (e) {
-    console.error("[mp webhook] getPaymentStatus", e);
+    captureError(e, {
+      message: "mp webhook getPaymentStatus failed",
+      tags: { provider: "mercadopago", payment_id: paymentId },
+    });
     return NextResponse.json({ ok: false, error: "MP get falhou" }, { status: 502 });
   }
 
@@ -103,7 +119,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, ignored: "sem externalReference" });
   }
 
-  const supa = admin();
   const { data: order } = await supa
     .from("orders")
     .select("id, total_cents, payment_status, status, business_id, platform_fee_cents")
@@ -184,7 +199,10 @@ async function notifyOrderPaid(supa: ReturnType<typeof admin>, orderId: string) 
       destinationLabel: full.destination_label,
     });
   } catch (e) {
-    console.error("[mp webhook] notifyOrderPaid failed", e);
+    captureError(e, {
+      message: "mp webhook notifyOrderPaid failed",
+      tags: { provider: "mercadopago", order_id: orderId },
+    });
   }
 }
 

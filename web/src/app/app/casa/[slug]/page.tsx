@@ -2,16 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Home, Leaf, MapPin, Search, Star } from "lucide-react";
-import { getServerClient } from "@/lib/supabase/server-client";
+import { getPublicClient } from "@/lib/supabase/public-client";
 import { RoomsBookingFlow } from "@/app/app/pousada/[slug]/booking-flow";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
   const { data: business } = await supabase
     .from("businesses")
     .select("name, description, type, district, slug, logo_url, cover_url, is_eco_certified")
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function CasaPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
 
   const { data: business } = await supabase
     .from("businesses")

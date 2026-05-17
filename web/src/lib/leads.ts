@@ -29,7 +29,7 @@ export async function saveLead(input: LeadInput) {
     name: input.name,
     whatsapp: input.whatsapp,
     email: input.email,
-    payload: input.payload ?? {},
+    payload: (input.payload ?? {}) as never,
   });
 
   if (error) throw error;

@@ -4,6 +4,8 @@ import type Stripe from "stripe";
 import { verifyWebhookSignature } from "@/lib/payments/stripe";
 import type { Database } from "@/lib/supabase/database.types";
 import { sendOrderPaidNotification } from "@/lib/email";
+import { captureError } from "@/lib/observability";
+import { recordWebhookEvent } from "@/lib/webhook-dedup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +42,11 @@ export async function POST(req: Request) {
   }
 
   const supa = admin();
+
+  const dedup = await recordWebhookEvent(supa, "stripe", event.id, event);
+  if (dedup === "duplicate") {
+    return NextResponse.json({ ok: true, deduped: true });
+  }
 
   if (event.type === "payment_intent.succeeded") {
     const pi = event.data.object as Stripe.PaymentIntent;
@@ -124,7 +131,10 @@ async function notifyOrderPaid(supa: ReturnType<typeof admin>, orderId: string) 
       destinationLabel: full.destination_label,
     });
   } catch (e) {
-    console.error("[stripe webhook] notifyOrderPaid failed", e);
+    captureError(e, {
+      message: "stripe webhook notifyOrderPaid failed",
+      tags: { provider: "stripe", order_id: orderId },
+    });
   }
 }
 

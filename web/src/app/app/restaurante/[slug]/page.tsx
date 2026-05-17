@@ -2,10 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Leaf, Search, Star } from "lucide-react";
-import { getServerClient } from "@/lib/supabase/server-client";
+import { getPublicClient } from "@/lib/supabase/public-client";
 import { RestaurantMenu } from "@/components/app/restaurant-menu";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
 import { formatCents, formatPrepTime } from "@/lib/format";
+
+export const revalidate = 60;
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
 
@@ -15,7 +17,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
   const { data: business } = await supabase
     .from("businesses")
     .select("name, description, type, district, slug, logo_url, cover_url, is_eco_certified")
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function RestaurantePage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await getServerClient();
+  const supabase = getPublicClient();
 
   const { data: business } = await supabase
     .from("businesses")
