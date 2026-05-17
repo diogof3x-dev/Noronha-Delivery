@@ -7,6 +7,7 @@ import { OrderStatusLive } from "./order-status-live";
 import { PixPanel } from "./pix-panel";
 import { CardLoader } from "./card-loader";
 import { RatingForm } from "./rating-form";
+import { RegeneratePixButton } from "./regenerate-pix-button";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,13 @@ export default async function PedidoDetailPage({ params }: Props) {
           totalCents={order.total_cents}
         />
       )}
+
+      {order.payment_method === "pix" &&
+        order.payment_status !== "paid" &&
+        !meta.pix_copy &&
+        !["cancelled", "refunded"].includes(order.status) && (
+          <RegeneratePixButton orderId={order.id} />
+        )}
 
       {order.payment_method === "card" && order.payment_status !== "paid" && (
         <CardLoader orderId={order.id} />
