@@ -4,10 +4,25 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Search, Sparkles, Star } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { ServiceBookingFlow } from "./booking-flow";
+import { ShareBusinessButton } from "@/components/app/share-business-button";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const supabase = await getServerClient();
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name, description, type, district, slug, logo_url, cover_url, is_eco_certified")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (!business) return { title: slug.replace(/-/g, " ") };
+  const { buildBusinessMetadata } = await import("@/lib/og-metadata");
+  return buildBusinessMetadata(business);
+}
 
 export default async function ServicoPage({ params }: Props) {
   const { slug } = await params;
@@ -67,9 +82,12 @@ export default async function ServicoPage({ params }: Props) {
           <Link href="/app" className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <Link href="/app/buscar" className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur">
-            <Search className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ShareBusinessButton name={business.name} />
+            <Link href="/app/buscar" className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur">
+              <Search className="h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </header>
 

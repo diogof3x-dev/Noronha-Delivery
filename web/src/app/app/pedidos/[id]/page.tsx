@@ -6,6 +6,7 @@ import { formatCents } from "@/lib/format";
 import { OrderStatusLive } from "./order-status-live";
 import { PixPanel } from "./pix-panel";
 import { CardLoader } from "./card-loader";
+import { RatingForm } from "./rating-form";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function PedidoDetailPage({ params }: Props) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, delivery_code, businesses(name, slug)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, driver_id, delivery_code, businesses(name, slug)",
     )
     .eq("id", id)
     .eq("customer_id", user.id)
@@ -94,6 +95,10 @@ export default async function PedidoDetailPage({ params }: Props) {
 
       {order.payment_method === "card" && order.payment_status !== "paid" && (
         <CardLoader orderId={order.id} />
+      )}
+
+      {["delivered", "completed"].includes(order.status) && (
+        <RatingForm orderId={order.id} hasDriver={!!order.driver_id} />
       )}
 
       {order.delivery_code &&

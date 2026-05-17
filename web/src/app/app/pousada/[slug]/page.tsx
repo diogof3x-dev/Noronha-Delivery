@@ -5,6 +5,7 @@ import { ArrowLeft, BedDouble, Leaf, MapPin, Search, Star, Users } from "lucide-
 import { getServerClient } from "@/lib/supabase/server-client";
 import { formatCents } from "@/lib/format";
 import { RoomsBookingFlow } from "./booking-flow";
+import { ShareBusinessButton } from "@/components/app/share-business-button";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,16 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  return { title: slug.replace(/-/g, " ") };
+  const supabase = await getServerClient();
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name, description, type, district, slug, logo_url, cover_url, is_eco_certified")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (!business) return { title: slug.replace(/-/g, " ") };
+  const { buildBusinessMetadata } = await import("@/lib/og-metadata");
+  return buildBusinessMetadata(business);
 }
 
 export default async function PousadaPage({ params }: Props) {
@@ -78,13 +88,16 @@ export default async function PousadaPage({ params }: Props) {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <Link
-            href="/app/buscar"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
-            aria-label="Buscar"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ShareBusinessButton name={business.name} />
+            <Link
+              href="/app/buscar"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
+              aria-label="Buscar"
+            >
+              <Search className="h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </header>
 

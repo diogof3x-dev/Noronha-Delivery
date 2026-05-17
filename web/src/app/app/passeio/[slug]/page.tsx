@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Leaf, MapPin, Sailboat, Search, Star } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { TourBookingFlow } from "./booking-flow";
+import { ShareBusinessButton } from "@/components/app/share-business-button";
 
 export const dynamic = "force-dynamic";
 
@@ -87,13 +88,16 @@ export default async function PasseioPage({ params }: Props) {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <Link
-            href="/app/buscar"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
-            aria-label="Buscar"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ShareBusinessButton name={business.name} />
+            <Link
+              href="/app/buscar"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur"
+              aria-label="Buscar"
+            >
+              <Search className="h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </header>
 
