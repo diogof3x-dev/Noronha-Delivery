@@ -17,7 +17,8 @@ type AuditAction =
   | "reject_withdrawal"
   | "edit_platform_settings"
   | "create_coupon"
-  | "delete_coupon";
+  | "delete_coupon"
+  | "export_csv";
 
 export async function logAdminAction(args: {
   adminId: string;

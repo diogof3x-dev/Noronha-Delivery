@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BadgePercent, Banknote, Bike, History, Inbox, LayoutDashboard, LineChart, ShieldAlert, Store, Ticket, Users } from "lucide-react";
+import { BadgePercent, Banknote, Bike, Download, GitMerge, History, Inbox, LayoutDashboard, LineChart, ShieldAlert, Sparkles, Star, Store, Ticket, Users, Zap } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { signOut } from "@/app/actions/auth";
@@ -13,6 +13,9 @@ export const revalidate = 0;
 const NAV = [
   { href: "/super-admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/super-admin/financeiro", label: "Financeiro", icon: LineChart },
+  { href: "/super-admin/operacao", label: "Operação", icon: Zap },
+  { href: "/super-admin/qualidade", label: "Qualidade", icon: Star },
+  { href: "/super-admin/funil", label: "Funil", icon: GitMerge },
   { href: "/super-admin/lojas", label: "Lojas", icon: Store },
   { href: "/super-admin/entregadores", label: "Entregadores", icon: Bike },
   { href: "/super-admin/clientes", label: "Clientes", icon: Users },
@@ -20,6 +23,7 @@ const NAV = [
   { href: "/super-admin/saques", label: "Saques", icon: Banknote },
   { href: "/super-admin/taxas", label: "Taxas", icon: BadgePercent },
   { href: "/super-admin/cupons", label: "Cupons", icon: Ticket },
+  { href: "/super-admin/exportar", label: "Exportar", icon: Download },
   { href: "/super-admin/auditoria", label: "Auditoria", icon: History },
 ];
 
