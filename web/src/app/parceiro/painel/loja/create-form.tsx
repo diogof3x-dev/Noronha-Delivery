@@ -26,6 +26,7 @@ const TYPES = [
   { value: "loja", label: "Loja / boutique" },
   { value: "operador_passeio", label: "Operador de passeio" },
   { value: "pousada", label: "Pousada / hospedagem" },
+  { value: "residencia", label: "Residência particular (Airbnb)" },
   { value: "locadora", label: "Aluguel (bike, scooter, equip.)" },
   { value: "servico", label: "Serviço (spa, lavanderia, pet, etc.)" },
 ];

@@ -1462,6 +1462,7 @@ export type Database = {
         | "loja"
         | "operador_passeio"
         | "pousada"
+        | "residencia"
         | "locadora"
         | "servico"
         | "motorista"

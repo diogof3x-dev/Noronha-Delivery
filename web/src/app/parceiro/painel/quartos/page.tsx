@@ -21,7 +21,7 @@ export default async function PainelQuartos() {
   let bizQuery = supabase
     .from("businesses")
     .select("id, name, type")
-    .in("type", ["pousada"]);
+    .in("type", ["pousada", "residencia"]);
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);
   const { data: businesses } = await bizQuery.order("name");
 

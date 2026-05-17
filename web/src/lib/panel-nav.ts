@@ -5,6 +5,7 @@ import {
   Bike,
   CalendarCheck,
   CalendarDays,
+  Home,
   ListChecks,
   Sailboat,
   Sparkles,
@@ -42,6 +43,11 @@ const LODGING: PanelNavItem[] = [
   { href: "/parceiro/painel/reservas", label: "Reservas", icon: CalendarCheck },
 ];
 
+const RESIDENCE: PanelNavItem[] = [
+  { href: "/parceiro/painel/quartos", label: "Minha casa", icon: Home },
+  { href: "/parceiro/painel/reservas", label: "Reservas", icon: CalendarCheck },
+];
+
 const TOURS: PanelNavItem[] = [
   { href: "/parceiro/painel/passeios", label: "Passeios", icon: Sailboat },
   { href: "/parceiro/painel/agenda", label: "Agenda", icon: CalendarDays },
@@ -63,6 +69,8 @@ export function getPanelNav(type: string | null | undefined): PanelNavItem[] {
   switch (type) {
     case "pousada":
       return [...BASE, ...LODGING, ...CADASTRO_LOJA];
+    case "residencia":
+      return [...BASE, ...RESIDENCE, ...CADASTRO_LOJA];
     case "operador_passeio":
       return [...BASE, ...TOURS, ...CADASTRO_LOJA];
     case "locadora":

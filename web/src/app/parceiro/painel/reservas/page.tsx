@@ -35,7 +35,7 @@ export default async function PainelReservas() {
   const profile = await getProfile(user);
   const isAdmin = profile?.role === "admin";
 
-  let bizQuery = supabase.from("businesses").select("id, name, type").eq("type", "pousada");
+  let bizQuery = supabase.from("businesses").select("id, name, type").in("type", ["pousada", "residencia"]);
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);
   const { data: businesses } = await bizQuery;
   const bizIds = (businesses ?? []).map((b) => b.id);

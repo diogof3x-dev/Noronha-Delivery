@@ -13,6 +13,7 @@ const BUSINESS_TYPES = [
   "loja",
   "operador_passeio",
   "pousada",
+  "residencia",
   "locadora",
   "servico",
   "motorista",
