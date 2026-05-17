@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const SubscribeSchema = z.object({
   endpoint: z.string().url(),
@@ -19,6 +20,12 @@ export async function savePushSubscription(input: unknown): Promise<{ ok: true }
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sem login" };
+
+  const rl = await consumeRateLimit(rateLimitKey("savePush", user.id), {
+    limit: 10,
+    windowSeconds: 60,
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   const { error } = await supabase
     .from("push_subscriptions")

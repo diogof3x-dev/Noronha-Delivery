@@ -176,6 +176,12 @@ export default async function SuperAdminLojas({
                     <p className="mt-1 text-[11px] text-muted-foreground">
                       Cadastrada em {new Date(b.created_at).toLocaleString("pt-BR")}
                     </p>
+                    <Link
+                      href={`/super-admin/lojas/${b.id}`}
+                      className="mt-1 inline-block text-[11px] font-semibold text-primary hover:underline"
+                    >
+                      Detalhes · take rate · suspender →
+                    </Link>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1">
                     {b.is_verified ? (

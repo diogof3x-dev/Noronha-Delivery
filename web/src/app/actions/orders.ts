@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const CartOptionSchema = z.object({
   groupId: z.string().uuid(),
@@ -66,6 +67,13 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Faça login pra finalizar." };
+
+  const rl = await consumeRateLimit(rateLimitKey("createOrder", user.id), {
+    limit: 5,
+    windowSeconds: 60,
+    errorMessage: "Você está fazendo pedidos muito rápido. Espere um minuto.",
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   const { data: business, error: bizErr } = await supabase
     .from("businesses")

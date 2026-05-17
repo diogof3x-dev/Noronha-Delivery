@@ -39,6 +39,8 @@ export type Database = {
           payout_pix_key: string | null
           payout_pix_kind: string | null
           slug: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
           type: Database["public"]["Enums"]["business_type"]
           updated_at: string
           whatsapp: string | null
@@ -69,6 +71,8 @@ export type Database = {
           payout_pix_key?: string | null
           payout_pix_kind?: string | null
           slug?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           type: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -99,6 +103,8 @@ export type Database = {
           payout_pix_key?: string | null
           payout_pix_kind?: string | null
           slug?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           type?: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -381,6 +387,9 @@ export type Database = {
           id: string
           is_resident: boolean
           is_online: boolean
+          is_banned: boolean
+          banned_reason: string | null
+          banned_at: string | null
           last_seen_at: string | null
           pix_kind: string | null
           pix_value: string | null
@@ -402,6 +411,9 @@ export type Database = {
           id: string
           is_resident?: boolean
           is_online?: boolean
+          is_banned?: boolean
+          banned_reason?: string | null
+          banned_at?: string | null
           last_seen_at?: string | null
           pix_kind?: string | null
           pix_value?: string | null
@@ -423,6 +435,9 @@ export type Database = {
           id?: string
           is_resident?: boolean
           is_online?: boolean
+          is_banned?: boolean
+          banned_reason?: string | null
+          banned_at?: string | null
           last_seen_at?: string | null
           pix_kind?: string | null
           pix_value?: string | null
@@ -1394,6 +1409,45 @@ export type Database = {
           },
         ]
       }
+      admin_audit_log: {
+        Row: {
+          id: string
+          admin_id: string
+          action: string
+          target_type: string | null
+          target_id: string | null
+          target_label: string | null
+          payload: Json | null
+          ip: string | null
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          admin_id: string
+          action: string
+          target_type?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          payload?: Json | null
+          ip?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          admin_id?: string
+          action?: string
+          target_type?: string | null
+          target_id?: string | null
+          target_label?: string | null
+          payload?: Json | null
+          ip?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           id: string
@@ -1574,6 +1628,22 @@ export type Database = {
         Returns: number
       }
       is_admin: { Args: Record<string, never>; Returns: boolean }
+      consume_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
+      business_has_take_rate_override: {
+        Args: { p_business_id: string }
+        Returns: boolean
+      }
+      cleanup_rate_limit_buckets: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
+      refresh_admin_mvs: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
       validate_coupon: {
         Args: {
           p_code: string

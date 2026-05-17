@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const Schema = z.object({
   code: z.string().min(2).max(40),
@@ -18,6 +19,16 @@ export async function validateCoupon(input: z.infer<typeof Schema>): Promise<Val
   if (!parsed.success) return { ok: false, error: "Cupom inválido" };
 
   const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const rl = await consumeRateLimit(
+    rateLimitKey("validateCoupon", user?.id ?? parsed.data.businessId),
+    { limit: 20, windowSeconds: 60 },
+  );
+  if (!rl.ok) return { ok: false, error: rl.error };
+
   const { data, error } = await supabase.rpc("validate_coupon", {
     p_code: parsed.data.code.trim(),
     p_subtotal_cents: parsed.data.subtotalCents,
