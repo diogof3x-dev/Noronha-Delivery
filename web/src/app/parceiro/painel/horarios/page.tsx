@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { CalendarDays, Trash2, Users } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { Button } from "@/components/ui/button";
 import { CreateSlotForm } from "./create-form";
 import { deleteServiceSlot, toggleSlotActive } from "@/app/actions/service-bookings";
@@ -15,7 +16,8 @@ export default async function PainelHorarios() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase.from("businesses").select("id, name").eq("type", "servico");
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);

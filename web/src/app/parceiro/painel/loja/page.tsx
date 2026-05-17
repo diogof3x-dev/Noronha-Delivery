@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronDown, Store } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { formatCents } from "@/lib/format";
 import { CreateBusinessForm } from "./create-form";
 import { EditBusinessForm } from "./edit-form";
@@ -19,7 +20,8 @@ export default async function PainelLoja() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase
     .from("businesses")

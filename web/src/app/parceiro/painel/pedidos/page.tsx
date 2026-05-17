@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getAdminClient } from "@/lib/supabase/admin-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { OrderCard, type MerchantOrder } from "./order-card";
 import { RealtimeOrdersListener } from "./realtime-listener";
 import { PushPrompt } from "@/components/push/push-prompt";
@@ -25,7 +26,8 @@ export default async function PainelPedidos() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase.from("businesses").select("id, name");
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);

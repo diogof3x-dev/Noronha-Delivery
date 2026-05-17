@@ -6,6 +6,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
 import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 const CartOptionSchema = z.object({
   groupId: z.string().uuid(),
@@ -41,8 +42,6 @@ const CreateOrderSchema = z.object({
   couponCode: z.string().max(40).optional(),
   cpfNota: z.string().max(14).optional(),
 });
-
-const SERVICE_FEE_BPS = 199;
 
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 

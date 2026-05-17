@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { BedDouble, Users } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { formatCents } from "@/lib/format";
 import { CreateRoomForm } from "./create-form";
 import { RoomActions } from "./room-actions";
@@ -16,7 +17,8 @@ export default async function PainelQuartos() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase
     .from("businesses")

@@ -2,7 +2,8 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Bike } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { formatCents } from "@/lib/format";
 import { CreateRentalItemForm } from "./create-form";
 
@@ -15,7 +16,8 @@ export default async function PainelEquipamentos() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase.from("businesses").select("id, name").eq("type", "locadora");
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);

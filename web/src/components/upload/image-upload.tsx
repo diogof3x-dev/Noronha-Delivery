@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { getBrowserClient } from "@/lib/supabase/browser-client";
+import { STORAGE_CACHE_CONTROL } from "@/lib/constants";
 
 const BUCKET = "business-assets";
 
@@ -45,7 +46,7 @@ export function ImageUpload({
       const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-        cacheControl: "3600",
+        cacheControl: STORAGE_CACHE_CONTROL,
         upsert: false,
       });
       if (error) {

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { CalendarDays, Trash2, Users } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { Button } from "@/components/ui/button";
 import { CreateSessionForm } from "./create-form";
 import { deleteTourSession, toggleSessionActive } from "@/app/actions/tours";
@@ -25,7 +26,8 @@ export default async function PainelAgenda() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase
     .from("businesses")

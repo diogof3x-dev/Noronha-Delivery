@@ -168,7 +168,7 @@ const BookSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 export type CreateServiceBookingResult =
   | {

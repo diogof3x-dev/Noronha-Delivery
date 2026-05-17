@@ -23,7 +23,7 @@ type Room = {
   photo: string | null;
 };
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 function todayIso() {
   const d = new Date();

@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatCents } from "@/lib/format";
 import { createRentalBooking } from "@/app/actions/rentals";
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 type Item = {
   id: string;

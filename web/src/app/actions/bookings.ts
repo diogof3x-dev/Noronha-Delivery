@@ -7,7 +7,7 @@ import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
 import { notifyBookingCreated } from "@/lib/email-helpers";
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 const BookingSchema = z.object({
   businessId: z.string().uuid(),

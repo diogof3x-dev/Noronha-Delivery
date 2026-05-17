@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { NovoCardapioTabs } from "./novo-cardapio-tabs";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,8 @@ export default async function NovoCardapioPage() {
   if (!user) redirect("/parceiro/entrar?next=/parceiro/painel/cardapio/novo");
 
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase.from("businesses").select("id, name, type").order("name");
   if (!isAdmin) bizQuery = bizQuery.eq("owner_id", user.id);

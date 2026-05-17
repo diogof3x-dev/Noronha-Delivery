@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { CalendarCheck, Users } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { formatCents } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,8 @@ export default async function PainelReservasPasseio() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   let bizQuery = supabase
     .from("businesses")

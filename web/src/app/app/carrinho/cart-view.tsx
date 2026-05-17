@@ -16,7 +16,7 @@ import { PaymentMethodSelector, type PaymentMethod } from "@/components/checkout
 import { CouponInput, type AppliedCoupon } from "@/components/checkout/coupon-input";
 import { CpfNotaField } from "@/components/checkout/cpf-nota";
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 export function CartView() {
   const business = useCart((s) => s.business);

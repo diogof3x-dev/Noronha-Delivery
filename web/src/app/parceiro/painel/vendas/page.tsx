@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { Banknote, Clock, TrendingUp } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { getProfile } from "@/lib/profile";
+import { getProfile } from "@/lib/profile"
+import { getMerchantScope } from "@/lib/merchant-scope";
 import { Button } from "@/components/ui/button";
 import { formatCents } from "@/lib/format";
 
@@ -14,7 +15,8 @@ export default async function PainelVendas() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/parceiro/entrar");
   const profile = await getProfile(user);
-  const isAdmin = profile?.role === "admin";
+  const scope = await getMerchantScope(supabase, user.id, profile);
+  const isAdmin = scope.showAll;
 
   const { data: account } = await supabase
     .from("wallet_accounts")

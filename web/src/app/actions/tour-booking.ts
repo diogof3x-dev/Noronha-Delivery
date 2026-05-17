@@ -6,7 +6,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { createPixCharge } from "@/lib/payments/mercadopago";
 import { createPaymentIntent } from "@/lib/payments/stripe";
 
-const SERVICE_FEE_BPS = 199;
+import { SERVICE_FEE_BPS } from "@/lib/constants";
 
 const Schema = z.object({
   businessId: z.string().uuid(),

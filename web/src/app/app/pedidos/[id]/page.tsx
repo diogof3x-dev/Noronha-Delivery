@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { formatCents } from "@/lib/format";
 import { OrderStatusLive } from "./order-status-live";
@@ -206,6 +206,18 @@ export default async function PedidoDetailPage({ params }: Props) {
           </p>
         )}
       </section>
+
+      {order.payment_status === "paid" && (
+        <a
+          href={`/api/orders/${order.id}/recibo.pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold hover:bg-muted"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Baixar comprovante PDF
+        </a>
+      )}
 
       <section className="rounded-2xl border border-border bg-card p-4 text-sm">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
