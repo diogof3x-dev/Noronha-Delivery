@@ -1,10 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Check, Loader2, Star } from "lucide-react";
+import { Camera, Check, Loader2, Star, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { rateOrder, type RatingState } from "@/app/actions/ratings";
+import { getBrowserClient } from "@/lib/supabase/browser-client";
+import { STORAGE_CACHE_CONTROL } from "@/lib/constants";
 
 const initial: RatingState = { ok: false };
 
@@ -38,6 +41,44 @@ export function RatingForm({
   const [driverStars, setDriverStars] = useState(0);
   const [businessTags, setBusinessTags] = useState<Set<string>>(new Set());
   const [driverTags, setDriverTags] = useState<Set<string>>(new Set());
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function uploadPhoto(file: File) {
+    if (photoUrls.length >= 3) {
+      toast.error("Máximo 3 fotos");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Foto muito grande (máx 5MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      const supabase = getBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Sessão expirada");
+        return;
+      }
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("rating-photos").upload(path, file, {
+        cacheControl: STORAGE_CACHE_CONTROL,
+        upsert: false,
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      const { data } = supabase.storage.from("rating-photos").getPublicUrl(path);
+      setPhotoUrls((cur) => [...cur, data.publicUrl]);
+    } finally {
+      setUploading(false);
+    }
+  }
 
   if (state.ok) {
     return (
@@ -61,6 +102,9 @@ export function RatingForm({
       ))}
       {Array.from(driverTags).map((t) => (
         <input key={`dt-${t}`} type="hidden" name="driver_tags" value={t} />
+      ))}
+      {photoUrls.map((u) => (
+        <input key={`p-${u}`} type="hidden" name="photo_urls" value={u} />
       ))}
 
       <header>
@@ -91,6 +135,52 @@ export function RatingForm({
           )}
         </div>
       )}
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Fotos do pedido (até 3)
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {photoUrls.map((u, i) => (
+            <div key={u} className="relative h-16 w-16 overflow-hidden rounded-lg border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={u} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setPhotoUrls((cur) => cur.filter((x) => x !== u))}
+                aria-label="Remover foto"
+                className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+          {photoUrls.length < 3 && (
+            <label
+              className={`flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-border ${
+                uploading ? "opacity-60" : "hover:border-primary/40"
+              }`}
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              ) : (
+                <Camera className="h-4 w-4 text-muted-foreground" />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploading}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadPhoto(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+        </div>
+      </div>
 
       <Textarea
         name="comment"

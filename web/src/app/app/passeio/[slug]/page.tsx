@@ -6,6 +6,7 @@ import { getPublicClient } from "@/lib/supabase/public-client";
 import { TourBookingFlow } from "./booking-flow";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
 import { FavoriteButtonAuto } from "@/components/app/favorite-button-auto";
+import { BusinessReviews } from "@/components/app/business-reviews";
 
 export const revalidate = 60;
 
@@ -184,6 +185,9 @@ export default async function PasseioPage({ params }: Props) {
           </p>
         </div>
       )}
+    <div className="px-4 pb-6">
+      <BusinessReviews businessId={business.id} avgStars={scoreRow?.avg_stars ?? null} totalReviews={scoreRow?.total_reviews ?? null} />
+    </div>
     </div>
   );
 }

@@ -11,6 +11,7 @@ const Schema = z.object({
   comment: z.string().max(600).optional().or(z.literal("")),
   business_tags: z.array(z.string().max(40)).max(10).optional(),
   driver_tags: z.array(z.string().max(40)).max(10).optional(),
+  photo_urls: z.array(z.string().url().max(500)).max(3).optional(),
 });
 
 export type RatingState = { ok: boolean; error?: string };
@@ -23,6 +24,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     comment: formData.get("comment") ?? undefined,
     business_tags: formData.getAll("business_tags").map(String).filter(Boolean),
     driver_tags: formData.getAll("driver_tags").map(String).filter(Boolean),
+    photo_urls: formData.getAll("photo_urls").map(String).filter(Boolean),
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
 
@@ -43,7 +45,6 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     return { ok: false, error: "Pedido ainda não foi entregue" };
   }
 
-  // checa se já avaliou
   const { data: existing } = await supabase
     .from("ratings")
     .select("id")
@@ -63,6 +64,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     stars: number;
     comment: string | null;
     tags?: string[];
+    photo_urls?: string[];
   }> = [];
 
   rows.push({
@@ -74,6 +76,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     stars: parsed.data.business_stars,
     comment: parsed.data.comment?.trim() || null,
     tags: parsed.data.business_tags?.length ? parsed.data.business_tags : undefined,
+    photo_urls: parsed.data.photo_urls?.length ? parsed.data.photo_urls : undefined,
   });
 
   if (parsed.data.driver_stars && order.driver_id) {

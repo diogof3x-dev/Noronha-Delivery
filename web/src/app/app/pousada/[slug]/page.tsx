@@ -7,6 +7,7 @@ import { formatCents } from "@/lib/format";
 import { RoomsBookingFlow } from "./booking-flow";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
 import { FavoriteButtonAuto } from "@/components/app/favorite-button-auto";
+import { BusinessReviews } from "@/components/app/business-reviews";
 
 export const revalidate = 60;
 
@@ -197,6 +198,9 @@ export default async function PousadaPage({ params }: Props) {
           Reservas confirmadas só após pagamento. Cancelamento gratuito até 48h antes do check-in.
         </p>
       </section>
+    <div className="px-4 pb-6">
+      <BusinessReviews businessId={business.id} avgStars={scoreRow?.avg_stars ?? null} totalReviews={scoreRow?.total_reviews ?? null} />
+    </div>
     </div>
   );
 }

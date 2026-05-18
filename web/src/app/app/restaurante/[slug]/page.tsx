@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Leaf, Search, Star } from "lucide-react";
 import { getPublicClient } from "@/lib/supabase/public-client";
 import { RestaurantMenu } from "@/components/app/restaurant-menu";
+import { BusinessReviews } from "@/components/app/business-reviews";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
 import { FavoriteButtonAuto } from "@/components/app/favorite-button-auto";
 import { formatCents, formatPrepTime } from "@/lib/format";
@@ -224,6 +225,14 @@ export default async function RestaurantePage({ params }: Props) {
           </p>
         </div>
       )}
+
+      <div className="px-4 pb-6">
+        <BusinessReviews
+          businessId={business.id}
+          avgStars={scoreRow?.avg_stars ?? null}
+          totalReviews={scoreRow?.total_reviews ?? null}
+        />
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Home, Leaf, MapPin, Search, Star } from "lucide-react";
 import { getPublicClient } from "@/lib/supabase/public-client";
 import { RoomsBookingFlow } from "@/app/app/pousada/[slug]/booking-flow";
+import { BusinessReviews } from "@/components/app/business-reviews";
 
 export const revalidate = 60;
 
@@ -180,6 +181,9 @@ export default async function CasaPage({ params }: Props) {
             : "Reservas confirmadas só após pagamento. Cancelamento gratuito até 48h antes do check-in."}
         </p>
       </section>
+    <div className="px-4 pb-6">
+      <BusinessReviews businessId={business.id} avgStars={scoreRow?.avg_stars ?? null} totalReviews={scoreRow?.total_reviews ?? null} />
+    </div>
     </div>
   );
 }
