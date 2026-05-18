@@ -41,6 +41,10 @@ export type Database = {
           slug: string | null
           suspended_at: string | null
           suspended_reason: string | null
+          banner_text: string | null
+          banner_cta_label: string | null
+          banner_cta_url: string | null
+          banner_color: string | null
           type: Database["public"]["Enums"]["business_type"]
           updated_at: string
           whatsapp: string | null
@@ -73,6 +77,10 @@ export type Database = {
           slug?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
+          banner_text?: string | null
+          banner_cta_label?: string | null
+          banner_cta_url?: string | null
+          banner_color?: string | null
           type: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -105,6 +113,10 @@ export type Database = {
           slug?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
+          banner_text?: string | null
+          banner_cta_label?: string | null
+          banner_cta_url?: string | null
+          banner_color?: string | null
           type?: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           whatsapp?: string | null
@@ -1408,6 +1420,144 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      business_members: {
+        Row: {
+          id: string
+          business_id: string
+          user_id: string | null
+          invited_email: string | null
+          role: "owner" | "manager" | "staff"
+          permissions: Json
+          invited_by: string | null
+          invited_at: string
+          joined_at: string | null
+          removed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          user_id?: string | null
+          invited_email?: string | null
+          role?: "owner" | "manager" | "staff"
+          permissions?: Json
+          invited_by?: string | null
+          invited_at?: string
+          joined_at?: string | null
+          removed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          user_id?: string | null
+          invited_email?: string | null
+          role?: "owner" | "manager" | "staff"
+          permissions?: Json
+          invited_by?: string | null
+          invited_at?: string
+          joined_at?: string | null
+          removed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      business_coupons: {
+        Row: {
+          id: string
+          business_id: string
+          code: string
+          description: string | null
+          discount_kind: "percent" | "fixed"
+          discount_value: number
+          min_subtotal_cents: number | null
+          max_uses: number | null
+          uses_count: number
+          per_user_limit: number | null
+          first_order_only: boolean
+          starts_at: string
+          ends_at: string | null
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          code: string
+          description?: string | null
+          discount_kind: "percent" | "fixed"
+          discount_value: number
+          min_subtotal_cents?: number | null
+          max_uses?: number | null
+          uses_count?: number
+          per_user_limit?: number | null
+          first_order_only?: boolean
+          starts_at?: string
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          code?: string
+          description?: string | null
+          discount_kind?: "percent" | "fixed"
+          discount_value?: number
+          min_subtotal_cents?: number | null
+          max_uses?: number | null
+          uses_count?: number
+          per_user_limit?: number | null
+          first_order_only?: boolean
+          starts_at?: string
+          ends_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      business_boosts: {
+        Row: {
+          id: string
+          business_id: string
+          kind: "home_feature" | "category_top" | "banner"
+          starts_at: string
+          ends_at: string
+          daily_budget_cents: number | null
+          total_spent_cents: number
+          status: "active" | "paused" | "ended"
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          kind: "home_feature" | "category_top" | "banner"
+          starts_at?: string
+          ends_at: string
+          daily_budget_cents?: number | null
+          total_spent_cents?: number
+          status?: "active" | "paused" | "ended"
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          kind?: "home_feature" | "category_top" | "banner"
+          starts_at?: string
+          ends_at?: string
+          daily_budget_cents?: number | null
+          total_spent_cents?: number
+          status?: "active" | "paused" | "ended"
+          created_at?: string
+        }
+        Relationships: []
       }
       admin_audit_log: {
         Row: {

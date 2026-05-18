@@ -7,11 +7,14 @@ import {
   CalendarDays,
   Home,
   ListChecks,
+  Megaphone,
   Sailboat,
   Sparkles,
   Star,
   Store,
+  TrendingUp,
   UserCog,
+  Users,
   UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
@@ -27,8 +30,11 @@ const BASE: PanelNavItem[] = [
 ];
 
 const CADASTRO_LOJA: PanelNavItem[] = [
-  { href: "/parceiro/painel/vendas", label: "Vendas", icon: Banknote },
+  { href: "/parceiro/painel/analytics", label: "Analytics", icon: TrendingUp },
+  { href: "/parceiro/painel/vendas", label: "Financeiro", icon: Banknote },
+  { href: "/parceiro/painel/promocoes", label: "Promoções", icon: Megaphone },
   { href: "/parceiro/painel/avaliacoes", label: "Avaliações", icon: Star },
+  { href: "/parceiro/painel/equipe", label: "Equipe", icon: Users },
   { href: "/parceiro/painel/loja", label: "Minha loja", icon: Store },
   { href: "/parceiro/painel/cadastro", label: "Meu cadastro", icon: UserCog },
 ];
