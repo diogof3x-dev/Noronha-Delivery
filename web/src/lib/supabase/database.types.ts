@@ -1759,6 +1759,26 @@ export type Database = {
         }
         Relationships: []
       }
+      mv_driver_daily: {
+        Row: {
+          driver_id: string
+          day: string
+          deliveries_count: number
+          earnings_cents: number
+          avg_minutes: number
+        }
+        Relationships: []
+      }
+      mv_driver_dow_hour: {
+        Row: {
+          driver_id: string
+          dow: number
+          hour: number
+          deliveries_count: number
+          earnings_cents: number
+        }
+        Relationships: []
+      }
       mv_business_daily: {
         Row: {
           business_id: string
@@ -1833,6 +1853,10 @@ export type Database = {
       }
       business_pending_balance: {
         Args: { p_business_id: string }
+        Returns: number
+      }
+      driver_pending_balance: {
+        Args: { p_driver_id: string }
         Returns: number
       }
       business_health_score: {

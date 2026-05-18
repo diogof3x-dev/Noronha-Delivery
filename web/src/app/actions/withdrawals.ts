@@ -79,6 +79,77 @@ export async function requestWithdrawal(formData: FormData): Promise<RequestWith
   return { ok: true };
 }
 
+const DriverRequestSchema = z.object({
+  amount_cents: z.coerce.number().int().min(1000),
+});
+
+export async function requestDriverWithdrawal(formData: FormData): Promise<RequestWithdrawalResult> {
+  const parsed = DriverRequestSchema.safeParse({
+    amount_cents: formData.get("amount_cents"),
+  });
+  if (!parsed.success) return { ok: false, error: "Dados inválidos" };
+
+  const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sessão expirada" };
+
+  const rl = await consumeRateLimit(rateLimitKey("requestDriverWithdrawal", user.id), {
+    limit: 3,
+    windowSeconds: 3600,
+    errorMessage: "Muitas solicitações na última hora.",
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("pix_value, pix_kind, role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.role !== "driver" && profile?.role !== "admin") {
+    return { ok: false, error: "Apenas motoboys podem solicitar esse saque" };
+  }
+  if (!profile?.pix_value || !profile?.pix_kind) {
+    return { ok: false, error: "Cadastre a chave PIX em Meu cadastro antes de sacar" };
+  }
+
+  const { data: account } = await supabase
+    .from("wallet_accounts")
+    .select("id, balance_cents")
+    .eq("owner_id", user.id)
+    .is("business_id", null)
+    .maybeSingle();
+  if (!account || (account.balance_cents ?? 0) < parsed.data.amount_cents) {
+    return { ok: false, error: "Saldo insuficiente" };
+  }
+
+  const { count: pendingCount } = await supabase
+    .from("withdrawal_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("requested_by", user.id)
+    .is("business_id", null)
+    .eq("status", "requested");
+  if ((pendingCount ?? 0) > 0) {
+    return { ok: false, error: "Você já tem um saque pendente. Aguarde aprovação." };
+  }
+
+  const { error } = await supabase.from("withdrawal_requests").insert({
+    account_id: account.id,
+    business_id: null,
+    requested_by: user.id,
+    amount_cents: parsed.data.amount_cents,
+    pix_key: profile.pix_value,
+    pix_kind: profile.pix_kind,
+    status: "requested",
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/entregador/painel/ganhos");
+  revalidatePath("/super-admin/saques");
+  return { ok: true };
+}
+
 async function requireAdmin() {
   const supabase = await getServerClient();
   const {

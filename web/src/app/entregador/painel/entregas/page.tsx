@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { ListChecks, MapPin } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
-import { formatCents } from "@/lib/format";
+import { getAdminClient } from "@/lib/supabase/admin-client";
+import { haversineMeters, parseGeo, etaMinutes, urgencyFromPlaced, minutesSince } from "@/lib/geo";
 import { ClaimNextButton } from "./claim-button";
 import { DeliveryStepButtons } from "./step-buttons";
 import { AvailableOrderCard } from "./available-order-card";
+import { ActiveOrderCard } from "./active-order-card";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,9 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
+const SELECT =
+  "id, code, status, total_cents, delivery_fee_cents, created_at, placed_at, business_id, customer_id, payment_method, payment_status, destination_kind, destination_label, destination_geo, destination_notes, businesses(name, address, district, geo, whatsapp), order_items(name_snapshot, quantity)";
+
 export default async function EntregadorEntregas() {
   const supabase = await getServerClient();
   const {
@@ -27,24 +31,40 @@ export default async function EntregadorEntregas() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/entregador/entrar");
 
-  const { data: orders } = await supabase
-    .from("orders")
-    .select(
-      "id, code, status, total_cents, created_at, business_id, destination_kind, destination_label, businesses(name, address, district)",
-    )
-    .eq("driver_id", user.id)
-    .in("status", ["confirmed", "preparing", "ready", "in_transit"])
-    .order("created_at", { ascending: false });
+  const [{ data: orders }, { data: availableOrders }] = await Promise.all([
+    supabase
+      .from("orders")
+      .select(SELECT)
+      .eq("driver_id", user.id)
+      .in("status", ["confirmed", "preparing", "ready", "in_transit"])
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("orders")
+      .select(SELECT)
+      .is("driver_id", null)
+      .in("status", ["confirmed", "preparing", "ready"])
+      .order("placed_at", { ascending: false })
+      .limit(20),
+  ]);
 
-  const { data: availableOrders } = await supabase
-    .from("orders")
-    .select(
-      "id, code, status, total_cents, created_at, business_id, destination_kind, destination_label, businesses(name, address, district)",
-    )
-    .is("driver_id", null)
-    .in("status", ["confirmed", "preparing", "ready"])
-    .order("placed_at", { ascending: false })
-    .limit(20);
+  const admin = getAdminClient();
+  const customerIds = Array.from(
+    new Set(
+      [...(orders ?? []), ...(availableOrders ?? [])]
+        .map((o) => (o as { customer_id?: string }).customer_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const customerMap = new Map<string, { name: string | null; whatsapp: string | null }>();
+  if (admin && customerIds.length) {
+    const { data: customers } = await admin
+      .from("profiles")
+      .select("id, full_name, whatsapp")
+      .in("id", customerIds);
+    for (const c of customers ?? []) {
+      customerMap.set(c.id, { name: c.full_name, whatsapp: c.whatsapp });
+    }
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 p-4 md:p-8">
@@ -63,11 +83,12 @@ export default async function EntregadorEntregas() {
       {orders?.length ? (
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Suas corridas
+            Suas corridas ({orders.length})
           </h2>
           <ul className="space-y-3">
             {orders.map((o) => {
-              const biz = o.businesses as { name?: string; address?: string; district?: string } | null;
+              const biz = o.businesses as { name?: string; address?: string; district?: string; geo?: unknown; whatsapp?: string } | null;
+              const cust = o.customer_id ? customerMap.get(o.customer_id) : undefined;
               const pickupAddr = biz?.address ?? biz?.district ?? null;
               const pickupQuery = pickupAddr
                 ? `${biz?.name ? biz.name + ", " : ""}${pickupAddr}, Fernando de Noronha`
@@ -75,72 +96,33 @@ export default async function EntregadorEntregas() {
               const destQuery = o.destination_label
                 ? `${o.destination_label}, Fernando de Noronha`
                 : null;
+              const bizGeo = parseGeo(biz?.geo);
+              const destGeo = parseGeo(o.destination_geo);
+              const routeM = bizGeo && destGeo ? haversineMeters(bizGeo, destGeo) : null;
               return (
-                <li key={o.id} className="rounded-2xl border border-border bg-card p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold">
-                        #{o.code} · {biz?.name ?? "—"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{STATUS_LABEL[o.status]}</p>
-                      {pickupQuery ? (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pickupQuery)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1 text-xs hover:underline"
-                        >
-                          <MapPin className="h-3 w-3 text-primary" />
-                          <span className="font-medium">Coletar:</span>{" "}
-                          {pickupAddr ?? "—"}{" "}
-                          <span className="text-primary">↗</span>
-                        </a>
-                      ) : (
-                        <p className="mt-2 inline-flex items-center gap-1 text-xs">
-                          <MapPin className="h-3 w-3 text-primary" />
-                          <span className="font-medium">Coletar:</span> —
-                        </p>
-                      )}
-                      {destQuery && (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destQuery)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-1 inline-flex items-center gap-1 text-xs hover:underline"
-                        >
-                          <MapPin className="h-3 w-3 text-[color:var(--turtle)]" />
-                          <span className="font-medium capitalize">
-                            {o.destination_kind ?? "Destino"}:
-                          </span>{" "}
-                          {o.destination_label}{" "}
-                          <span className="text-[color:var(--turtle)]">↗</span>
-                        </a>
-                      )}
-                    </div>
-                    <span className="shrink-0 text-base font-bold">
-                      {formatCents(o.total_cents)}
-                    </span>
-                  </div>
-                  <DeliveryStepButtons orderId={o.id} status={o.status} />
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs">
-                    <Link
-                      href={`/app/pedidos/${o.id}`}
-                      className="text-primary hover:underline"
-                    >
-                      Ver detalhes do pedido ↗
-                    </Link>
-                    {pickupQuery && destQuery && (
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupQuery)}&destination=${encodeURIComponent(destQuery)}&travelmode=driving`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[color:var(--turtle)] hover:underline"
-                      >
-                        Abrir rota completa ↗
-                      </a>
-                    )}
-                  </div>
-                </li>
+                <ActiveOrderCard
+                  key={o.id}
+                  orderId={o.id}
+                  code={o.code}
+                  status={o.status}
+                  statusLabel={STATUS_LABEL[o.status] ?? o.status}
+                  driverEarningsCents={o.delivery_fee_cents ?? 0}
+                  paymentMethod={o.payment_method}
+                  paymentStatus={o.payment_status}
+                  totalCents={o.total_cents}
+                  businessName={biz?.name ?? "—"}
+                  pickupAddr={pickupAddr}
+                  pickupQuery={pickupQuery}
+                  destinationKind={o.destination_kind}
+                  destinationLabel={o.destination_label}
+                  destinationNotes={o.destination_notes}
+                  destQuery={destQuery}
+                  routeKm={routeM != null ? routeM / 1000 : null}
+                  customerName={cust?.name ?? null}
+                  customerWhatsapp={cust?.whatsapp ?? null}
+                  businessWhatsapp={biz?.whatsapp ?? null}
+                  stepButtons={<DeliveryStepButtons orderId={o.id} status={o.status} />}
+                />
               );
             })}
           </ul>
@@ -163,9 +145,21 @@ export default async function EntregadorEntregas() {
             </p>
           </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {availableOrders.map((o) => {
-              const biz = o.businesses as { name?: string; address?: string; district?: string } | null;
+              const biz = o.businesses as { name?: string; address?: string; district?: string; geo?: unknown } | null;
+              const items = (o.order_items as Array<{ name_snapshot: string; quantity: number }> | null) ?? [];
+              const itemsCount = items.reduce((sum, i) => sum + i.quantity, 0);
+              const itemsPreview =
+                items
+                  .slice(0, 2)
+                  .map((i) => `${i.quantity}× ${i.name_snapshot}`)
+                  .join(", ") + (items.length > 2 ? `, +${items.length - 2}…` : "");
+
+              const bizGeo = parseGeo(biz?.geo);
+              const destGeo = parseGeo(o.destination_geo);
+              const routeMeters = bizGeo && destGeo ? haversineMeters(bizGeo, destGeo) : null;
+
               return (
                 <AvailableOrderCard
                   key={o.id}
@@ -173,16 +167,36 @@ export default async function EntregadorEntregas() {
                   code={o.code}
                   status={o.status}
                   totalCents={o.total_cents}
+                  driverEarningsCents={o.delivery_fee_cents ?? 0}
+                  paymentMethod={o.payment_method}
+                  paymentStatus={o.payment_status}
                   businessName={biz?.name ?? "—"}
                   businessAddress={biz?.address ?? biz?.district ?? "—"}
+                  businessDistrict={biz?.district ?? null}
                   destinationKind={o.destination_kind}
                   destinationLabel={o.destination_label}
+                  destinationDistrict={null}
+                  itemsCount={itemsCount}
+                  itemsPreview={itemsPreview}
+                  pickupDistanceMeters={null}
+                  routeDistanceMeters={routeMeters}
+                  routeEtaMinutes={routeMeters != null ? etaMinutes(routeMeters) : null}
+                  minutesSincePlaced={minutesSince(o.placed_at ?? o.created_at)}
+                  urgency={urgencyFromPlaced(o.placed_at ?? o.created_at)}
                   statusLabel={STATUS_LABEL[o.status] ?? o.status}
                 />
               );
             })}
           </ul>
         )}
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
+        <p>
+          💡 <strong>Dica:</strong> toque em <MapPin className="inline h-3 w-3 text-primary" /> num endereço pra
+          abrir no Google Maps. Toque em <strong>WhatsApp</strong> pra falar direto com
+          cliente ou lojista sem precisar guardar telefone.
+        </p>
       </section>
     </div>
   );
