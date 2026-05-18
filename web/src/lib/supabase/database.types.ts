@@ -1609,6 +1609,43 @@ export type Database = {
         }
         Relationships: []
       }
+      mv_business_daily: {
+        Row: {
+          business_id: string
+          day: string
+          orders_count: number
+          paid_count: number
+          cancelled_count: number
+          delivered_count: number
+          pix_count: number
+          card_count: number
+          gmv_cents: number
+          fee_cents: number
+          avg_ticket_cents: number
+        }
+        Relationships: []
+      }
+      mv_business_top_products: {
+        Row: {
+          business_id: string
+          service_id: string
+          name: string
+          qty_total: number
+          revenue_cents: number
+          orders_with: number
+        }
+        Relationships: []
+      }
+      mv_business_dow_hour: {
+        Row: {
+          business_id: string
+          dow: number
+          hour: number
+          orders_count: number
+          gmv_cents: number
+        }
+        Relationships: []
+      }
       mv_payment_methods_weekly: {
         Row: {
           week: string
@@ -1643,6 +1680,14 @@ export type Database = {
       refresh_admin_mvs: {
         Args: Record<string, never>
         Returns: undefined
+      }
+      business_pending_balance: {
+        Args: { p_business_id: string }
+        Returns: number
+      }
+      business_health_score: {
+        Args: { p_business_id: string }
+        Returns: number
       }
       validate_coupon: {
         Args: {
