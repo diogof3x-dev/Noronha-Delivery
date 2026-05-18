@@ -36,6 +36,7 @@ type CartState = {
   business: CartBusiness | null;
   items: CartItem[];
   add: (business: CartBusiness, item: CartItem) => { replaced: boolean };
+  replace: (business: CartBusiness, items: CartItem[]) => void;
   increment: (lineId: string) => void;
   decrement: (lineId: string) => void;
   remove: (lineId: string) => void;
@@ -93,6 +94,8 @@ export const useCart = create<CartState>()(
         }
         return { replaced: false };
       },
+
+      replace: (business, items) => set({ business, items }),
 
       increment: (lineId) =>
         set((s) => ({

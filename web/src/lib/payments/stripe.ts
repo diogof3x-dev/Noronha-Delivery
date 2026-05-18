@@ -44,6 +44,18 @@ export async function createPaymentIntent(
   };
 }
 
+export async function refundPaymentIntent(
+  paymentIntentId: string,
+  reason?: "duplicate" | "fraudulent" | "requested_by_customer",
+): Promise<{ refundId: string }> {
+  const stripe = getStripe();
+  const refund = await stripe.refunds.create({
+    payment_intent: paymentIntentId,
+    reason: reason ?? "requested_by_customer",
+  });
+  return { refundId: refund.id };
+}
+
 export function verifyWebhookSignature(
   rawBody: string,
   signature: string,

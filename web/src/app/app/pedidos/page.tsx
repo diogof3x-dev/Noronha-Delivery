@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReorderButton } from "@/components/app/reorder-button";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Receipt, Star } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
@@ -182,12 +183,13 @@ function OrderList({
     <ul className="space-y-2">
       {orders.map((o) => {
         const businessName = o.businesses?.name ?? "Estabelecimento";
+        const isFinalized = ["delivered", "completed"].includes(o.status);
         return (
-          <li key={o.id}>
-            <Link
-              href={`/app/pedidos/${o.id}`}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
-            >
+          <li
+            key={o.id}
+            className="rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+          >
+            <Link href={`/app/pedidos/${o.id}`} className="flex items-center gap-3">
               <div className="flex-1">
                 <p className="text-sm font-semibold">{businessName}</p>
                 <p className="text-xs">
@@ -199,6 +201,11 @@ function OrderList({
               </div>
               <span className="text-sm font-bold">{formatCents(o.total_cents)}</span>
             </Link>
+            {isFinalized && (
+              <div className="mt-2 border-t border-border pt-2">
+                <ReorderButton orderId={o.id} variant="compact" />
+              </div>
+            )}
           </li>
         );
       })}

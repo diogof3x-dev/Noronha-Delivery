@@ -108,6 +108,15 @@ export async function createPixCharge(input: CreatePixChargeInput): Promise<PixC
   };
 }
 
+export async function refundPixPayment(paymentId: string): Promise<{ refundId: string }> {
+  const res = await mpRequest<{ id: number | string }>(`/v1/payments/${paymentId}/refunds`, {
+    method: "POST",
+    body: JSON.stringify({}),
+    idempotencyKey: `refund-${paymentId}`,
+  });
+  return { refundId: String(res.id) };
+}
+
 export async function getPaymentStatus(paymentId: string): Promise<{
   status: string;
   externalReference: string | null;

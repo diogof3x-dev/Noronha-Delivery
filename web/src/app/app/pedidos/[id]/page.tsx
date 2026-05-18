@@ -14,6 +14,9 @@ import { PixPanel } from "./pix-panel";
 import { CardLoader } from "./card-loader";
 import { RatingForm } from "./rating-form";
 import { RegeneratePixButton } from "./regenerate-pix-button";
+import { CancelOrderButton } from "@/components/app/cancel-order-modal";
+import { CustomerReportButton } from "@/components/app/customer-report-modal";
+import { ReorderButton } from "@/components/app/reorder-button";
 
 export const dynamic = "force-dynamic";
 
@@ -199,8 +202,29 @@ export default async function PedidoDetailPage({ params }: Props) {
       )}
 
       {isOwnCustomer && ["delivered", "completed"].includes(order.status) && (
-        <RatingForm orderId={order.id} hasDriver={!!order.driver_id} />
+        <>
+          <RatingForm orderId={order.id} hasDriver={!!order.driver_id} />
+          <ReorderButton orderId={order.id} variant="primary" />
+        </>
       )}
+
+      {isOwnCustomer &&
+        ["pending", "confirmed", "preparing"].includes(order.status) && (
+          <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-card p-3">
+            <CancelOrderButton
+              orderId={order.id}
+              isPaid={order.payment_status === "paid"}
+            />
+            <CustomerReportButton orderId={order.id} />
+          </div>
+        )}
+
+      {isOwnCustomer &&
+        ["ready", "in_transit", "delivered", "completed"].includes(order.status) && (
+          <div className="flex justify-center">
+            <CustomerReportButton orderId={order.id} />
+          </div>
+        )}
 
       {isOwnCustomer &&
         order.delivery_code &&
