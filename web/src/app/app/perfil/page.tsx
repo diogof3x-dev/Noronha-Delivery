@@ -39,6 +39,7 @@ export default async function PerfilPage() {
   const isAdmin = profile?.role === "admin";
   const items: { href: string; label: string; sub?: string; icon: typeof MapPin }[] = [
     { href: "/app/perfil/endereco", label: "Endereço", sub: profile?.district ?? "Definir bairro", icon: MapPin },
+    { href: "/app/perfil/enderecos", label: "Meus endereços", sub: "Pousada, casa, praia favorita...", icon: MapPin },
     { href: "/app/notificacoes", label: "Notificações", icon: Bell },
     { href: "/app/carteira", label: "Carteira", icon: Wallet },
   ];

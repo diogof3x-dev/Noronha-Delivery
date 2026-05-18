@@ -1827,6 +1827,45 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_addresses: {
+        Row: {
+          id: string
+          customer_id: string
+          label: string
+          kind: "pousada" | "praia" | "barco" | "casa" | "outro"
+          address: string
+          notes: string | null
+          geo: Json | null
+          is_default: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          label: string
+          kind?: "pousada" | "praia" | "barco" | "casa" | "outro"
+          address: string
+          notes?: string | null
+          geo?: Json | null
+          is_default?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          label?: string
+          kind?: "pousada" | "praia" | "barco" | "casa" | "outro"
+          address?: string
+          notes?: string | null
+          geo?: Json | null
+          is_default?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       business_push_credits: {
         Row: {
           business_id: string

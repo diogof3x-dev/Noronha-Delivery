@@ -11,14 +11,14 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/lib/cart-store";
 import { formatCents } from "@/lib/format";
 import { createOrder } from "@/app/actions/orders";
-import { AddressPicker, type Geo } from "@/components/checkout/address-picker";
+import { AddressPicker, type Geo, type SavedAddress } from "@/components/checkout/address-picker";
 import { PaymentMethodSelector, type PaymentMethod } from "@/components/checkout/payment-method";
 import { CouponInput, type AppliedCoupon } from "@/components/checkout/coupon-input";
 import { CpfNotaField } from "@/components/checkout/cpf-nota";
 
 import { SERVICE_FEE_BPS } from "@/lib/constants";
 
-export function CartView() {
+export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }) {
   const business = useCart((s) => s.business);
   const items = useCart((s) => s.items);
   const subtotal = useCart((s) => s.subtotalCents());
@@ -170,6 +170,7 @@ export function CartView() {
         setLabel={setDestinationLabel}
         geo={geo}
         setGeo={setGeo}
+        savedAddresses={savedAddresses}
       />
 
       <section className="space-y-2 rounded-2xl border border-border bg-card p-4">
