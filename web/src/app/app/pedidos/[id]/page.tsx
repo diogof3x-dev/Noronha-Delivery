@@ -2,9 +2,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Download } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { getAdminClient } from "@/lib/supabase/admin-client";
 import { formatCents } from "@/lib/format";
+import { haversineMeters, parseGeo } from "@/lib/geo";
 import { OrderStatusLive } from "./order-status-live";
 import { DriverPositionLive } from "@/components/app/driver-position-live";
+import { ContactPill } from "@/components/app/contact-pill";
+import { OrderTimeline } from "@/components/app/order-timeline";
+import { OrderETA } from "@/components/app/order-eta";
 import { PixPanel } from "./pix-panel";
 import { CardLoader } from "./card-loader";
 import { RatingForm } from "./rating-form";
@@ -42,11 +47,10 @@ export default async function PedidoDetailPage({ params }: Props) {
   if (!user) redirect(`/entrar?next=/app/pedidos/${id}`);
 
   // libera pra customer, driver, business owner ou admin verem o pedido
-  // (RLS já restringe; a consulta retorna nada se o user não tiver permissão)
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, metadata, business_id, driver_id, customer_id, delivery_code, businesses(name, slug)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, placed_at, confirmed_at, preparing_at, ready_at, in_transit_at, delivered_at, cancelled_at, cancellation_reason, metadata, business_id, driver_id, customer_id, delivery_code, businesses(name, slug, logo_url, avg_prep_minutes, whatsapp, geo)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -62,7 +66,34 @@ export default async function PedidoDetailPage({ params }: Props) {
     .order("created_at");
 
   const meta = (order.metadata as OrderMetadata | null) ?? {};
-  const business = order.businesses as { name?: string; slug?: string } | null;
+  const business = order.businesses as {
+    name?: string;
+    slug?: string;
+    logo_url?: string | null;
+    avg_prep_minutes?: number | null;
+    whatsapp?: string | null;
+    geo?: unknown;
+  } | null;
+
+  // fetch driver info via admin (RLS bloqueia cliente)
+  const admin = getAdminClient();
+  const driver = order.driver_id && admin
+    ? (await admin
+        .from("profiles")
+        .select("id, full_name, whatsapp, avatar_url, vehicle")
+        .eq("id", order.driver_id)
+        .maybeSingle()
+      ).data
+    : null;
+
+  // distância pra ETA
+  const bizGeo = parseGeo(business?.geo);
+  const destGeo = parseGeo(order.destination_geo);
+  const routeKm = bizGeo && destGeo ? haversineMeters(bizGeo, destGeo) / 1000 : null;
+  const driverVehicle = driver?.vehicle as { kind?: string; model?: string; plate?: string } | null;
+  const driverSubtitle = driverVehicle
+    ? [driverVehicle.kind, driverVehicle.model, driverVehicle.plate].filter(Boolean).join(" · ")
+    : null;
 
   return (
     <div className="space-y-5">
@@ -90,6 +121,41 @@ export default async function PedidoDetailPage({ params }: Props) {
       />
 
       {isOwnCustomer &&
+        order.payment_status === "paid" &&
+        !["cancelled", "refunded"].includes(order.status) && (
+          <OrderETA
+            placedAt={order.placed_at ?? order.created_at}
+            prepMinutes={business?.avg_prep_minutes ?? 25}
+            routeKm={routeKm}
+            status={order.status}
+            deliveredAt={order.delivered_at}
+            inTransitAt={order.in_transit_at}
+          />
+        )}
+
+      {isOwnCustomer &&
+        driver &&
+        ["confirmed", "preparing", "ready", "in_transit"].includes(order.status) && (
+          <ContactPill
+            kind="driver"
+            name={driver.full_name}
+            whatsapp={driver.whatsapp}
+            avatarUrl={driver.avatar_url}
+            subtitle={driverSubtitle}
+          />
+        )}
+
+      {isOwnCustomer && business?.whatsapp && (
+        <ContactPill
+          kind="business"
+          name={business.name ?? null}
+          whatsapp={business.whatsapp}
+          avatarUrl={business.logo_url ?? null}
+          subtitle="dúvida sobre o pedido?"
+        />
+      )}
+
+      {isOwnCustomer &&
         order.driver_id &&
         ["confirmed", "preparing", "ready", "in_transit"].includes(order.status) && (
           <DriverPositionLive
@@ -97,6 +163,19 @@ export default async function PedidoDetailPage({ params }: Props) {
             destinationLabel={order.destination_label}
           />
         )}
+
+      {isOwnCustomer && (
+        <OrderTimeline
+          placedAt={order.placed_at ?? order.created_at}
+          confirmedAt={order.confirmed_at}
+          preparingAt={order.preparing_at}
+          readyAt={order.ready_at}
+          inTransitAt={order.in_transit_at}
+          deliveredAt={order.delivered_at}
+          cancelledAt={order.cancelled_at}
+          cancellationReason={order.cancellation_reason}
+        />
+      )}
 
       {isOwnCustomer && order.payment_method === "pix" && order.payment_status !== "paid" && meta.pix_copy && (
         <PixPanel
@@ -142,15 +221,8 @@ export default async function PedidoDetailPage({ params }: Props) {
         )}
 
       <section className="rounded-2xl border border-border bg-card p-4 text-sm">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Estabelecimento
-        </h2>
-        <p className="mt-1 text-base font-bold tracking-tight">{business?.name ?? "—"}</p>
-      </section>
-
-      <section className="rounded-2xl border border-border bg-card p-4 text-sm">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Itens
+          Itens · {business?.name ?? "—"}
         </h2>
         <ul className="space-y-1.5">
           {(items ?? []).map((i) => (

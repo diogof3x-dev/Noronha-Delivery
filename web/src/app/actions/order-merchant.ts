@@ -52,13 +52,17 @@ export async function moveOrderStatus(formData: FormData): Promise<void> {
   const update: {
     status: typeof parsed.data.next;
     confirmed_at?: string;
+    preparing_at?: string;
     ready_at?: string;
+    in_transit_at?: string;
     delivered_at?: string;
     cancelled_at?: string;
   } = { status: parsed.data.next };
 
   if (parsed.data.next === "confirmed") update.confirmed_at = now;
+  if (parsed.data.next === "preparing") update.preparing_at = now;
   if (parsed.data.next === "ready") update.ready_at = now;
+  if (parsed.data.next === "in_transit") update.in_transit_at = now;
   if (parsed.data.next === "delivered") update.delivered_at = now;
   if (parsed.data.next === "cancelled") update.cancelled_at = now;
 

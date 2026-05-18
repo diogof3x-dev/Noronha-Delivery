@@ -280,6 +280,8 @@ export type Database = {
           payment_status: Database["public"]["Enums"]["payment_status"]
           placed_at: string | null
           platform_fee_cents: number
+          preparing_at: string | null
+          in_transit_at: string | null
           ready_at: string | null
           scheduled_for: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -315,6 +317,8 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           placed_at?: string | null
           platform_fee_cents?: number
+          preparing_at?: string | null
+          in_transit_at?: string | null
           ready_at?: string | null
           scheduled_for?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -350,6 +354,8 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           placed_at?: string | null
           platform_fee_cents?: number
+          preparing_at?: string | null
+          in_transit_at?: string | null
           ready_at?: string | null
           scheduled_for?: string | null
           status?: Database["public"]["Enums"]["order_status"]

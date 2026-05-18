@@ -102,7 +102,7 @@ export async function markPickedUp(formData: FormData) {
 
   await supabase
     .from("orders")
-    .update({ status: "in_transit" })
+    .update({ status: "in_transit", in_transit_at: new Date().toISOString() })
     .eq("id", orderId)
     .eq("driver_id", user.id)
     .in("status", ["ready", "preparing", "confirmed"]);
