@@ -1795,6 +1795,107 @@ export type Database = {
         }
         Relationships: []
       }
+      mv_business_customer_stats: {
+        Row: {
+          business_id: string
+          customer_id: string
+          paid_orders_count: number
+          orders_count: number
+          cancelled_count: number
+          total_spent_cents: number
+          avg_ticket_cents: number
+          first_order_at: string
+          last_order_at: string
+          favorite_hour: number | null
+          favorite_dow: number | null
+        }
+        Relationships: []
+      }
+      mv_business_customer_favorites: {
+        Row: {
+          business_id: string
+          customer_id: string
+          name_snapshot: string
+          qty_total: number
+          orders_with: number
+        }
+        Relationships: []
+      }
+      business_push_credits: {
+        Row: {
+          business_id: string
+          free_remaining: number
+          paid_balance: number
+          total_used: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          free_remaining?: number
+          paid_balance?: number
+          total_used?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          free_remaining?: number
+          paid_balance?: number
+          total_used?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      business_push_campaigns: {
+        Row: {
+          id: string
+          business_id: string
+          created_by: string | null
+          title: string
+          body: string
+          url: string | null
+          target_filter: Json
+          target_count: number
+          sent_count: number
+          opened_count: number
+          status: "pending" | "sending" | "sent" | "failed"
+          credits_used: number
+          created_at: string
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          business_id: string
+          created_by?: string | null
+          title: string
+          body: string
+          url?: string | null
+          target_filter?: Json
+          target_count?: number
+          sent_count?: number
+          opened_count?: number
+          status?: "pending" | "sending" | "sent" | "failed"
+          credits_used?: number
+          created_at?: string
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          business_id?: string
+          created_by?: string | null
+          title?: string
+          body?: string
+          url?: string | null
+          target_filter?: Json
+          target_count?: number
+          sent_count?: number
+          opened_count?: number
+          status?: "pending" | "sending" | "sent" | "failed"
+          credits_used?: number
+          created_at?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
       mv_business_top_products: {
         Row: {
           business_id: string

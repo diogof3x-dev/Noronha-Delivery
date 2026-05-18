@@ -31,6 +31,7 @@ const BASE: PanelNavItem[] = [
 
 const CADASTRO_LOJA: PanelNavItem[] = [
   { href: "/parceiro/painel/analytics", label: "Analytics", icon: TrendingUp },
+  { href: "/parceiro/painel/clientes", label: "Clientes", icon: Users },
   { href: "/parceiro/painel/vendas", label: "Financeiro", icon: Banknote },
   { href: "/parceiro/painel/promocoes", label: "Promoções", icon: Megaphone },
   { href: "/parceiro/painel/avaliacoes", label: "Avaliações", icon: Star },
