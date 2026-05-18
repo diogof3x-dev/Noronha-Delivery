@@ -41,6 +41,7 @@ const CreateOrderSchema = z.object({
   notes: z.string().max(500).optional(),
   couponCode: z.string().max(40).optional(),
   cpfNota: z.string().max(14).optional(),
+  driverTipCents: z.number().int().min(0).max(50_000).optional(),
 });
 
 export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
@@ -131,7 +132,9 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
   }
 
   const serviceFee = Math.round((subtotal * SERVICE_FEE_BPS) / 10_000);
-  const total = Math.max(0, subtotal - couponDiscount) + deliveryFee + serviceFee;
+  const driverTip = parsed.data.driverTipCents ?? 0;
+  const total =
+    Math.max(0, subtotal - couponDiscount) + deliveryFee + serviceFee + driverTip;
 
   const { data: rateRow, error: rateErr } = await supabase.rpc("effective_take_rate_bps", {
     p_business_id: business.id,
@@ -155,6 +158,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       coupon_discount_cents: couponDiscount,
       coupon_code: couponCodeFinal,
       service_fee_cents: serviceFee,
+      driver_tip_cents: driverTip,
       cpf_nota: parsed.data.cpfNota?.replace(/\D/g, "") || null,
       total_cents: total,
       platform_fee_cents: platformFee,

@@ -15,6 +15,7 @@ import { AddressPicker, type Geo, type SavedAddress } from "@/components/checkou
 import { PaymentMethodSelector, type PaymentMethod } from "@/components/checkout/payment-method";
 import { CouponInput, type AppliedCoupon } from "@/components/checkout/coupon-input";
 import { CpfNotaField } from "@/components/checkout/cpf-nota";
+import { TipPicker } from "@/components/checkout/tip-picker";
 
 import { SERVICE_FEE_BPS } from "@/lib/constants";
 
@@ -34,6 +35,7 @@ export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }
   const [notes, setNotes] = useState("");
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [cpfNota, setCpfNota] = useState("");
+  const [driverTipCents, setDriverTipCents] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -42,9 +44,10 @@ export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }
     const deliveryFee = business?.deliveryFeeCents ?? 0;
     const discount = coupon?.discountCents ?? 0;
     const serviceFee = Math.round((subtotal * SERVICE_FEE_BPS) / 10_000);
-    const total = Math.max(0, subtotal - discount) + deliveryFee + serviceFee;
+    const total =
+      Math.max(0, subtotal - discount) + deliveryFee + serviceFee + driverTipCents;
     return { deliveryFee, discount, serviceFee, total };
-  }, [business?.deliveryFeeCents, subtotal, coupon?.discountCents]);
+  }, [business?.deliveryFeeCents, subtotal, coupon?.discountCents, driverTipCents]);
 
   if (!business || items.length === 0) {
     return (
@@ -189,6 +192,8 @@ export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }
 
       <PaymentMethodSelector value={payment} onChange={setPayment} />
 
+      <TipPicker tipCents={driverTipCents} onChange={setDriverTipCents} />
+
       <CouponInput
         businessId={business.id}
         subtotalCents={subtotal}
@@ -226,6 +231,12 @@ export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }
           <span className="text-muted-foreground">Taxa de serviço</span>
           <span>{formatCents(totals.serviceFee)}</span>
         </div>
+        {driverTipCents > 0 && (
+          <div className="flex justify-between text-[color:var(--turtle)]">
+            <span>Gorjeta pro motoboy 🌊</span>
+            <span>+{formatCents(driverTipCents)}</span>
+          </div>
+        )}
         <div className="flex justify-between border-t border-border pt-2 text-base font-bold">
           <span>Total</span>
           <span>{formatCents(totals.total)}</span>
@@ -270,6 +281,7 @@ export function CartView({ savedAddresses }: { savedAddresses?: SavedAddress[] }
                   notes: notes || undefined,
                   couponCode: coupon?.code,
                   cpfNota: cpfNota || undefined,
+                  driverTipCents: driverTipCents > 0 ? driverTipCents : undefined,
                 });
                 if (!res.ok) {
                   if (res.error.toLowerCase().includes("login")) {

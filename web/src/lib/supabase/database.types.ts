@@ -288,6 +288,7 @@ export type Database = {
           subtotal_cents: number
           total_cents: number
           service_fee_cents: number
+          driver_tip_cents: number
           coupon_discount_cents: number
           cpf_nota: string | null
           delivery_code: string | null
@@ -325,6 +326,7 @@ export type Database = {
           subtotal_cents: number
           total_cents: number
           service_fee_cents?: number
+          driver_tip_cents?: number
           coupon_discount_cents?: number
           cpf_nota?: string | null
           delivery_code?: string | null
@@ -362,6 +364,7 @@ export type Database = {
           subtotal_cents?: number
           total_cents?: number
           service_fee_cents?: number
+          driver_tip_cents?: number
           coupon_discount_cents?: number
           cpf_nota?: string | null
           delivery_code?: string | null
@@ -1827,6 +1830,24 @@ export type Database = {
           name_snapshot: string
           qty_total: number
           orders_with: number
+        }
+        Relationships: []
+      }
+      customer_carts: {
+        Row: {
+          customer_id: string
+          payload: Json
+          updated_at: string
+        }
+        Insert: {
+          customer_id: string
+          payload: Json
+          updated_at?: string
+        }
+        Update: {
+          customer_id?: string
+          payload?: Json
+          updated_at?: string
         }
         Relationships: []
       }

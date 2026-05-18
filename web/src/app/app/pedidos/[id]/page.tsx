@@ -53,7 +53,7 @@ export default async function PedidoDetailPage({ params }: Props) {
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, placed_at, confirmed_at, preparing_at, ready_at, in_transit_at, delivered_at, cancelled_at, cancellation_reason, metadata, business_id, driver_id, customer_id, delivery_code, businesses(name, slug, logo_url, avg_prep_minutes, whatsapp, geo)",
+      "id, code, status, subtotal_cents, delivery_fee_cents, total_cents, platform_fee_cents, service_fee_cents, driver_tip_cents, coupon_discount_cents, coupon_code, cpf_nota, payment_method, payment_status, destination_kind, destination_label, destination_notes, destination_geo, created_at, placed_at, confirmed_at, preparing_at, ready_at, in_transit_at, delivered_at, cancelled_at, cancellation_reason, metadata, business_id, driver_id, customer_id, delivery_code, businesses(name, slug, logo_url, avg_prep_minutes, whatsapp, geo)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -277,6 +277,12 @@ export default async function PedidoDetailPage({ params }: Props) {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Taxa de serviço</span>
               <span>{formatCents(order.service_fee_cents)}</span>
+            </div>
+          )}
+          {order.driver_tip_cents > 0 && (
+            <div className="flex justify-between text-[color:var(--turtle)]">
+              <span>Gorjeta pro motoboy 🌊</span>
+              <span>+{formatCents(order.driver_tip_cents)}</span>
             </div>
           )}
           <div className="flex justify-between border-t border-border pt-1 text-sm font-bold">

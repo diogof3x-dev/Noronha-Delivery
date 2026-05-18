@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/app/bottom-nav";
 import { CartFab } from "@/components/app/cart-fab";
 import { PushPrompt } from "@/components/push/push-prompt";
 import { InstallBanner } from "@/components/pwa/install-banner";
+import { CartSync } from "@/components/app/cart-sync";
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
   const supabase = await getServerClient();
@@ -33,6 +34,7 @@ export default async function ClientLayout({ children }: { children: React.React
       <CartFab />
       <BottomNav />
       <InstallBanner />
+      {user && <CartSync isAuthed={true} />}
     </div>
   );
 }
