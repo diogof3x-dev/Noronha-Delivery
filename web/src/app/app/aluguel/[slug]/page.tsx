@@ -5,6 +5,7 @@ import { ArrowLeft, Bike, Leaf, MapPin, Search, Star } from "lucide-react";
 import { getPublicClient } from "@/lib/supabase/public-client";
 import { RentalBookingFlow } from "./booking-flow";
 import { ShareBusinessButton } from "@/components/app/share-business-button";
+import { FavoriteButtonAuto } from "@/components/app/favorite-button-auto";
 
 export const revalidate = 60;
 
@@ -75,6 +76,7 @@ export default async function AluguelPage({ params }: Props) {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex items-center gap-2">
+            <FavoriteButtonAuto kind="business" businessId={business.id} size="sm" />
             <ShareBusinessButton name={business.name} />
             <Link
               href="/app/buscar"

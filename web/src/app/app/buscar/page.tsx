@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { BusinessCard } from "@/components/app/business-card";
 import { iconFor, GROUP_META, GROUP_ORDER } from "@/lib/category-icon";
+import { InstantSearch } from "@/components/app/instant-search";
 
 type BusinessMeta = { cuisine?: string; hero_color?: string };
 
@@ -58,17 +59,7 @@ export default async function BuscarPage({ searchParams }: Props) {
         <h1 className="text-lg font-bold tracking-tight">Buscar</h1>
       </div>
 
-      <form action="/app/buscar" className="flex h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-sm text-muted-foreground">
-        <Search className="h-4 w-4" />
-        <input
-          type="text"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Restaurantes, pratos, passeios, mercados…"
-          className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
-        />
-        {grupo && <input type="hidden" name="grupo" value={grupo} />}
-      </form>
+      <InstantSearch initial={q ?? ""} />
 
       {q && (
         <section className="space-y-3">

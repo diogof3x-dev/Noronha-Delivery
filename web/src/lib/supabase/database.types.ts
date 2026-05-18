@@ -1830,6 +1830,33 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_favorites: {
+        Row: {
+          id: string
+          customer_id: string
+          kind: "business" | "service"
+          business_id: string
+          service_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          kind: "business" | "service"
+          business_id: string
+          service_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          kind?: "business" | "service"
+          business_id?: string
+          service_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       customer_loyalty: {
         Row: {
           customer_id: string
