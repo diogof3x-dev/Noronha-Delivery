@@ -1845,6 +1845,33 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_live_positions: {
+        Row: {
+          driver_id: string
+          order_id: string | null
+          lat: number
+          lng: number
+          accuracy: number | null
+          recorded_at: string
+        }
+        Insert: {
+          driver_id: string
+          order_id?: string | null
+          lat: number
+          lng: number
+          accuracy?: number | null
+          recorded_at?: string
+        }
+        Update: {
+          driver_id?: string
+          order_id?: string | null
+          lat?: number
+          lng?: number
+          accuracy?: number | null
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       business_push_campaigns: {
         Row: {
           id: string

@@ -7,6 +7,8 @@ import { ClaimNextButton } from "./claim-button";
 import { DeliveryStepButtons } from "./step-buttons";
 import { AvailableOrderCard } from "./available-order-card";
 import { ActiveOrderCard } from "./active-order-card";
+import { ActiveTrackerSlot } from "@/components/entregador/active-tracker-slot";
+import { AvailableOrdersListener } from "./available-orders-listener";
 
 export const dynamic = "force-dynamic";
 
@@ -77,8 +79,12 @@ export default async function EntregadorEntregas() {
             Corridas em andamento
           </h1>
         </div>
-        <ClaimNextButton available={availableOrders?.length ?? 0} />
+        <div className="flex items-center gap-2">
+          <ActiveTrackerSlot />
+          <ClaimNextButton available={availableOrders?.length ?? 0} />
+        </div>
       </header>
+      <AvailableOrdersListener />
 
       {orders?.length ? (
         <section className="space-y-3">

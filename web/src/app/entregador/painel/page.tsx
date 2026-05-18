@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { formatCents } from "@/lib/format";
 import { toggleDriverOnline } from "@/app/actions/driver-status";
 import { PushPrompt } from "@/components/push/push-prompt";
+import { ActiveTrackerSlot } from "@/components/entregador/active-tracker-slot";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -72,6 +73,9 @@ export default async function EntregadorPainel() {
   return (
     <div className="mx-auto max-w-2xl space-y-5 p-4 md:p-8">
       <PushPrompt context="entregador" />
+      <div className="flex justify-end">
+        <ActiveTrackerSlot />
+      </div>
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Olá, {profile?.full_name ?? "entregador"}

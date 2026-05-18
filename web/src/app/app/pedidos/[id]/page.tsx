@@ -4,6 +4,7 @@ import { ArrowLeft, Download } from "lucide-react";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { formatCents } from "@/lib/format";
 import { OrderStatusLive } from "./order-status-live";
+import { DriverPositionLive } from "@/components/app/driver-position-live";
 import { PixPanel } from "./pix-panel";
 import { CardLoader } from "./card-loader";
 import { RatingForm } from "./rating-form";
@@ -87,6 +88,15 @@ export default async function PedidoDetailPage({ params }: Props) {
         initialPaymentStatus={order.payment_status}
         statusLabel={STATUS_LABEL}
       />
+
+      {isOwnCustomer &&
+        order.driver_id &&
+        ["confirmed", "preparing", "ready", "in_transit"].includes(order.status) && (
+          <DriverPositionLive
+            orderId={order.id}
+            destinationLabel={order.destination_label}
+          />
+        )}
 
       {isOwnCustomer && order.payment_method === "pix" && order.payment_status !== "paid" && meta.pix_copy && (
         <PixPanel
