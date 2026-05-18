@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatCents } from "@/lib/format";
 import { ReportProblemModal } from "./report-problem-modal";
+import { ChatOpenerButton } from "@/components/chat/order-chat";
 
 type Props = {
   orderId: string;
@@ -38,6 +39,7 @@ type Props = {
   customerName: string | null;
   customerWhatsapp: string | null;
   businessWhatsapp: string | null;
+  currentUserId: string;
   stepButtons: React.ReactNode;
 };
 
@@ -87,6 +89,7 @@ export function ActiveOrderCard({
   customerName,
   customerWhatsapp,
   businessWhatsapp,
+  currentUserId,
   stepButtons,
 }: Props) {
   const [reportOpen, setReportOpen] = useState(false);
@@ -246,7 +249,17 @@ export function ActiveOrderCard({
 
       {stepButtons}
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 border-t border-border pt-3 text-xs">
+        <ChatOpenerButton
+          orderId={orderId}
+          currentUserId={currentUserId}
+          customerName={customerName}
+          businessName={businessName}
+          label="Chat do pedido"
+        />
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
         <Link
           href={`/app/pedidos/${orderId}`}
           className="inline-flex items-center gap-1 text-primary hover:underline"

@@ -17,6 +17,7 @@ import { RegeneratePixButton } from "./regenerate-pix-button";
 import { CancelOrderButton } from "@/components/app/cancel-order-modal";
 import { CustomerReportButton } from "@/components/app/customer-report-modal";
 import { ReorderButton } from "@/components/app/reorder-button";
+import { ChatOpenerButton } from "@/components/chat/order-chat";
 
 export const dynamic = "force-dynamic";
 
@@ -165,6 +166,20 @@ export default async function PedidoDetailPage({ params }: Props) {
             orderId={order.id}
             destinationLabel={order.destination_label}
           />
+        )}
+
+      {isOwnCustomer &&
+        !["cancelled", "refunded"].includes(order.status) && (
+          <div className="flex justify-center">
+            <ChatOpenerButton
+              orderId={order.id}
+              currentUserId={user.id}
+              customerName={null}
+              driverName={driver?.full_name ?? null}
+              businessName={business?.name ?? null}
+              label="Falar com lojista / motoboy"
+            />
+          </div>
         )}
 
       {isOwnCustomer && (

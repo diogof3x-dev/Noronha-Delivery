@@ -1833,6 +1833,51 @@ export type Database = {
         }
         Relationships: []
       }
+      order_messages: {
+        Row: {
+          id: string
+          order_id: string
+          sender_id: string
+          sender_kind: "customer" | "business" | "driver" | "admin"
+          body: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          sender_id: string
+          sender_kind: "customer" | "business" | "driver" | "admin"
+          body: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          sender_id?: string
+          sender_kind?: "customer" | "business" | "driver" | "admin"
+          body?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      order_message_reads: {
+        Row: {
+          order_id: string
+          user_id: string
+          last_read_at: string
+        }
+        Insert: {
+          order_id: string
+          user_id: string
+          last_read_at?: string
+        }
+        Update: {
+          order_id?: string
+          user_id?: string
+          last_read_at?: string
+        }
+        Relationships: []
+      }
       customer_carts: {
         Row: {
           customer_id: string

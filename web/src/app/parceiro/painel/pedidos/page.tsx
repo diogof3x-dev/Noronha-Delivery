@@ -132,7 +132,7 @@ export default async function PainelPedidos() {
                 </h2>
                 <ul className="space-y-2">
                   {list.map((o) => (
-                    <OrderCard key={o.id} order={o} showBusiness={isAdmin} />
+                    <OrderCard key={o.id} order={o} showBusiness={isAdmin} currentUserId={user.id} />
                   ))}
                 </ul>
               </section>
@@ -146,7 +146,7 @@ export default async function PainelPedidos() {
               </h2>
               <ul className="space-y-2 opacity-70">
                 {finalized.slice(0, 10).map((o) => (
-                  <OrderCard key={o.id} order={o} showBusiness={isAdmin} />
+                  <OrderCard key={o.id} order={o} showBusiness={isAdmin} currentUserId={user.id} />
                 ))}
               </ul>
             </section>

@@ -127,6 +127,7 @@ export default async function EntregadorEntregas() {
                   customerName={cust?.name ?? null}
                   customerWhatsapp={cust?.whatsapp ?? null}
                   businessWhatsapp={biz?.whatsapp ?? null}
+                  currentUserId={user.id}
                   stepButtons={<DeliveryStepButtons orderId={o.id} status={o.status} />}
                 />
               );

@@ -5,6 +5,7 @@ import { Loader2, MessageCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCents } from "@/lib/format";
 import { moveOrderStatus } from "@/app/actions/order-merchant";
+import { ChatOpenerButton } from "@/components/chat/order-chat";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Aguardando confirmação",
@@ -60,9 +61,19 @@ function mapsLink(label: string | null | undefined): string | null {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${label}, Fernando de Noronha`)}`;
 }
 
-export function OrderCard({ order, showBusiness }: { order: MerchantOrder; showBusiness?: boolean }) {
+export function OrderCard({
+  order,
+  showBusiness,
+  currentUserId,
+}: {
+  order: MerchantOrder;
+  showBusiness?: boolean;
+  currentUserId?: string;
+}) {
   const [pending, start] = useTransition();
   const actions = NEXT_FOR[order.status] ?? [];
+  const isActive =
+    ["pending", "confirmed", "preparing", "ready", "in_transit"].includes(order.status);
 
   return (
     <li className="rounded-2xl border border-border bg-card p-4">
@@ -169,6 +180,17 @@ export function OrderCard({ order, showBusiness }: { order: MerchantOrder; showB
               </Button>
             </form>
           ))}
+        </div>
+      )}
+
+      {isActive && currentUserId && (
+        <div className="mt-3 flex justify-center border-t border-border pt-3">
+          <ChatOpenerButton
+            orderId={order.id}
+            currentUserId={currentUserId}
+            customerName={order.customer_name ?? null}
+            label="Chat com cliente / motoboy"
+          />
         </div>
       )}
     </li>
