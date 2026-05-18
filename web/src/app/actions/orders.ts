@@ -119,6 +119,7 @@ export async function createOrder(input: CreateOrderInput): Promise<CreateOrderR
       p_code: parsed.data.couponCode,
       p_subtotal_cents: subtotal,
       p_business_id: business.id,
+      p_customer_id: user.id,
     });
     if (cpErr) return { ok: false, error: "Não foi possível aplicar o cupom" };
     const row = (cpData ?? [])[0];

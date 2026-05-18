@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { notifyOrderStatusChange } from "@/lib/email-helpers";
 import { notifyCustomerOrderStatus, notifyAvailableDrivers } from "@/lib/order-push";
+import { grantPostDeliveryRewards } from "@/lib/post-delivery-rewards";
 
 const NextSchema = z.object({
   order_id: z.string().uuid(),
@@ -73,5 +74,8 @@ export async function moveOrderStatus(formData: FormData): Promise<void> {
   void notifyCustomerOrderStatus(parsed.data.order_id, parsed.data.next);
   if (parsed.data.next === "ready" && !access.order.driver_id) {
     void notifyAvailableDrivers(parsed.data.order_id);
+  }
+  if (parsed.data.next === "delivered") {
+    void grantPostDeliveryRewards(parsed.data.order_id);
   }
 }

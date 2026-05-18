@@ -1017,6 +1017,7 @@ export type Database = {
           is_active: boolean
           notes: string | null
           created_at: string
+          targeted_customer_id: string | null
         }
         Insert: {
           id?: string
@@ -1033,6 +1034,7 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           created_at?: string
+          targeted_customer_id?: string | null
         }
         Update: {
           id?: string
@@ -1049,6 +1051,7 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           created_at?: string
+          targeted_customer_id?: string | null
         }
         Relationships: []
       }
@@ -1827,6 +1830,36 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_loyalty: {
+        Row: {
+          customer_id: string
+          points_total: number
+          points_balance: number
+          paid_orders_count: number
+          total_spent_cents: number
+          tier: "bronze" | "prata" | "ouro" | "diamante"
+          updated_at: string
+        }
+        Insert: {
+          customer_id: string
+          points_total?: number
+          points_balance?: number
+          paid_orders_count?: number
+          total_spent_cents?: number
+          tier?: "bronze" | "prata" | "ouro" | "diamante"
+          updated_at?: string
+        }
+        Update: {
+          customer_id?: string
+          points_total?: number
+          points_balance?: number
+          paid_orders_count?: number
+          total_spent_cents?: number
+          tier?: "bronze" | "prata" | "ouro" | "diamante"
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           id: string
@@ -2032,6 +2065,14 @@ export type Database = {
         Args: { p_driver_id: string }
         Returns: number
       }
+      grant_return_coupon: {
+        Args: { p_order_id: string }
+        Returns: string | null
+      }
+      award_loyalty_for_order: {
+        Args: { p_order_id: string }
+        Returns: undefined
+      }
       business_health_score: {
         Args: { p_business_id: string }
         Returns: number
@@ -2041,6 +2082,7 @@ export type Database = {
           p_code: string
           p_subtotal_cents: number
           p_business_id: string
+          p_customer_id?: string | null
         }
         Returns: { coupon_id: string | null; discount_cents: number; error: string | null }[]
       }

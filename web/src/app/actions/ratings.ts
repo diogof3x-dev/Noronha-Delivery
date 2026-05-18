@@ -9,6 +9,8 @@ const Schema = z.object({
   business_stars: z.coerce.number().int().min(1).max(5),
   driver_stars: z.coerce.number().int().min(1).max(5).optional(),
   comment: z.string().max(600).optional().or(z.literal("")),
+  business_tags: z.array(z.string().max(40)).max(10).optional(),
+  driver_tags: z.array(z.string().max(40)).max(10).optional(),
 });
 
 export type RatingState = { ok: boolean; error?: string };
@@ -19,6 +21,8 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     business_stars: formData.get("business_stars"),
     driver_stars: formData.get("driver_stars") || undefined,
     comment: formData.get("comment") ?? undefined,
+    business_tags: formData.getAll("business_tags").map(String).filter(Boolean),
+    driver_tags: formData.getAll("driver_tags").map(String).filter(Boolean),
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Inválido" };
 
@@ -58,6 +62,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     rated_by: string;
     stars: number;
     comment: string | null;
+    tags?: string[];
   }> = [];
 
   rows.push({
@@ -68,6 +73,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     rated_by: user.id,
     stars: parsed.data.business_stars,
     comment: parsed.data.comment?.trim() || null,
+    tags: parsed.data.business_tags?.length ? parsed.data.business_tags : undefined,
   });
 
   if (parsed.data.driver_stars && order.driver_id) {
@@ -79,6 +85,7 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
       rated_by: user.id,
       stars: parsed.data.driver_stars,
       comment: null,
+      tags: parsed.data.driver_tags?.length ? parsed.data.driver_tags : undefined,
     });
   }
 

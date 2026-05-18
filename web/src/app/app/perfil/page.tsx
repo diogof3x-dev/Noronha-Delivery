@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ArrowLeft,
+  Award,
   Bell,
   ChevronRight,
   LogOut,
@@ -40,6 +41,7 @@ export default async function PerfilPage() {
   const items: { href: string; label: string; sub?: string; icon: typeof MapPin }[] = [
     { href: "/app/perfil/endereco", label: "Endereço", sub: profile?.district ?? "Definir bairro", icon: MapPin },
     { href: "/app/perfil/enderecos", label: "Meus endereços", sub: "Pousada, casa, praia favorita...", icon: MapPin },
+    { href: "/app/perfil/pontos", label: "Pontos & Status", sub: "Bronze · Prata · Ouro · Diamante", icon: Award },
     { href: "/app/notificacoes", label: "Notificações", icon: Bell },
     { href: "/app/carteira", label: "Carteira", icon: Wallet },
   ];

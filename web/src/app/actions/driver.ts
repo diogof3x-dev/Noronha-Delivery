@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { notifyOrderStatusChange } from "@/lib/email-helpers";
 import { notifyCustomerOrderStatus } from "@/lib/order-push";
+import { grantPostDeliveryRewards } from "@/lib/post-delivery-rewards";
 
 export type ClaimResult =
   | { ok: true; orderId: string; orderCode: string }

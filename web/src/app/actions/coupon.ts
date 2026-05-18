@@ -33,6 +33,7 @@ export async function validateCoupon(input: z.infer<typeof Schema>): Promise<Val
     p_code: parsed.data.code.trim(),
     p_subtotal_cents: parsed.data.subtotalCents,
     p_business_id: parsed.data.businessId,
+    p_customer_id: user?.id ?? null,
   });
   if (error) return { ok: false, error: error.message };
 
