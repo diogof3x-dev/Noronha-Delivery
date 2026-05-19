@@ -12,7 +12,11 @@ export const dynamic = "force-dynamic";
 
 function verifyMpSignature(req: Request, paymentId: string): boolean {
   const secret = process.env.MP_WEBHOOK_SECRET;
-  if (!secret) return true; // sem secret, deixa passar (dev)
+  if (!secret) {
+    // Fail-closed em prod/preview: secret é obrigatório. Em dev (npm run dev
+    // sem env), aceita pra não travar testes locais com tunnels.
+    return process.env.NODE_ENV === "development";
+  }
 
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
