@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getAdminClient } from "@/lib/supabase/admin-client";
 import { captureError, captureMessage } from "@/lib/observability";
@@ -86,6 +87,8 @@ export async function reportCustomerProblem(
       },
     );
 
+    revalidatePath(`/app/pedidos/${order.id}`);
+    revalidatePath("/app/pedidos");
     return { ok: true };
   } catch (e) {
     captureError(e, {

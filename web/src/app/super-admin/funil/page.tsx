@@ -68,8 +68,8 @@ export default async function FunilPage() {
 
       <section className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
         <p>
-          <strong>Como ler:</strong> a coluna "Aprovados" é a contagem de profiles
-          com role <code>business_owner</code> (passaram pela aprovação manual). "Loja ativa" é
+          <strong>Como ler:</strong> a coluna &quot;Aprovados&quot; é a contagem de profiles
+          com role <code>business_owner</code> (passaram pela aprovação manual). &quot;Loja ativa&quot; é
           quem completou cadastro e tem businesses.is_active=true. Quanto maior a queda entre
           colunas, maior o atrito naquela etapa.
         </p>
