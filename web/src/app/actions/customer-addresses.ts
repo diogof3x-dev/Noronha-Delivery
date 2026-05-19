@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
 import { geocodeAddress } from "@/lib/geocoding";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const KINDS = ["pousada", "praia", "barco", "casa", "outro"] as const;
 
@@ -37,6 +38,12 @@ export async function saveCustomerAddress(formData: FormData): Promise<AddressRe
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sessão expirada" };
+
+  const rl = await consumeRateLimit(rateLimitKey("saveAddress", user.id), {
+    limit: 10,
+    windowSeconds: 600,
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   const geo = await geocodeAddress(parsed.data.address);
 

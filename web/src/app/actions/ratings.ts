@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const Schema = z.object({
   order_id: z.string().uuid(),
@@ -33,6 +34,13 @@ export async function rateOrder(_prev: RatingState, formData: FormData): Promise
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Faça login" };
+
+  const rl = await consumeRateLimit(rateLimitKey("rateOrder", user.id), {
+    limit: 5,
+    windowSeconds: 600,
+    errorMessage: "Muitas avaliações em pouco tempo. Aguarde.",
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   const { data: order } = await supabase
     .from("orders")

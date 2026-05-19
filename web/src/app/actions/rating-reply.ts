@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const ReplySchema = z.object({
   rating_id: z.string().uuid(),
@@ -21,6 +22,12 @@ export async function replyToRating(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false as const, error: "Sessão expirada" };
+
+  const rl = await consumeRateLimit(rateLimitKey("replyRating", user.id), {
+    limit: 10,
+    windowSeconds: 60,
+  });
+  if (!rl.ok) return { ok: false as const, error: rl.error };
 
   // valida que a rating pertence a uma loja do user
   const { data: rating } = await supabase

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getServerClient } from "@/lib/supabase/server-client";
+import { consumeRateLimit, rateLimitKey } from "@/lib/rate-limit";
 
 const Schema = z.object({
   kind: z.enum(["business", "service"]),
@@ -31,6 +32,12 @@ export async function toggleFavorite(input: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Faça login pra favoritar" };
+
+  const rl = await consumeRateLimit(rateLimitKey("toggleFavorite", user.id), {
+    limit: 30,
+    windowSeconds: 60,
+  });
+  if (!rl.ok) return { ok: false, error: rl.error };
 
   // checa se já existe
   let q = supabase
