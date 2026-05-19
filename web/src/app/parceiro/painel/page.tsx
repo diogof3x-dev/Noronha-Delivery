@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  ArrowUpRight,
   BadgeCheck,
   Banknote,
   Check,
@@ -21,6 +20,7 @@ import { ShareLinkPanel } from "./share-link";
 import { HealthRing } from "@/components/parceiro/health-ring";
 import { SalesChart } from "@/components/parceiro/sales-chart";
 import { HourlyChart } from "@/components/parceiro/hourly-chart";
+import { KpiCard, SummaryCard } from "@/components/dashboard/cards";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -268,17 +268,17 @@ export default async function ParceiroPainelHome() {
       )}
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Kpi
-          title="Hoje"
+        <KpiCard
+          label="Hoje"
           value={String(pedidosHoje ?? 0)}
           sub={`pedido${(pedidosHoje ?? 0) === 1 ? "" : "s"}`}
           icon={ListChecks}
         />
-        <Kpi title="Vendas 7d" value={formatCents(receita7d)} sub={`líquido ${formatCents(liquido7d)}`} icon={TrendingUp} />
-        <Kpi title="Ticket médio" value={formatCents(ticketMedio7d)} sub="últimos 7d" icon={Wallet} />
-        <Kpi title="Aceite 30d" value={`${acceptRate.toFixed(0)}%`} sub={`${cancelled30d ?? 0} cancelados`} icon={Check} />
-        <Kpi
-          title="Avaliação"
+        <KpiCard label="Vendas 7d" value={formatCents(receita7d)} sub={`líquido ${formatCents(liquido7d)}`} icon={TrendingUp} />
+        <KpiCard label="Ticket médio" value={formatCents(ticketMedio7d)} sub="últimos 7d" icon={Wallet} />
+        <KpiCard label="Aceite 30d" value={`${acceptRate.toFixed(0)}%`} sub={`${cancelled30d ?? 0} cancelados`} icon={Check} />
+        <KpiCard
+          label="Avaliação"
           value={scoreRow?.avg_stars ? Number(scoreRow.avg_stars).toFixed(1) : "—"}
           sub={
             scoreRow?.total_reviews
@@ -381,21 +381,21 @@ export default async function ParceiroPainelHome() {
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <SummaryCard
-          title="Carteira"
+          label="Carteira"
           value={formatCents(saldoCarteira)}
           sub="saldo pra saque"
           href="/parceiro/painel/vendas"
           icon={Wallet}
         />
         <SummaryCard
-          title="A liberar (D+8)"
+          label="A liberar (D+8)"
           value={formatCents(pendingBalance)}
           sub="pedidos D+1 a D+7"
           href="/parceiro/painel/vendas"
           icon={Clock}
         />
         <SummaryCard
-          title="Pedidos 30d"
+          label="Pedidos 30d"
           value={String(total30d ?? 0)}
           sub={`${cancelled30d ?? 0} cancelados`}
           href="/parceiro/painel/pedidos"
@@ -445,56 +445,3 @@ export default async function ParceiroPainelHome() {
   );
 }
 
-function Kpi({
-  title,
-  value,
-  sub,
-  icon: Icon,
-}: {
-  title: string;
-  value: string;
-  sub: string;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-3">
-      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="font-semibold uppercase tracking-[0.18em]">{title}</span>
-        <Icon className="h-3.5 w-3.5" />
-      </div>
-      <p className="mt-1 text-xl font-bold tracking-tight">{value}</p>
-      <p className="text-[10px] text-muted-foreground">{sub}</p>
-    </div>
-  );
-}
-
-function SummaryCard({
-  title,
-  value,
-  sub,
-  href,
-  icon: Icon,
-}: {
-  title: string;
-  value: string;
-  sub: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/40"
-    >
-      <div>
-        <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{title}</p>
-        <p className="mt-1 text-lg font-bold">{value}</p>
-        <p className="text-[11px] text-muted-foreground">{sub}</p>
-      </div>
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="h-4 w-4" />
-      </span>
-      <ArrowUpRight className="hidden h-3 w-3 group-hover:block" />
-    </Link>
-  );
-}

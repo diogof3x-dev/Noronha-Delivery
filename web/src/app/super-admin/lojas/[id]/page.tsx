@@ -6,6 +6,7 @@ import { getProfile } from "@/lib/profile";
 import { getAdminClient } from "@/lib/supabase/admin-client";
 import { Button } from "@/components/ui/button";
 import { formatCents } from "@/lib/format";
+import { Stat } from "@/components/dashboard/cards";
 import { SuspendForm } from "./suspend-form";
 import { TakeRateForm } from "./take-rate-form";
 import { unsuspendBusiness } from "@/app/actions/admin-ops";
@@ -165,11 +166,3 @@ export default async function LojaDetailPage({ params }: Props) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-bold">{value}</p>
-    </div>
-  );
-}

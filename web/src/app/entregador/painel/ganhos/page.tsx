@@ -5,6 +5,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { getAdminClient } from "@/lib/supabase/admin-client";
 import { formatCents } from "@/lib/format";
 import { SalesChart } from "@/components/parceiro/sales-chart";
+import { KpiCard, Stat } from "@/components/dashboard/cards";
 import { DriverWithdrawalForm } from "./withdrawal-form";
 
 export const dynamic = "force-dynamic";
@@ -146,21 +147,21 @@ export default async function EntregadorGanhos() {
 
       <section className="grid gap-3 md:grid-cols-3">
         <KpiCard
-          title="Saldo disponível"
+          label="Saldo disponível"
           value={formatCents(balance)}
           sub="pronto pra saque PIX"
           icon={Banknote}
           tone="turtle"
         />
         <KpiCard
-          title="A liberar"
+          label="A liberar"
           value={formatCents(pendingBalance)}
           sub="entregas dos últimos 8 dias"
           icon={Clock}
           tone="sun"
         />
         <KpiCard
-          title="Ganho 30d"
+          label="Ganho 30d"
           value={formatCents(monthEarnings)}
           sub={`${monthCount} entrega${monthCount === 1 ? "" : "s"} · média ${formatCents(avgPerDelivery)}`}
           icon={TrendingUp}
@@ -322,43 +323,3 @@ export default async function EntregadorGanhos() {
   );
 }
 
-function KpiCard({
-  title,
-  value,
-  sub,
-  icon: Icon,
-  tone,
-}: {
-  title: string;
-  value: string;
-  sub: string;
-  icon: React.ComponentType<{ className?: string }>;
-  tone: "primary" | "turtle" | "sun";
-}) {
-  const toneClass = {
-    primary: "border-primary/30 bg-primary/5 text-primary",
-    turtle:
-      "border-[color:var(--turtle)]/30 bg-[color:var(--turtle)]/5 text-[color:var(--turtle)]",
-    sun: "border-[color:var(--sun)]/30 bg-[color:var(--sun)]/5 text-[color:var(--sun)]",
-  }[tone];
-  return (
-    <div className={`rounded-2xl border p-4 ${toneClass}`}>
-      <div className="flex items-center justify-between text-[10px]">
-        <span className="font-semibold uppercase tracking-[0.18em]">{title}</span>
-        <Icon className="h-3.5 w-3.5" />
-      </div>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      <p className="text-[11px] text-muted-foreground">{sub}</p>
-    </div>
-  );
-}
-
-function Stat({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-lg font-bold">{value}</p>
-      <p className="text-[10px] text-muted-foreground">{sub}</p>
-    </div>
-  );
-}

@@ -5,6 +5,7 @@ import { getServerClient } from "@/lib/supabase/server-client";
 import { getProfile } from "@/lib/profile";
 import { getAdminClient } from "@/lib/supabase/admin-client";
 import { formatCents } from "@/lib/format";
+import { KpiTile, Stat } from "@/components/dashboard/cards";
 
 export const dynamic = "force-dynamic";
 
@@ -100,25 +101,25 @@ export default async function OperacaoPage() {
       </header>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard
+        <KpiTile
           icon={Clock}
           label="Tempo médio entrega"
           value={`${avgMinutes} min`}
           tone={avgMinutes > SLA_TARGET_MINUTES ? "destructive" : "turtle"}
         />
-        <KpiCard
+        <KpiTile
           icon={Zap}
           label={`% no prazo (≤${SLA_TARGET_MINUTES}min)`}
           value={`${onTimeRate.toFixed(0)}%`}
           tone={onTimeRate < 70 ? "destructive" : "turtle"}
         />
-        <KpiCard
+        <KpiTile
           icon={Bike}
           label="Motoboys online agora"
           value={String(activeDrivers?.length ?? 0)}
           tone="primary"
         />
-        <KpiCard
+        <KpiTile
           icon={XCircle}
           label="Taxa cancelamento (30d)"
           value={`${cancelRate.toFixed(1)}%`}
@@ -188,37 +189,3 @@ export default async function OperacaoPage() {
   );
 }
 
-function KpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  tone: "primary" | "turtle" | "destructive" | "muted";
-}) {
-  const toneClass = {
-    primary: "border-primary/30 bg-primary/5 text-primary",
-    turtle: "border-[color:var(--turtle)]/30 bg-[color:var(--turtle)]/5 text-[color:var(--turtle)]",
-    destructive: "border-destructive/30 bg-destructive/5 text-destructive",
-    muted: "border-border bg-muted/30 text-muted-foreground",
-  }[tone];
-  return (
-    <div className={`rounded-2xl border p-4 ${toneClass}`}>
-      <Icon className="mb-2 h-4 w-4" />
-      <p className="text-[10px] uppercase tracking-[0.18em] opacity-80">{label}</p>
-      <p className="mt-1 text-xl font-bold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-bold">{value}</p>
-    </div>
-  );
-}

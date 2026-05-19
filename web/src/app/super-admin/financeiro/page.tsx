@@ -7,6 +7,7 @@ import { getAdminClient } from "@/lib/supabase/admin-client";
 import { formatCents } from "@/lib/format";
 import { TimeSeriesChart } from "./time-series-chart";
 import { PaymentSplitChart } from "./payment-split-chart";
+import { KpiTile, Stat } from "@/components/dashboard/cards";
 
 export const dynamic = "force-dynamic";
 
@@ -135,25 +136,25 @@ export default async function FinanceiroPage({
       </header>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard
+        <KpiTile
           icon={DollarSign}
           label={`GMV (${range})`}
           value={formatCents(totalGmv)}
           tone="primary"
         />
-        <KpiCard
+        <KpiTile
           icon={Wallet}
           label={`Receita plataforma (${range})`}
           value={formatCents(totalFee)}
           tone="turtle"
         />
-        <KpiCard
+        <KpiTile
           icon={ShoppingBag}
           label={`Pedidos pagos (${range})`}
           value={totalOrders.toLocaleString("pt-BR")}
           tone="sun"
         />
-        <KpiCard
+        <KpiTile
           icon={RefreshCw}
           label="Refund rate"
           value={`${refundRate.toFixed(1)}%`}
@@ -162,16 +163,16 @@ export default async function FinanceiroPage({
       </section>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <SmallStat label="Ticket médio" value={formatCents(avgTicket)} />
-        <SmallStat
+        <Stat label="Ticket médio" value={formatCents(avgTicket)} />
+        <Stat
           label="Take rate efetivo"
           value={totalGmv > 0 ? `${((totalFee / totalGmv) * 100).toFixed(2)}%` : "—"}
         />
-        <SmallStat
+        <Stat
           label="Cancelados"
           value={totalCancelled.toLocaleString("pt-BR")}
         />
-        <SmallStat
+        <Stat
           label="Pix vs Cartão (período)"
           value={
             paymentWeeks.length
@@ -278,41 +279,6 @@ export default async function FinanceiroPage({
   );
 }
 
-function KpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-  tone: "primary" | "turtle" | "sun" | "destructive" | "muted";
-}) {
-  const toneClass = {
-    primary: "border-primary/30 bg-primary/5 text-primary",
-    turtle: "border-[color:var(--turtle)]/30 bg-[color:var(--turtle)]/5 text-[color:var(--turtle)]",
-    sun: "border-[color:var(--sun)]/30 bg-[color:var(--sun)]/5 text-[color:var(--sun)]",
-    destructive: "border-destructive/30 bg-destructive/5 text-destructive",
-    muted: "border-border bg-muted/30 text-muted-foreground",
-  }[tone];
-  return (
-    <div className={`rounded-2xl border p-4 ${toneClass}`}>
-      <Icon className="mb-2 h-4 w-4" />
-      <p className="text-[10px] uppercase tracking-[0.18em] opacity-80">{label}</p>
-      <p className="mt-1 text-xl font-bold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function SmallStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-bold">{value}</p>
-    </div>
-  );
-}
 
 function pixShare(rows: { pix_count: number; card_count: number }[]): string {
   const pix = rows.reduce((acc, r) => acc + Number(r.pix_count), 0);

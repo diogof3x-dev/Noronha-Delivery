@@ -8,6 +8,7 @@ import { SalesChart } from "@/components/parceiro/sales-chart";
 import { HourlyChart } from "@/components/parceiro/hourly-chart";
 import { HeatmapDowHour } from "@/components/parceiro/heatmap-dow-hour";
 import { PaymentSplitChart } from "@/app/super-admin/financeiro/payment-split-chart";
+import { Stat } from "@/components/dashboard/cards";
 
 export const dynamic = "force-dynamic";
 
@@ -282,11 +283,3 @@ export default async function PainelAnalytics({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-bold">{value}</p>
-    </div>
-  );
-}

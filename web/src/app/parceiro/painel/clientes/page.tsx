@@ -12,6 +12,7 @@ import {
 import { getServerClient } from "@/lib/supabase/server-client";
 import { getAdminClient } from "@/lib/supabase/admin-client";
 import { formatCents } from "@/lib/format";
+import { Stat } from "@/components/dashboard/cards";
 import { PushCampaignForm } from "./push-campaign-form";
 
 export const dynamic = "force-dynamic";
@@ -384,22 +385,3 @@ export default async function PainelClientes() {
   );
 }
 
-function Stat({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-3">
-      <div className="mb-1 flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="font-semibold uppercase tracking-[0.18em]">{label}</span>
-        <Icon className="h-3 w-3" />
-      </div>
-      <p className="text-lg font-bold">{value}</p>
-    </div>
-  );
-}
