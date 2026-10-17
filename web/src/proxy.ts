@@ -27,8 +27,8 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 font-family:system-ui,-apple-system,sans-serif;background:#0b4f6c;color:#fff;text-align:center;padding:16px}
 h1{font-size:1.6rem;margin:0 0 .5rem}p{opacity:.85;margin:0;line-height:1.5}
 </style></head>
-<body><main><h1>Voltamos em breve</h1>
-<p>O Noronha Delivery está em manutenção.<br>Obrigado pela paciência!</p></main></body></html>`;
+<body><main><h1>Em breve</h1>
+<p>Noronha Delivery — aqui você tem Tudo.</p></main></body></html>`;
 
 export async function proxy(request: NextRequest) {
   if (MAINTENANCE) {
